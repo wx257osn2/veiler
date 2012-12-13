@@ -9,18 +9,19 @@
 /////////               Clang(clang++) version 3.1 (trunk)                        /////////
 /////////     Version : 1.2                                                       /////////
 /////////      Status : Deprecated                                                /////////
-/////////        List : VEILER_VAR_FUNC(arg0,...)                                 /////////
-/////////               VEILER_VAR_FUNC_USE_TAG(tag,arg0,...)                     /////////
-/////////               VEILER_VAR_IMPL(T,argstype,impl)                          /////////
-/////////               VEILER_VAR_IMPL_USE_TAG(T,tag,argstype,impl)              /////////
-/////////               VEILER_VAR_IMPL_UNCONST(T,argstype,impl)                  /////////
+/////////        List : VEILER_VAR_FUNC(arg0,...) (macro)                         /////////
+/////////               VEILER_VAR_FUNC_USE_TAG(tag,arg0,...) (macro)             /////////
+/////////               VEILER_VAR_IMPL(T,argstype,impl) (macro)                  /////////
+/////////               VEILER_VAR_IMPL_USE_TAG(T,tag,argstype,impl) (macro)      /////////
+/////////               VEILER_VAR_IMPL_UNCONST(T,argstype,impl) (macro)          /////////
 /////////               VEILER_VAR_IMPL_USE_TAG_UNCONST(T,tag,argstype,impl)      /////////
-/////////               VEILER_VAR_DET_IMPL_START(T,tag)                          /////////
-/////////               VEILER_VAR_DET_IMPL_CTOR(...)                             /////////
-/////////               VEILER_VAR_DET_IMPL_CTOR_UNCONST(...)                     /////////
-/////////               VEILER_VAR_DET_IMPL_IMPL(Type)                            /////////
-/////////               VEILER_VAR_DET_IMPL_IMPL_UNCONST(Type)                    /////////
-/////////               VEILER_VAR_DET_IMPL_END(...)                              /////////
+/////////                                                                (macro)  /////////
+/////////               VEILER_VAR_DET_IMPL_START(T,tag) (macro)                  /////////
+/////////               VEILER_VAR_DET_IMPL_CTOR(...) (macro)                     /////////
+/////////               VEILER_VAR_DET_IMPL_CTOR_UNCONST(...) (macro)             /////////
+/////////               VEILER_VAR_DET_IMPL_IMPL(Type) (macro)                    /////////
+/////////               VEILER_VAR_DET_IMPL_IMPL_UNCONST(Type) (macro)            /////////
+/////////               VEILER_VAR_DET_IMPL_END(...) (macro)                      /////////
 /////////      Author : I                                                         /////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 

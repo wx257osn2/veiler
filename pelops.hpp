@@ -7,14 +7,14 @@
 /////////     Version : 1.3                                                       /////////
 /////////      Status : Untested                                                  /////////
 /////////        List : <Pelops/Dibella>                                          /////////
-/////////                      VEILER_PELOPS_DIBELLA(...)                         /////////
+/////////                      VEILER_PELOPS_DIBELLA(...) (macro)                 /////////
 /////////               <Pelops/Lupe>                                             /////////
-/////////                      VEILER_PELOPS_LUPE(macro,args)                     /////////
+/////////                      VEILER_PELOPS_LUPE(macro,args) (macro)             /////////
 /////////                      <Pelops/Lupe/LupeGem>                              /////////
-/////////                             VEILER_PELOPS_LUPEGEM_USING(args)           /////////
+/////////                             VEILER_PELOPS_LUPEGEM_USING(args) (macro)   /////////
 /////////               <Pelops/Ullr>                                             /////////
-/////////                      VEILER_PELOPS_ULLR_COMMA                           /////////
-/////////                      VEILER_PELOPS_ULLR_CAT(a,b)                        /////////
+/////////                      VEILER_PELOPS_ULLR_COMMA (macro)                   /////////
+/////////                      VEILER_PELOPS_ULLR_CAT(a,b) (macro)                /////////
 /////////      Author : I                                                         /////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 

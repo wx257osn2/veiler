@@ -7,7 +7,7 @@
 /////////               Clang(clang++) version 3.2 (trunk)                        /////////
 /////////     Version : 1.0                                                       /////////
 /////////      Status : Untested                                                  /////////
-/////////        List : veiler::refil<T>(template class)                          /////////
+/////////        List : veiler::refil<T> (template class)                         /////////
 /////////      Author : I                                                         /////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 

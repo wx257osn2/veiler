@@ -10,12 +10,12 @@
 /////////     Version : 1.1                                                       /////////
 /////////      Status : Untested                                                  /////////
 /////////        List : <Ullr/Eridian>                                            /////////
-/////////                      veiler::ullr::endian(enum class)                   /////////
+/////////                      veiler::ullr::endian (enum class)                  /////////
 /////////                             veiler::ullr::endian::big                   /////////
 /////////                             veiler::ullr::endian::little                /////////
-/////////                      veiler::ullr::eridian(Functor)                     /////////
+/////////                      veiler::ullr::eridian() (Functor)                  /////////
 /////////               <Ullr/Areion>                                             /////////
-/////////                      veiler::ullr::areion(Function)                     /////////
+/////////                      veiler::ullr::areion<T>(...) (template Function)   /////////
 /////////      Author : I                                                         /////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -49,8 +49,10 @@
         使うにはveiler/ullr/areion.hppをインクルードします。
 
 3. Development Environment -- 開発環境
-    Terapad 1.0.8 + GCC(g++)version 4.8.0 20120923 (experimental)
-                    Clang(clang++)version 3.2 (trunk)
+    Vim v7.3 / TeraPad v1.08
+     +
+    GCC(g++)version 4.8.0 20120429 (experimental)
+    Clang(clang++)version 3.2
     Microsoft Visual Studio 2010 Professional(10.0.30319.1)
 
 4. License and Exemption from responsibility -- ライセンスと免責

@@ -10,21 +10,21 @@
 /////////     Version : 1.0                                                       /////////
 /////////      Status : Untested                                                  /////////
 /////////        List : <Forseti/Olympus>                                         /////////
-/////////                      veiler::forseti::r(std::ios::openmode)             /////////
-/////////                      veiler::forseti::w(std::ios::openmode)             /////////
-/////////                      veiler::forseti::a(std::ios::openmode)             /////////
-/////////                      veiler::forseti::rb(std::ios::openmode)            /////////
-/////////                      veiler::forseti::wb(std::ios::openmode)            /////////
-/////////                      veiler::forseti::ab(std::ios::openmode)            /////////
-/////////                      veiler::forseti::rp(std::ios::openmode)            /////////
-/////////                      veiler::forseti::wp(std::ios::openmode)            /////////
-/////////                      veiler::forseti::ap(std::ios::openmode)            /////////
-/////////                      veiler::forseti::rpb(std::ios::openmode)           /////////
-/////////                      veiler::forseti::wpb(std::ios::openmode)           /////////
-/////////                      veiler::forseti::apb(std::ios::openmode)           /////////
-/////////                      veiler::forseti::rbp(std::ios::openmode)           /////////
-/////////                      veiler::forseti::wbp(std::ios::openmode)           /////////
-/////////                      veiler::forseti::abp(std::ios::openmode)           /////////
+/////////                      veiler::forseti::r (std::ios::openmode)            /////////
+/////////                      veiler::forseti::w (std::ios::openmode)            /////////
+/////////                      veiler::forseti::a (std::ios::openmode)            /////////
+/////////                      veiler::forseti::rb (std::ios::openmode)           /////////
+/////////                      veiler::forseti::wb (std::ios::openmode)           /////////
+/////////                      veiler::forseti::ab (std::ios::openmode)           /////////
+/////////                      veiler::forseti::rp (std::ios::openmode)           /////////
+/////////                      veiler::forseti::wp (std::ios::openmode)           /////////
+/////////                      veiler::forseti::ap (std::ios::openmode)           /////////
+/////////                      veiler::forseti::rpb (std::ios::openmode)          /////////
+/////////                      veiler::forseti::wpb (std::ios::openmode)          /////////
+/////////                      veiler::forseti::apb (std::ios::openmode)          /////////
+/////////                      veiler::forseti::rbp (std::ios::openmode)          /////////
+/////////                      veiler::forseti::wbp (std::ios::openmode)          /////////
+/////////                      veiler::forseti::abp (std::ios::openmode)          /////////
 /////////      Author : I                                                         /////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 
