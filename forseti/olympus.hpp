@@ -7,29 +7,42 @@ namespace veiler{
 
 namespace forseti{
 
-#define _IOS(A) std::ios::A
-#define _OM _IOS(openmode)
-#define _OMC static_cast<_OM>
-#define _OMT static const _OM
-_OMT  r   = _OMC(_IOS(in)                                               );
-_OMT  w   = _OMC(_IOS(out)                                              );
-_OMT  a   = _OMC(_IOS(out) | _IOS(app)                                  );
-_OMT  rb  = _OMC(_IOS(in)  | _IOS(binary)                               );
-_OMT  wb  = _OMC(_IOS(out) | _IOS(binary)                               );
-_OMT  ab  = _OMC(_IOS(out) | _IOS(binary) | _IOS(app)                   );
-_OMT  rp  = _OMC(_IOS(in)  | _IOS(out)                                  );
-_OMT  wp  = _OMC(_IOS(in)  | _IOS(out)    | _IOS(trunc)                 );
-_OMT  ap  = _OMC(_IOS(in)  | _IOS(out)    | _IOS(app)                   );
-_OMT  rpb = _OMC(_IOS(in)  | _IOS(out)    | _IOS(binary)                );
-_OMT  wpb = _OMC(_IOS(in)  | _IOS(out)    | _IOS(trunc)  | _IOS(binary) );
-_OMT  apb = _OMC(_IOS(in)  | _IOS(out)    | _IOS(app)    | _IOS(binary) );
-_OMT& rbp = rpb                                                          ;
-_OMT& wbp = wpb                                                          ;
-_OMT& abp = apb                                                          ;
-#undef _OMT
-#undef _OMC
-#undef _OM
-#undef _IOS
+namespace olympus{
+
+namespace detail{
+
+struct openmode{
+  friend constexpr openmode operator+(const openmode lhs,const openmode rhs){
+    return lhs | rhs | openmode{std::ios::in | std::ios::out};
+  }
+  friend constexpr openmode operator|(const openmode lhs,const openmode rhs){
+    return openmode{lhs.value | rhs.value};
+  }
+  constexpr operator std::ios::openmode(){return value;}
+  std::ios::openmode value;
+};
+constexpr openmode 
+  r ={ std::ios::in                                                               },
+  w ={              std::ios::out | std::ios::trunc                               },
+  a ={              std::ios::out |                 std::ios::app                 },
+  b ={                                                            std::ios::binary},
+  _ ={                                                                            },
+
+  rb= r | b ,
+  wb= w | b ,
+  ab= a | b ;
+
+}//End : namespace detail
+
+#define VEILER_PELOPS_LUPEGEM_USING_HEADER detail:
+#include "../pelops/lupegem/using.hpp"
+
+VEILER_PELOPS_LUPEGEM_USING((:openmode)(:r)(:w)(:a)(:b)(:_)(:rb)(:wb)(:ab))
+
+#include "../pelops/lupegem/undef_using.hpp"
+
+
+}//End : namespace olympus
 
 }//End : namespace forseti
 

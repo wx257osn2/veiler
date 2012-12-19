@@ -7,24 +7,18 @@
 /////////               Microsoft C/C++ Optimizing Compiler(cl)                   /////////
 /////////                                                 Version 16.00.40219.01  /////////
 /////////               Clang(clang++) version 3.2 (trunk)                        /////////
-/////////     Version : 1.0                                                       /////////
+/////////     Version : 1.1                                                       /////////
 /////////      Status : Untested                                                  /////////
 /////////        List : <Forseti/Olympus>                                         /////////
-/////////                      veiler::forseti::r (std::ios::openmode)            /////////
-/////////                      veiler::forseti::w (std::ios::openmode)            /////////
-/////////                      veiler::forseti::a (std::ios::openmode)            /////////
-/////////                      veiler::forseti::rb (std::ios::openmode)           /////////
-/////////                      veiler::forseti::wb (std::ios::openmode)           /////////
-/////////                      veiler::forseti::ab (std::ios::openmode)           /////////
-/////////                      veiler::forseti::rp (std::ios::openmode)           /////////
-/////////                      veiler::forseti::wp (std::ios::openmode)           /////////
-/////////                      veiler::forseti::ap (std::ios::openmode)           /////////
-/////////                      veiler::forseti::rpb (std::ios::openmode)          /////////
-/////////                      veiler::forseti::wpb (std::ios::openmode)          /////////
-/////////                      veiler::forseti::apb (std::ios::openmode)          /////////
-/////////                      veiler::forseti::rbp (std::ios::openmode)          /////////
-/////////                      veiler::forseti::wbp (std::ios::openmode)          /////////
-/////////                      veiler::forseti::abp (std::ios::openmode)          /////////
+/////////                      veiler::forseti::olympus (constexpr class)         /////////
+/////////                             veiler::forseti::olympus::r                 /////////
+/////////                             veiler::forseti::olympus::w                 /////////
+/////////                             veiler::forseti::olympus::a                 /////////
+/////////                             veiler::forseti::olympus::b                 /////////
+/////////                             veiler::forseti::olympus::_                 /////////
+/////////                             veiler::forseti::olympus::rb                /////////
+/////////                             veiler::forseti::olympus::wb                /////////
+/////////                             veiler::forseti::olympus::ab                /////////
 /////////      Author : I                                                         /////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -39,8 +33,9 @@
     
     
     A. Olympus  -  Openmode
-        veiler::forseti::*はC言語のfopenの第二引数に渡す文字列に対応します。
-        例えば、rはin、abならout|app|binary、wpbはw+b、即ちin|out|trunc|binaryなどです。
+        veiler::forseti::olympus::*はC言語のfopenの第二引数に渡す文字列に対応します。
+        例えば、rはin、abならout|app|binary、w+bはin|out|trunc|binaryなどです。
+        w+やwb+といった最後に+が来るものに関しては、+の後に_を付加してください。
         
         使うにはveiler/ullr/forseti/olympus.hppをインクルードします。
 
@@ -55,6 +50,13 @@
     各社の登録商標または商標です。
 
 5. 更新情報
+    2012/12/19  1.1 Olympus : よりそれっぽく。名前空間olympusへ移管。
+                              Olympus 1.0はforseti/olympus.1.0にリネーム、
+                              インクルードガードを変更。
+                              使用する場合は
+                              _VEILER_FORSETI_OLYMPUS_1_0_INCLUDE
+                              を定義してからインクルードしてください。
+    
     2012/10/2   1.0 Olympus : ICL(I C++ Library : 以前作った非公開のライブラリ)
                               からクロール。名称を変更。微修正。公開。
 
