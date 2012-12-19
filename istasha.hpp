@@ -5,12 +5,11 @@
 /////////    Language : C++11                                                     /////////
 /////////    Compiler : GCC(g++) version 4.8.0 20120923 (experimental)            /////////
 /////////               Clang(clang++) version 3.2 (trunk)                        /////////
-/////////     Version : 1.0                                                       /////////
+/////////     Version : 1.2                                                       /////////
 /////////      Status : Untested                                                  /////////
-/////////        List : VEILER_ISTASHA_CREATE(class_name,derived_name,...)        /////////
-/////////                                                                (macro)  /////////
-/////////               VEILER_ISTASHA_DEFAULT_CONSTRUCTOR(class_name,            /////////
-/////////                                                  derived_name) (macro)  /////////
+/////////        List : VEILER_ISTASHA_CREATE(class_name                          /////////
+/////////                                    ,basetype_name                       /////////
+/////////                                    ,derived_name,...) (macro)           /////////
 /////////               veiler::istasha<T> (template class)                       /////////
 /////////      Author : I                                                         /////////
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -32,28 +31,20 @@
         a. veiler::istasha<T>
             自動で実体化したいクラスを宣言する時に、veiler::istashaを継承します。
             ex.)  struct hoge : public veiler::istasha<hoge>{ここに実装};
-        b. VEILER_ISTASHA_CREATE(class_name,derived_name,...)
+        b. VEILER_ISTASHA_CREATE(class_name,basetype_name,derived_name,...)
             CRTPを用いて宣言と同時に自動で実体化するクラスを作るための
             補助クラスを好きな名前で定義できます。
-            class_nameにはクラスの名前を、derived_nameにはクラスの内部で用いる
-            継承先のインスタンスの名前を渡してください。
+            class_nameにはクラスの名前を、basetype_nameやderived_nameには
+            クラスの内部で用いる継承先の型名とインスタンス名を渡してください。
             また、第3引数に追加の内部実装を渡すことができます。
             アクセス権限はデフォルトでprivateなので公開されるインターフェイスを
             追記したい場合は自分で public: を記入してください。
             実装を追加する必要がない場合は第3引数は空にします。
             このときも、derived_nameのあとに , は必要です。注意してください。
-            VEILER_ISTASHA_CREATEで定義したクラスはデフォルトコンストラクタを
-            自分で定義するか、後述のVEILER_ISTASHA_DEFAULT_CONSTRUCTORを用いて
-            コンストラクタを生成してください。
-            ex.)  VEILER_ISTASHA_CREATE(fuga,Derived,)
-                  template<typename T>fuga<T>::fuga(){Derived;}//Derivedを使った処理を書きます。
+            マクロの後ろに続けてコンストラクタを実装します。
+            マクロの末尾に{}を記入することでコンストラクタを定義できます。
+            ex.)  VEILER_ISTASHA_CREATE(fuga,Derived,){Derived;}//Derivedを使った処理を書きます。
                   struct hoge : public fuga<hoge>{ここに実装};
-        c. VEILER_ISTASHA_DEFAULT_CONSTRUCTOR(class_name,derived_name)
-            VEILER_ISTASHA_CREATEで定義したクラスにveiler::istashaと同じコンストラクタを定義します。
-            つまり挙動をveiler::istashaと同じ物にします。
-            ex.)  VEILER_ISTASHA_CREATE(fuga,Derived,)
-                  VEILER_ISTASHA_DEFAULT_CONSTRUCTOR(fuga,Derived)
-                  struct hoge : public fuga<hoge>{ここに実装}; //fuga<hoge> は veiler::istasha<hoge>と同じ
 
 3. Development Environment -- 開発環境
     Vim 7.3 + GCC(g++)version 4.8.0 20120923 (experimental)
@@ -66,6 +57,9 @@
     各社の登録商標または商標です。
 
 5. 更新情報
+    2012/12/19  1.2 VEILER_ISTASHA_CREATEの後ろにコンストラクタを宣言できるように変更
+                    VEILER_ISTASHA_DEFAULT_CONSTRUCTORを削除
+    
     2012/12/13  1.1 VEILER_ISTASHA_CREATEに第3引数を追加
                 1.0 作成。公開。
 
