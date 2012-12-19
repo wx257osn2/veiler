@@ -4,7 +4,7 @@
 /////////                              PreProcessor                               /////////
 /////////    Language : C++11                                                     /////////
 /////////    Compiler : GCC(g++) version 4.8.0 20120429 (experimental)            /////////
-/////////     Version : 1.3                                                       /////////
+/////////     Version : 1.4                                                       /////////
 /////////      Status : Untested                                                  /////////
 /////////        List : <Pelops/Dibella>                                          /////////
 /////////                      VEILER_PELOPS_DIBELLA(...) (macro)                 /////////
@@ -45,6 +45,8 @@
         
             a. LupeGem/Using
                 Lupeを用いた無限引数マクロの一例です。using宣言を行います。
+                VEILER_PELOPS_LUPEGEM_USING_HEADERを予め宣言しておくと全ての
+                usingの対象の前にVEILER_PELOPS_LUPEGEM_USING_HEADERが展開されます。
                 
                 使うにはveiler/pelops/lupegem/using.hppをインクルードします。
     
@@ -69,6 +71,9 @@
     各社の登録商標または商標です。
 
 5. 更新情報
+    2012/12/19  1.4 Using(Lupegem)に
+                    VEILER_PELOPS_LUPEGEM_USING_HEADERを追加
+    
     2012/9/23   1.3 typeの名称を変更(type -> Dibella)
                     Lupeを追加
                     Ullrを追加
