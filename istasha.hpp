@@ -43,7 +43,7 @@
             このときも、derived_nameのあとに , は必要です。注意してください。
             マクロの後ろに続けてコンストラクタを実装します。
             マクロの末尾に{}を記入することでコンストラクタを定義できます。
-            ex.)  VEILER_ISTASHA_CREATE(fuga,Derived,){Derived;}//Derivedを使った処理を書きます。
+            ex.)  VEILER_ISTASHA_CREATE(fuga,T,Derived,){Derived;}//Derivedを使った処理を書きます。
                   struct hoge : public fuga<hoge>{ここに実装};
 
 3. Development Environment -- 開発環境
