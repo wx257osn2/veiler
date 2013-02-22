@@ -15,7 +15,7 @@ private:\
 template<typename basetype_name>basetype_name class_name<basetype_name>::derived_name;\
 template<typename basetype_name>class_name<basetype_name>::class_name()
 
-VEILER_ISTASHA_CREATE(istasha,T,_veiler_istasha_derived_,){static_cast<istasha<T>>(_veiler_istasha_derived_)._veiler_istasha_dummy_func_();}
+VEILER_ISTASHA_CREATE(istasha,T,_veiler_istasha_derived_){static_cast<istasha<T>>(_veiler_istasha_derived_)._veiler_istasha_dummy_func_();}
 
 }//End : namespace veiler
 
