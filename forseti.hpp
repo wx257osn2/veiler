@@ -1,26 +1,28 @@
 /*
-///////////////////////////////////////////////////////////////////////////////////////////
-/////////                                Forseti                                  /////////
-/////////                                fstream                                  /////////
-/////////    Language : C++11                                                     /////////
-/////////    Compiler : GCC(g++) version 4.8.0 20120923 (experimental)            /////////
-/////////               Microsoft C/C++ Optimizing Compiler(cl)                   /////////
-/////////                                                 Version 16.00.40219.01  /////////
-/////////               Clang(clang++) version 3.2 (trunk)                        /////////
-/////////     Version : 1.1                                                       /////////
-/////////      Status : Untested                                                  /////////
-/////////        List : <Forseti/Olympus>                                         /////////
-/////////                      veiler::forseti::olympus (constexpr class)         /////////
-/////////                             veiler::forseti::olympus::r                 /////////
-/////////                             veiler::forseti::olympus::w                 /////////
-/////////                             veiler::forseti::olympus::a                 /////////
-/////////                             veiler::forseti::olympus::b                 /////////
-/////////                             veiler::forseti::olympus::_                 /////////
-/////////                             veiler::forseti::olympus::rb                /////////
-/////////                             veiler::forseti::olympus::wb                /////////
-/////////                             veiler::forseti::olympus::ab                /////////
-/////////      Author : I                                                         /////////
-///////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+/////////                                  Forseti                                   /////////
+/////////                                  fstream                                   /////////
+/////////    Language : C++11                                                        /////////
+/////////    Compiler : GCC(g++) version 4.8.0 20120923 (experimental)               /////////
+/////////               Microsoft C/C++ Optimizing Compiler(cl)                      /////////
+/////////                                                    Version 16.00.40219.01  /////////
+/////////               Clang(clang++) version 3.2 (trunk)                           /////////
+/////////     Version : 1.1                                                          /////////
+/////////      Status : Untested                                                     /////////
+/////////        List : <Forseti/Olympus>                                            /////////
+/////////                      veiler::forseti::olympus (namespace)                  /////////
+/////////                             veiler::forseti::olympus::r  (constexpr value) /////////
+/////////                             veiler::forseti::olympus::w  (constexpr value) /////////
+/////////                             veiler::forseti::olympus::a  (constexpr value) /////////
+/////////                             veiler::forseti::olympus::b  (constexpr value) /////////
+/////////                             veiler::forseti::olympus::_  (constexpr value) /////////
+/////////                             veiler::forseti::olympus::rb (constexpr value) /////////
+/////////                             veiler::forseti::olympus::wb (constexpr value) /////////
+/////////                             veiler::forseti::olympus::ab (constexpr value) /////////
+/////////                             veiler::forseti::olympus::olympus              /////////
+/////////                                                       (constexpr function) /////////
+/////////      Author : I                                                            /////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 1. What's this library? -- このライブラリについて
     このライブラリ群はfstreamの拡張ライブラリです。
@@ -36,6 +38,8 @@
         veiler::forseti::olympus::*はC言語のfopenの第二引数に渡す文字列に対応します。
         例えば、rはin、abならout|app|binary、w+bはin|out|trunc|binaryなどです。
         w+やwb+といった最後に+が来るものに関しては、+の後に_を付加してください。
+        また、veiler::forseti::olympus::olympus()に文字列を渡すと、その文字列に応じた
+        openmodeを返します。
         
         使うにはveiler/ullr/forseti/olympus.hppをインクルードします。
 
@@ -50,6 +54,8 @@
     各社の登録商標または商標です。
 
 5. 更新情報
+    2013/2/23   1.2 Olympus : veiler::forseti::olympus::olympus()関数を追加
+    
     2012/12/19  1.1 Olympus : よりそれっぽく。名前空間olympusへ移管。
                               Olympus 1.0はforseti/olympus.1.0にリネーム、
                               インクルードガードを変更。
@@ -62,7 +68,7 @@
 
 
 
-Copyright (C) 2012 I
+Copyright (C) 2013 I
   Distributed under the Veiler Source License 1.0.
 
 */

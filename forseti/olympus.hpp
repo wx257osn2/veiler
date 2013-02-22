@@ -32,6 +32,16 @@ constexpr openmode
   wb= w | b ,
   ab= a | b ;
 
+constexpr openmode olympus_impl(const char* p,openmode o){
+  return *p ? *p == 'r' ? olympus_impl(p+1,o|r) : 
+              *p == 'w' ? olympus_impl(p+1,o|w) : 
+              *p == 'a' ? olympus_impl(p+1,o|a) : 
+              *p == 'b' ? olympus_impl(p+1,o|b) : 
+              *p == '+' ? olympus_impl(p+1,o+_) : 
+                olympus_impl(p+1,o)
+            : o;
+}
+
 }//End : namespace detail
 
 #define VEILER_PELOPS_LUPEGEM_USING_HEADER detail:
@@ -41,6 +51,7 @@ VEILER_PELOPS_LUPEGEM_USING((:openmode)(:r)(:w)(:a)(:b)(:_)(:rb)(:wb)(:ab))
 
 #include "../pelops/lupegem/undef_using.hpp"
 
+constexpr openmode olympus(const char* mode){return detail::olympus_impl(mode,_);}
 
 }//End : namespace olympus
 
@@ -50,5 +61,5 @@ VEILER_PELOPS_LUPEGEM_USING((:openmode)(:r)(:w)(:a)(:b)(:_)(:rb)(:wb)(:ab))
 
 #endif //_VEILER_FORSETI_OLYMPUS_HPP_INCLUDED
 
-//Copyright (C) 2012 I
+//Copyright (C) 2013 I
 //  Distributed under the Veiler Source License 1.0.
