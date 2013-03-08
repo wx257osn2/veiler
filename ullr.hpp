@@ -4,8 +4,6 @@
 /////////                                Utility                                  /////////
 /////////    Language : C++11                                                     /////////
 /////////    Compiler : GCC(g++) version 4.8.0 20120923 (experimental)            /////////
-/////////               Microsoft C/C++ Optimizing Compiler(cl)                   /////////
-/////////                                                 Version 16.00.40219.01  /////////
 /////////               Clang(clang++) version 3.2 (trunk)                        /////////
 /////////     Version : 1.1                                                       /////////
 /////////      Status : Untested                                                  /////////
@@ -53,7 +51,6 @@
      +
     GCC(g++)version 4.8.0 20120429 (experimental)
     Clang(clang++)version 3.2
-    Microsoft Visual Studio 2010 Professional(10.0.30319.1)
 
 4. License and Exemption from responsibility -- ライセンスと免責
     当ライブラリはVeiler Source Licenseにて公開されます。
