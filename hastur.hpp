@@ -51,9 +51,10 @@
                   veiler::hastur<has_hoge_mf>::type::value<foo>(); // is true
 
 3. Development Environment -- 開発環境
-    Vim 7.3 + GCC(g++)version 4.8.0 20120923 (experimental)
-              Clang(clang++)version 3.2 (trunk)
-    Ideone.com
+    Vim v7.3 / TeraPad v1.08
+     +
+    GCC(g++)version 4.8.0 20120923 (experimental)
+    Clang(clang++)version 3.3 (trunk)
 
 4. License and Exemption from responsibility -- ライセンスと免責
     当ライブラリはVeiler Source Licenseにて公開されます。
