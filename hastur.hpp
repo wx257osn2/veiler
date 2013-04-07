@@ -1,19 +1,19 @@
 /*
-////////////////////////////////////////////////////////////////////////////////////////
-/////////                                Hastur                                /////////
-/////////                              Has Member                              /////////
-/////////    Language : C++11                                                  /////////
-/////////    Compiler : GCC(g++) version 4.8.0 20120923 (experimental)         /////////
-/////////               Clang(clang++) version 3.3 (trunk)                     /////////
-/////////     Version : 1.0                                                    /////////
-/////////      Status : Untested                                               /////////
-/////////        List : VEILER_HASTUR_TAG_CREATE(name) (macro)                 /////////
-/////////               veiler::hastur<has> (template class)                   /////////
-/////////                      veiler::hastur<has>::type<T>  (template class)  /////////
-/////////                      veiler::hastur<has>::value<T> (template class)  /////////
-/////////                      veiler::hastur<has>::func<T>  (template class)  /////////
-/////////      Author : I                                                      /////////
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+/////////                                    Hastur                                    /////////
+/////////                                  Has Member                                  /////////
+/////////    Language : C++11                                                          /////////
+/////////    Compiler : GCC(g++) version 4.8.0 20120923 (experimental)                 /////////
+/////////               Clang(clang++) version 3.3 (trunk)                             /////////
+/////////     Version : 1.1                                                            /////////
+/////////      Status : Untested                                                       /////////
+/////////        List : VEILER_HASTUR_TAG_CREATE(name,...) (macro)                     /////////
+/////////               veiler::hastur<has> (template class)                           /////////
+/////////                      veiler::hastur<has>::type<T>  (template class)          /////////
+/////////                      veiler::hastur<has>::value<T> (template class)          /////////
+/////////                      veiler::hastur<has>::func<T,Args...>  (template class)  /////////
+/////////      Author : I                                                              /////////
+////////////////////////////////////////////////////////////////////////////////////////////////
 
 1. What's this library? -- このライブラリについて
     このライブラリはあるクラスに特定の名称のメンバが存在しているかを
@@ -43,8 +43,10 @@
                     Tがhasで指定した名称の変数を持っているかどうかを表します。
                     持っていればstd::true_type、持っていなければstd::false_typeを
                     継承します。
-                3. veiler::hastur<has>::func<T>  -  関数
-                    Tがhasで指定した名称の関数を持っているかどうかを表します。
+                3. veiler::hastur<has>::func<T,Args...>  -  関数
+                    Tがhasで指定した名称、Args...以降で指定した型の引数で動作する
+                    関数を持っているかどうかを表します。引数が存在しない関数の場合は
+                    Tのみ書きます。
                     持っていればstd::true_type、持っていなければstd::false_typeを
                     継承します。
             ex.)  struct foo{typedef int hoge;};
@@ -62,6 +64,10 @@
     各社の登録商標または商標です。
 
 5. 更新情報
+    2013/4/7    1.1 veiler::hastur<has>::func<T>のインターフェイスを
+                    veiler::hastur<has>::func<T,Args...>に変更し、
+                    引数を持つ関数の検出に対応。
+                    (互換性は維持されます)
     2013/4/3    1.0 作成。公開。
 
 
