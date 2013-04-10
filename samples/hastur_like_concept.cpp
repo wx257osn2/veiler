@@ -19,8 +19,9 @@ template<typename T>constexpr void check(){
 }
 
 #include<vector>
+#include<queue>
 
 int main(){
   check<std::vector<int>>();
-  //check<int>();   //Compile error.
+  //check<std::queue<int>>();   //Compile error.
 }
