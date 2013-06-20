@@ -1,5 +1,5 @@
-#ifndef _VEILER_FORSETI_OLYMPUS_HPP_INCLUDED
-#define _VEILER_FORSETI_OLYMPUS_HPP_INCLUDED
+#ifndef VEILER_FORSETI_OLYMPUS_HPP_INCLUDED
+#define VEILER_FORSETI_OLYMPUS_HPP_INCLUDED
 
 #include<fstream>
 
@@ -59,7 +59,7 @@ constexpr openmode olympus(const char* mode){return detail::olympus_impl(mode,_)
 
 }//End : namespace veiler
 
-#endif //_VEILER_FORSETI_OLYMPUS_HPP_INCLUDED
+#endif //VEILER_FORSETI_OLYMPUS_HPP_INCLUDED
 
 //Copyright (C) 2013 I
 //  Distributed under the Veiler Source License 1.0.

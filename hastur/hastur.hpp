@@ -1,5 +1,5 @@
-#ifndef _VEILER_HASTUR_HPP_INCLUDED
-#define _VEILER_HASTUR_HPP_INCLUDED
+#ifndef VEILER_HASTUR_HPP_INCLUDED
+#define VEILER_HASTUR_HPP_INCLUDED
 
 #include<utility>
 
@@ -30,7 +30,7 @@ template<typename has> struct hastur{
 
 }//End : namespace veiler
 
-#endif //_VEILER_HASTUR_HPP_INCLUDED
+#endif //VEILER_HASTUR_HPP_INCLUDED
 
 //Copyright (C) 2013 I
 //  Distributed under the Veiler Source License 1.0.

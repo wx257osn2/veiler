@@ -1,5 +1,5 @@
-#ifndef _VEILER_ISTASHA_HPP_INCLUDED
-#define _VEILER_ISTASHA_HPP_INCLUDED
+#ifndef VEILER_ISTASHA_HPP_INCLUDED
+#define VEILER_ISTASHA_HPP_INCLUDED
 
 namespace veiler{
 
@@ -19,7 +19,7 @@ VEILER_ISTASHA_CREATE(istasha,T,_veiler_istasha_derived_){static_cast<istasha<T>
 
 }//End : namespace veiler
 
-#endif //_VEILER_ISTASHA_HPP_INCLUDED
+#endif //VEILER_ISTASHA_HPP_INCLUDED
 
 //Copyright (C) 2012 I
 //  Distributed under the Veiler Source License 1.0.

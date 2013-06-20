@@ -60,7 +60,7 @@
                               Olympus 1.0はforseti/olympus.1.0にリネーム、
                               インクルードガードを変更。
                               使用する場合は
-                              _VEILER_FORSETI_OLYMPUS_1_0_INCLUDE
+                              VEILER_FORSETI_OLYMPUS_1_0_INCLUDE
                               を定義してからインクルードしてください。
     
     2012/10/2   1.0 Olympus : ICL(I C++ Library : 以前作った非公開のライブラリ)

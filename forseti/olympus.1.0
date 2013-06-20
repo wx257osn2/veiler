@@ -1,5 +1,5 @@
-#ifdef _VEILER_FORSETI_OLYMPUS_1_0_INCLUDE
-#define _VEILER_FORSETI_OLYMPUS_1_0_INCLUDE
+#ifdef VEILER_FORSETI_OLYMPUS_1_0_INCLUDE
+#define VEILER_FORSETI_OLYMPUS_1_0_INCLUDE
 
 #include<fstream>
 
@@ -7,29 +7,29 @@ namespace veiler{
 
 namespace forseti{
 
-#define _IOS(A) std::ios::A
-#define _OM _IOS(openmode)
-#define _OMC static_cast<_OM>
-#define _OMT static const _OM
-_OMT  r   = _OMC(_IOS(in)                                               );
-_OMT  w   = _OMC(_IOS(out)                                              );
-_OMT  a   = _OMC(_IOS(out) | _IOS(app)                                  );
-_OMT  rb  = _OMC(_IOS(in)  | _IOS(binary)                               );
-_OMT  wb  = _OMC(_IOS(out) | _IOS(binary)                               );
-_OMT  ab  = _OMC(_IOS(out) | _IOS(binary) | _IOS(app)                   );
-_OMT  rp  = _OMC(_IOS(in)  | _IOS(out)                                  );
-_OMT  wp  = _OMC(_IOS(in)  | _IOS(out)    | _IOS(trunc)                 );
-_OMT  ap  = _OMC(_IOS(in)  | _IOS(out)    | _IOS(app)                   );
-_OMT  rpb = _OMC(_IOS(in)  | _IOS(out)    | _IOS(binary)                );
-_OMT  wpb = _OMC(_IOS(in)  | _IOS(out)    | _IOS(trunc)  | _IOS(binary) );
-_OMT  apb = _OMC(_IOS(in)  | _IOS(out)    | _IOS(app)    | _IOS(binary) );
-_OMT& rbp = rpb                                                          ;
-_OMT& wbp = wpb                                                          ;
-_OMT& abp = apb                                                          ;
-#undef _OMT
-#undef _OMC
-#undef _OM
-#undef _IOS
+#define IOS_(A) std::ios::A
+#define OM_ IOS_(openmode)
+#define OMC_ static_cast<OM>
+#define OMT_ static const OM
+OMT_  r   = OMC_(IOS_(in)                                               );
+OMT_  w   = OMC_(IOS_(out)                                              );
+OMT_  a   = OMC_(IOS_(out) | IOS_(app)                                  );
+OMT_  rb  = OMC_(IOS_(in)  | IOS_(binary)                               );
+OMT_  wb  = OMC_(IOS_(out) | IOS_(binary)                               );
+OMT_  ab  = OMC_(IOS_(out) | IOS_(binary) | IOS_(app)                   );
+OMT_  rp  = OMC_(IOS_(in)  | IOS_(out)                                  );
+OMT_  wp  = OMC_(IOS_(in)  | IOS_(out)    | IOS_(trunc)                 );
+OMT_  ap  = OMC_(IOS_(in)  | IOS_(out)    | IOS_(app)                   );
+OMT_  rpb = OMC_(IOS_(in)  | IOS_(out)    | IOS_(binary)                );
+OMT_  wpb = OMC_(IOS_(in)  | IOS_(out)    | IOS_(trunc)  | IOS_(binary) );
+OMT_  apb = OMC_(IOS_(in)  | IOS_(out)    | IOS_(app)    | IOS_(binary) );
+OMT_& rbp = rpb                                                          ;
+OMT_& wbp = wpb                                                          ;
+OMT_& abp = apb                                                          ;
+#undef OMT_
+#undef OMC_
+#undef OM_
+#undef IOS_
 
 }//End : namespace forseti
 

@@ -1,5 +1,5 @@
-#ifndef _VEILER_VAR_HPP_INCLUDED
-#define _VEILER_VAR_HPP_INCLUDED
+#ifndef VEILER_VAR_HPP_INCLUDED
+#define VEILER_VAR_HPP_INCLUDED
 
 namespace veiler{ 
 namespace detail{
@@ -22,7 +22,7 @@ template<typename T,typename Tag=detail::varDefaulttag>struct var_helper : publi
 #define VEILER_VAR_DET_IMPL_IMPL_UNCONST(Type) var_helper<type,tag>& operator,(Type& arg)
 #define VEILER_VAR_DET_IMPL_END };}
 
-#endif //_VEILER_VAR_HPP_INCLUDED
+#endif //VEILER_VAR_HPP_INCLUDED
 
 //Copyright (C) 2012 I
 //  Distributed under the Veiler Source License 1.0.

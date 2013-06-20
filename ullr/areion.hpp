@@ -1,5 +1,5 @@
-#ifndef _VEILER_ULLR_AREION_HPP_INCLUDED
-#define _VEILER_ULLR_AREION_HPP_INCLUDED
+#ifndef VEILER_ULLR_AREION_HPP_INCLUDED
+#define VEILER_ULLR_AREION_HPP_INCLUDED
 
 #include<array>
 #include<utility>
@@ -15,7 +15,7 @@ template<typename T,typename... Args>
 
 }//End : namespace veiler
 
-#endif //_VEILER_ULLR_AREION_HPP_INCLUDED
+#endif //VEILER_ULLR_AREION_HPP_INCLUDED
 
 //Copyright (C) 2012 I
 //  Distributed under the Veiler Source License 1.0.
