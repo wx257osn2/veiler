@@ -4,7 +4,7 @@
 /////////                              PreProcessor                               /////////
 /////////    Language : C++11                                                     /////////
 /////////    Compiler : GCC(g++) version 4.8.0 20120429 (experimental)            /////////
-/////////     Version : 1.4                                                       /////////
+/////////     Version : 1.5                                                       /////////
 /////////      Status : Untested                                                  /////////
 /////////        List : <Pelops/Dibella>                                          /////////
 /////////                      VEILER_PELOPS_DIBELLA(...) (macro)                 /////////
@@ -72,6 +72,8 @@
     各社の登録商標または商標です。
 
 5. 更新情報
+    2013/6/26   1.5 Lupeの実装を変更
+                    (終端トークンに追加されるサフィックスが_END からENDに変更)
     2012/12/19  1.4 Using(Lupegem)に
                     VEILER_PELOPS_LUPEGEM_USING_HEADERを追加
     

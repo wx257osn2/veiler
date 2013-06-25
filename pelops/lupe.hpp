@@ -2,9 +2,8 @@
 #define VEILER_PELOPS_LUPE_HPP_INCLUDED
 
 #include "ullr.hpp"
-#include "dibella.hpp"
 
-#define VEILER_PELOPS_LUPE(macro,args) VEILER_PELOPS_ULLR_CAT(VEILER_PELOPS_DIBELLA(macro args),_END)
+#define VEILER_PELOPS_LUPE(macro,args) VEILER_PELOPS_ULLR_CAT(macro args,END)
 
 #endif //VEILER_PELOPS_LUPE_HPP_INCLUDED
 
