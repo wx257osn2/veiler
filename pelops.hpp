@@ -16,6 +16,7 @@
 /////////                      VEILER_PELOPS_ULLR_COMMA (macro)                   /////////
 /////////                      VEILER_PELOPS_ULLR_CAT(a,b) (macro)                /////////
 /////////                      VEILER_PELOPS_ULLR_STR(a) (macro)                  /////////
+/////////                      VEILER_PELOPS_ULLR_EXP(...) (macro)                /////////
 /////////      Author : I                                                         /////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -72,6 +73,7 @@
     各社の登録商標または商標です。
 
 5. 更新情報
+    2013/7/3    1.6 VEILER_PELOPS_ULLR_EXP(...)を追加
     2013/6/26   1.5 Lupeの実装を変更
                     (終端トークンに追加されるサフィックスが_END からENDに変更)
     2012/12/19  1.4 Using(Lupegem)に
