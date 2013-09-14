@@ -9,7 +9,7 @@ namespace veiler{
 namespace ullr{
 
 template<typename T,typename... Args>
-  constexpr std::array<T,sizeof...(Args)>&& areion(Args... args){return std::move(std::array<T,sizeof...(Args)>{args...});}
+  constexpr std::array<T,sizeof...(Args)> areion(Args... args)noexcept{return std::array<T,sizeof...(Args)>{args...};}
 
 }//End : namespace ullr
 
