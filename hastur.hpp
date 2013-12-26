@@ -3,9 +3,9 @@
 /////////                                    Hastur                                    /////////
 /////////                                  Has Member                                  /////////
 /////////    Language : C++11                                                          /////////
-/////////    Compiler : GCC(g++) version 4.8.0 20120923 (experimental)                 /////////
-/////////               Clang(clang++) version 3.3 (trunk)                             /////////
-/////////     Version : 1.1                                                            /////////
+/////////    Compiler : GCC(g++) version 4.9.0 20131221 (experimental)                 /////////
+/////////               Clang(clang++) version 3.5 (trunk)                             /////////
+/////////     Version : 1.2                                                            /////////
 /////////      Status : Untested                                                       /////////
 /////////        List : VEILER_HASTUR_TAG_CREATE(name,...) (macro)                     /////////
 /////////               veiler::hastur<has> (template class)                           /////////
@@ -53,10 +53,10 @@
                   veiler::hastur<has_hoge_mf>::type::value<foo>(); // is true
 
 3. Development Environment -- 開発環境
-    Vim v7.3 / TeraPad v1.08
+    Vim v7.4
      +
-    GCC(g++)version 4.8.0 20120923 (experimental)
-    Clang(clang++)version 3.3 (trunk)
+    GCC(g++)version 4.9.0 20131221 (experimental)
+    Clang(clang++)version 3.5 (trunk)
 
 4. License and Exemption from responsibility -- ライセンスと免責
     当ライブラリはVeiler Source Licenseにて公開されます。
@@ -64,6 +64,7 @@
     各社の登録商標または商標です。
 
 5. 更新情報
+    2013/12/26  1.2 オーバーロードにVeiler.Prometheusを使用するよう変更
     2013/4/7    1.1 veiler::hastur<has>::func<T>のインターフェイスを
                     veiler::hastur<has>::func<T,Args...>に変更し、
                     引数を持つ関数の検出に対応。
