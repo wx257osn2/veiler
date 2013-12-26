@@ -14,8 +14,9 @@ using has_iterator = veiler::hastur<iter>::type<T>;
 template<typename T>
 using has_push_back = veiler::hastur<push_back>::func<T,typename T::value_type>;
 
-template<typename T>constexpr void check(){
+template<typename T>constexpr int check(){
   static_assert(has_begin<T>() && has_end<T>() && has_iterator<T>() && has_push_back<T>(),"Your type doesn't fulfill concept.");
+  return 0;
 }
 
 #include<vector>
