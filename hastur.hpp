@@ -5,7 +5,7 @@
 /////////    Language : C++11                                                          /////////
 /////////    Compiler : GCC(g++) version 4.9.0 20131221 (experimental)                 /////////
 /////////               Clang(clang++) version 3.5 (trunk)                             /////////
-/////////     Version : 1.2                                                            /////////
+/////////     Version : 1.3                                                            /////////
 /////////      Status : Untested                                                       /////////
 /////////        List : VEILER_HASTUR_TAG_CREATE(name,...) (macro)                     /////////
 /////////               veiler::hastur<has> (template class)                           /////////
@@ -64,6 +64,8 @@
     各社の登録商標または商標です。
 
 5. 更新情報
+    2014/1/11   1.3 VEILER_HASTUR_TAG_CREATEによって生成されるメタ関数の
+                    インターフェースを変更
     2013/12/26  1.2 オーバーロードにVeiler.Prometheusを使用するよう変更
     2013/4/7    1.1 veiler::hastur<has>::func<T>のインターフェイスを
                     veiler::hastur<has>::func<T,Args...>に変更し、
@@ -73,7 +75,7 @@
 
 
 
-Copyright (C) 2013 I
+Copyright (C) 2014 I
   Distributed under the Veiler Source License 1.0
 
 */
