@@ -14,6 +14,8 @@
 /////////                      veiler::ullr::eridian() (Functor)                  /////////
 /////////               <Ullr/Areion>                                             /////////
 /////////                      veiler::ullr::areion<T>(...) (template Function)   /////////
+/////////               <Ullr/Aedra>                                              /////////
+/////////                      veiler::ullr::aedra(T x) (template Function)       /////////
 /////////      Author : I                                                         /////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +47,12 @@
         自動で要素数が決定します。この場合はstd::array<int,3>{1,2,3}が返ります)。
         
         使うにはveiler/ullr/areion.hppをインクルードします。
+    
+    D. Aedra  -  addressof
+        渡したオブジェクトのアドレスを取得します。
+        operator&をオーバーロードしていない、&演算子によるアドレス取得が
+        constant expressionである、の条件を満たせばコンパイル時にアドレスを
+        取得できます。
 
 3. Development Environment -- 開発環境
     Vim v7.3 / TeraPad v1.08
@@ -58,6 +66,7 @@
     各社の登録商標または商標です。
 
 5. 更新情報
+    2014/1/11   1.2 Aedra   : 追加。
     2012/12/12  1.1 Areion  : 追加。
                     Fall    : 追加。
     
@@ -66,7 +75,7 @@
 
 
 
-Copyright (C) 2012 I
+Copyright (C) 2014 I
   Distributed under the Veiler Source License 1.0.
 
 */
@@ -74,3 +83,4 @@ Copyright (C) 2012 I
 #include"./ullr/fall.hpp"
 #include"./ullr/eridian.hpp"
 #include"./ullr/areion.hpp"
+#include"./ullr/aedra.hpp"
