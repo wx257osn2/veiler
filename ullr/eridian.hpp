@@ -7,11 +7,13 @@ namespace ullr{
 
 enum class endian{big=0,little=1};
 
-struct{
-  endian operator()()const{return check();}
- private:
-  endian check(int x=1)const{return endian(*reinterpret_cast<char *>(&x));}
-}eridian;
+namespace detail{
+
+inline endian endian_check(int x = 1){return endian(*reinterpret_cast<char*>(&x));}
+
+}//End : namespace detail
+
+inline endian eridian(){return detail::endian_check();}
 
 }//End : namespace ullr
 
