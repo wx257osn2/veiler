@@ -293,6 +293,10 @@ using detail::lampads::self;
 
 }//End : namespace veiler
 
+#undef VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH
+#undef VEILER_LAMPADS_RECURSION_COUNTER
+#undef VEILER_LAMPADS_RECURSION_COUNTER_DECL
+
 #endif//VEILER_LAMPADS_HPP_INCLUDED
 
 //Copyright (C) 2014 I
