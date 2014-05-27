@@ -1,7 +1,7 @@
 #ifndef VEILER_FOOL_INVOKE_HPP_INCLUDED
 #define VEILER_FOOL_INVOKE_HPP_INCLUDED
 
-#include<utility>
+#include<veiler/aux_/forward.hpp>
 
 namespace veiler{
 
@@ -11,33 +11,33 @@ namespace fool{
 
 template<typename F, typename T, typename... Args>
 constexpr auto invoke(F&& f, T&& t, Args&&... ts)
-  noexcept(noexcept((std::forward<T>(t).*f)(std::forward<Args>(ts)...)))
-        ->decltype(((std::forward<T>(t).*f)(std::forward<Args>(ts)...))){
-             return (std::forward<T>(t).*f)(std::forward<Args>(ts)...);
+  noexcept(noexcept((veiler::forward<T>(t).*f)(veiler::forward<Args>(ts)...)))
+        ->decltype(((veiler::forward<T>(t).*f)(veiler::forward<Args>(ts)...))){
+             return (veiler::forward<T>(t).*f)(veiler::forward<Args>(ts)...);
 }
 template<typename F, typename T, typename... Args>
 constexpr auto invoke(F&& f, T&& t, Args&&... ts)
-  noexcept(noexcept(((*std::forward<T>(t)).*f)(std::forward<Args>(ts)...)))
-        ->decltype((((*std::forward<T>(t)).*f)(std::forward<Args>(ts)...))){
-             return ((*std::forward<T>(t)).*f)(std::forward<Args>(ts)...);
+  noexcept(noexcept(((*veiler::forward<T>(t)).*f)(veiler::forward<Args>(ts)...)))
+        ->decltype((((*veiler::forward<T>(t)).*f)(veiler::forward<Args>(ts)...))){
+             return ((*veiler::forward<T>(t)).*f)(veiler::forward<Args>(ts)...);
 }
 template<typename F, typename T>
 constexpr auto invoke(F&& f, T&& t)
-  noexcept(noexcept(std::forward<T>(t).*f))
-        ->decltype((std::forward<T>(t).*f)){
-             return std::forward<T>(t).*f;
+  noexcept(noexcept(veiler::forward<T>(t).*f))
+        ->decltype((veiler::forward<T>(t).*f)){
+             return veiler::forward<T>(t).*f;
 }
 template<typename F, typename T>
 constexpr auto invoke(F&& f, T&& t)
-  noexcept(noexcept((*std::forward<T>(t)).*f))
-        ->decltype(((*std::forward<T>(t)).*f)){
-             return (*std::forward<T>(t)).*f;
+  noexcept(noexcept((*veiler::forward<T>(t)).*f))
+        ->decltype(((*veiler::forward<T>(t)).*f)){
+             return (*veiler::forward<T>(t)).*f;
 }
 template<typename F, typename... Args>
 constexpr auto invoke(F&& f, Args&&... args)
-  noexcept(noexcept(std::forward<F>(f)(std::forward<Args>(args)...)))
-        ->decltype((std::forward<F>(f)(std::forward<Args>(args)...))){
-             return std::forward<F>(f)(std::forward<Args>(args)...);
+  noexcept(noexcept(veiler::forward<F>(f)(veiler::forward<Args>(args)...)))
+        ->decltype((veiler::forward<F>(f)(veiler::forward<Args>(args)...))){
+             return veiler::forward<F>(f)(veiler::forward<Args>(args)...);
 }
 
 }
