@@ -6,6 +6,8 @@
 #include<utility>
 #include<algorithm>
 #include<veiler/refil.hpp>
+#include<veiler/temple/thai_temple.hpp>
+#include<veiler/temple/indian_temple.hpp>
 
 #ifdef VEILER_TEMPLE_USE_STRICT_AND_POSITIVE_INSTANTIATION
 #define VEILER_TEMPLE_STRICT_CHECK(...) typename std::enable_if<(__VA_ARGS__)>::type* = nullptr
@@ -22,179 +24,6 @@ namespace veiler{
 namespace detail{
 
 namespace temple{
-
-
-
-template<typename...>struct type_tuple;
-
-
-template<typename T>
-struct type_wrapper{using type = T;};
-
-
-template<typename,typename>struct make_type_tuple_impl_impl;
-template<typename... Lefts, typename... Rights>
-struct make_type_tuple_impl_impl<type_tuple<Lefts...>, type_tuple<Rights...>>{
-  using type = type_tuple<Lefts..., Rights...>;
-};
-
-template<std::size_t N, typename T>
-struct make_type_tuple_impl :
-       make_type_tuple_impl_impl<
-typename make_type_tuple_impl<    N/2, T>::type,
-typename make_type_tuple_impl<N - N/2, T>::type
-       >{};
-template<typename T>
-struct make_type_tuple_impl<1, T>{using type = type_tuple<T>;};
-template<typename T>
-struct make_type_tuple_impl<0, T>{using type = type_tuple< >;};
-
-template<std::size_t N, typename T = void>
-using make_type_tuple = typename make_type_tuple_impl<N, T>::type;
-
-
-template<typename>struct type_at_impl_impl_impl;
-template<typename... Types>
-struct type_at_impl_impl_impl<type_tuple<Types...>>{template<typename T>static T eval(Types*..., T*, ...);};
-
-template<std::size_t N, typename... Types>
-struct type_at_impl_impl{
-  using type = decltype(type_at_impl_impl_impl<make_type_tuple<N>>::eval(static_cast<Types*>(nullptr)...));
-};
-
-template<typename T, std::size_t N>
-class type_at_impl{
-  template<template<typename...>class Type, class... Args>
-  static auto impl(type_wrapper<Type<Args...>>)->typename type_at_impl_impl<N, type_wrapper<Args>...>::type;
- public:
-  using type = typename decltype(impl(type_wrapper<T>{}))::type;
-};
-
-template<typename T, std::size_t N>
-using type_at = typename type_at_impl<typename std::remove_cv<typename std::remove_reference<T>::type>::type, N>::type;
-
-template<typename>struct tuple_size_impl;
-template<template<typename...>class Tuple, typename... Types>
-struct tuple_size_impl<Tuple<Types...>>{
-  static constexpr std::size_t value = sizeof...(Types);
-  constexpr operator std::size_t()const{return value;}
-  constexpr tuple_size_impl(){}
-};
-
-template<typename T>
-using tuple_size = tuple_size_impl<typename std::remove_cv<typename std::remove_reference<T>::type>::type>;
-
-struct duplicate_type;
-template<long long A, long long B>struct add{static const long long value = A+B;static const long long default_value = 0;};
-template<typename...>struct unique_types_impl;
-template<typename SourceType, typename Type>struct filter{using type = typename std::conditional<std::is_same<SourceType, Type>::value, duplicate_type, Type>::type;};
-template<typename T, typename... Remaining, typename... Uniques>
-struct unique_types_impl<type_tuple<T, Remaining...>, Uniques...>{
-  using type = typename unique_types_impl<type_tuple<typename filter<T, Remaining>::type...>, Uniques..., T>::type;
-};
-template<typename... Remaining, typename... Uniques>
-struct unique_types_impl<type_tuple<duplicate_type, Remaining...>, Uniques...>:unique_types_impl<type_tuple<Remaining...>, Uniques...>{};
-template<typename... Uniques>
-struct unique_types_impl<type_tuple<>, Uniques...>{using type = type_tuple<Uniques...>;};
-
-template<typename T>
-using unique_types = typename unique_types_impl<T>::type;
-
-
-template<typename... Types>
-struct type_tuple{
-  //template<std::size_t N>
-  //using at = type_at<type_tuple<Types...>, N>;
-  static constexpr std::size_t size(){return sizeof...(Types);}
-};
-
-
-
-template<long long...>struct index_tuple;
-
-
-template<typename>struct index_at_impl;
-template<typename... Types>
-struct index_at_impl<type_tuple<Types...>>{template<typename T>static constexpr T eval(Types..., T t, ...){return t;}};
-
-template<typename T, std::size_t N>
-class index_at{
-  template<template<long long...>class IndexTuple, long long... Indices>
-  static constexpr long long impl(IndexTuple<Indices...> t)noexcept{return index_at_impl<make_type_tuple<N, long long>>::eval(Indices...);}
- public:
-  static constexpr long long value = impl(T{});
-  constexpr operator long long()const noexcept{return value;}
-};
-
-template<typename>struct index_size_impl;
-template<template<long long...>class IndexTuple, long long... Indices>
-struct index_size_impl<IndexTuple<Indices...>>{
-  static constexpr std::size_t value = sizeof...(Indices);
-  constexpr operator std::size_t()const{return value;}
-  constexpr index_size_impl(){}
-};
-
-template<typename T>
-using index_size = index_size_impl<typename std::remove_cv<typename std::remove_reference<T>::type>::type>;
-
-
-template<typename,long long>struct make_index_range_next;
-template<long long... Indices, long long Next>
-struct make_index_range_next<index_tuple<Indices...>, Next>{using type = index_tuple<Indices..., (Indices+Next)...>;};
-
-template<typename,long long,long long>struct make_index_range_next_;
-template<long long... Indices, long long Next, long long Tail>
-struct make_index_range_next_<index_tuple<Indices...>, Next, Tail>{using type = index_tuple<Indices..., (Indices+Next)..., Tail>;};
-
-template<long long,long long,long long,typename = void>struct make_index_range_impl;
-template<long long Begin, long long Step, long long Next>
-struct make_index_range_impl<Begin, Step, Next, typename std::enable_if<(Next==0 || Next==1)>::type>{
-  using type = typename std::conditional<Next==0, index_tuple<>, index_tuple<Begin>>::type;
-};
-template<long long Begin, long long Step, long long Next>
-struct make_index_range_impl<Begin, Step, Next, typename std::enable_if<(Next>1)>::type>{
-  using type = typename std::conditional<Next % 2,
-                 typename make_index_range_next_<
-                   typename make_index_range_impl<Begin, Step, Next/2>::type,
-                            Begin +  Next/2  * Step,
-                            Begin + (Next-1) * Step
-                          >::type,
-                 typename make_index_range_next<
-                   typename make_index_range_impl<Begin, Step, Next/2>::type,
-                            Begin +  Next/2  * Step
-                          >::type
-                        >::type;
-};
-
-template<long long Begin, long long End, long long Step = (Begin<End ? 1 : -1)>
-using make_index_range = typename make_index_range_impl<Begin, Step, (End - Begin + (Step>0 ? Step-1 : Step+1)) / Step>::type;
-
-
-template<typename,typename>struct reverse_index_tuple_impl_impl;
-template<long long... Indices, long long... IndicesIndices>
-struct reverse_index_tuple_impl_impl<index_tuple<Indices...>, index_tuple<IndicesIndices...>>{
-  using type = index_tuple<index_at<index_tuple<Indices...>, sizeof...(IndicesIndices) - 1 - IndicesIndices>::value...>;
-};
-
-template<typename>struct reverse_index_tuple_impl;
-template<long long... Indices>
-struct reverse_index_tuple_impl<index_tuple<Indices...>> : 
-       reverse_index_tuple_impl_impl<index_tuple<Indices...>, make_index_range<0,sizeof...(Indices)>>{};
-
-template<typename T>
-using reverse_index_tuple = typename reverse_index_tuple_impl<T>::type;
-
-
-template<typename... Types>
-using make_indexes = make_index_range<0, sizeof...(Types)>;
-
-template<typename... Types>
-using make_reverse_indexes = make_index_range<sizeof...(Types)-1, -1>;
-
-template<long long... Indices>
-struct index_tuple{
-  static constexpr std::size_t size()noexcept{return sizeof...(Indices);}
-};
 
 
 
@@ -1254,17 +1083,6 @@ constexpr tuple<Args&...> tie(Args&... args)noexcept{return tuple<Args&...>(args
 
 
 
-using detail::temple::type_at;
-using detail::temple::type_tuple;
-using detail::temple::unique_types;
-using detail::temple::index_at;
-using detail::temple::tuple_size;
-using detail::temple::index_size;
-using detail::temple::reverse_index_tuple;
-using detail::temple::make_index_range;
-using detail::temple::make_reverse_indexes;
-using detail::temple::make_indexes;
-using detail::temple::index_tuple;
 using detail::temple::operate_tuple;
 using detail::temple::make_operate_tuple;
 using detail::temple::tuple;
