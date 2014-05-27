@@ -11,7 +11,7 @@
 /////////                      veiler::ullr::endian (enum class)                  /////////
 /////////                             veiler::ullr::endian::big                   /////////
 /////////                             veiler::ullr::endian::little                /////////
-/////////                      veiler::ullr::eridian() (Functor)                  /////////
+/////////                      veiler::ullr::eridian() (Function)                 /////////
 /////////               <Ullr/Areion>                                             /////////
 /////////                      veiler::ullr::areion<T>(...) (template Function)   /////////
 /////////               <Ullr/Aedra>                                              /////////
