@@ -44,18 +44,18 @@ struct has_address_operator_overload_nomember{
 };
 
 
-}
+}//End : namespace detail
 
 template<typename T>
-constexpr T* aedra (T& t){
+constexpr T* aedra(T& t){
   return detail::aedra_impl<!veiler::hastur<detail::not_has_address_operator>::func<T>{}               ||
                              veiler::hastur<detail::has_address_operator_overload_member>::func<T>{}   ||
                              veiler::hastur<detail::has_address_operator_overload_nomember>::func<T>{}>::template impl<T>(t);
 }
 
-}
+}//End : namespace ullr
 
-}
+}//End : namespace veiler
 
 #endif//VEILER_ULLR_AEDRA_HPP_INCLUDED
 
