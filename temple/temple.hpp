@@ -928,8 +928,8 @@ class _apply_impl_t{
     F f;
     template<typename Func, typename Tuple, long long... Indices>
     static constexpr auto impl(Func&& f, Tuple&& tup, index_tuple<Indices...>)
-      ->decltype((veiler::forward<Func>(f)(get<Indices>(veiler::forward<Tuple>(tup))...))){
-      return      veiler::forward<Func>(f)(get<Indices>(veiler::forward<Tuple>(tup))...);
+      ->decltype((veiler::invoke(veiler::forward<Func>(f), get<Indices>(veiler::forward<Tuple>(tup))...))){
+      return      veiler::invoke(veiler::forward<Func>(f), get<Indices>(veiler::forward<Tuple>(tup))...);
     }
    public:
     constexpr curried_apply(F&& f):f(veiler::forward<F>(f)){}
@@ -948,8 +948,8 @@ class _apply_impl_t{
   constexpr _apply_impl_t(){}
   template<typename F, typename Tuple, long long... Indices>
   constexpr auto impl(F&& f, Tuple&& tup, index_tuple<Indices...>)const
-  ->decltype((veiler::forward<F>(f)(get<Indices>(veiler::forward<Tuple>(tup))...))){
-       return veiler::forward<F>(f)(get<Indices>(veiler::forward<Tuple>(tup))...);
+  ->decltype((veiler::invoke(veiler::forward<F>(f), get<Indices>(veiler::forward<Tuple>(tup))...))){
+       return veiler::invoke(veiler::forward<F>(f), get<Indices>(veiler::forward<Tuple>(tup))...);
   }
   template<typename F, typename Tuple>
   constexpr auto operator()(F&& f, Tuple&& tup)const
