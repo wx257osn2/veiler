@@ -62,6 +62,8 @@ struct func_traits_impl<R(Args...)>{
 };
 template<typename R, typename... Args>
 struct func_traits_impl<R(*)(Args...)>:func_traits_impl<R(Args...)>{};
+template<typename R, typename... Args>
+struct func_traits_impl<R(&)(Args...)>:func_traits_impl<R(Args...)>{};
 template<typename R, typename T, typename... Args, typename U>
 struct func_traits_impl<R(T::*)(Args...), U>{
   using result_type = R;
