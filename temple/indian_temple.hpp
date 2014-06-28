@@ -57,12 +57,12 @@ struct make_index_range_impl<Begin, Step, Next, typename std::enable_if<(Next>1)
   using type = typename std::conditional<Next % 2,
                  typename make_index_range_next_<
                    typename make_index_range_impl<Begin, Step, Next/2>::type,
-                            Begin +  Next/2  * Step,
+                                     Next/2  * Step,
                             Begin + (Next-1) * Step
                           >::type,
                  typename make_index_range_next<
                    typename make_index_range_impl<Begin, Step, Next/2>::type,
-                            Begin +  Next/2  * Step
+                                     Next/2  * Step
                           >::type
                         >::type;
 };
