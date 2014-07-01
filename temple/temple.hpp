@@ -1018,7 +1018,7 @@ constexpr auto operator()(value_btree<tuple<Types...>,tuple<Lefts...>>&& btree)c
                                   index_tuple<>{});
 }
 template<typename... Types>
-constexpr tuple<Types...>&& operator()(value_btree<tuple<Types...>>&& btree)const noexcept{
+constexpr tuple<Types...> operator()(value_btree<tuple<Types...>>&& btree)const noexcept{
   return veiler::forward<tuple<Types...>>(value_btree<tuple<Types...>>::template get<0>(veiler::forward<value_btree<tuple<Types...>>>(btree)));
 }
 constexpr tuple<> operator()(value_btree<>)const noexcept{return tuple<>{};}
