@@ -4,6 +4,7 @@ using veiler::lampads::udl::operator"" _;
 using veiler::lampads::udl::operator"" _tail;
 using veiler::lampads::self;
 using veiler::lampads::bind;
+using veiler::lampads::ret;
 
 constexpr auto func(int a, int b, int c)->int{
   return a + b + c;
@@ -15,6 +16,12 @@ int main(){
   static_assert(a * 6 == b,"");
   constexpr auto c = if_(1_ == 0)[1].else_[1_ * self(1_-1)](4);
   static_assert(c == 24,"");
-  constexpr auto d = bind(func, 1_, 1_tail)(1,2,3);
+  constexpr auto d = bind(func, 0_tail)(1,2,3);
   static_assert(d == 6, "");
+#ifndef __clang__
+  constexpr auto e = if_(1_ == 3)[bind(func, 1_tail)].else_[self(1_ + 1, 1_tail)](1, 1, 2, 3);
+#else
+  constexpr auto e = if_(1_ == 3)[2_ + 3_ + 4_].else_[self(1_ + 1, 1_tail)](1, 1, 2, 3);
+#endif
+  static_assert(e == 6, "");
 }
