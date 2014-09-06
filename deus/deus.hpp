@@ -78,6 +78,10 @@ class event{
  public:
   constexpr event(){}
   sysu operator--(int)const{return sysu();}
+  template<typename... Args>
+  struct wrapper{tuple<Args...> args;};
+  template<typename... Args>
+  wrapper<Args...> operator()(Args&&... args){return wrapper<Args...>{{std::forward<Args>(args)...}};}
 };
 template<typename From, typename Event, typename To, typename Guard, typename Action>
 transition<From, Event, To, Guard, Action> operator>(transition<From, Event, none, default_guard, default_action>&& s, transition<none, none, To, Guard, Action>&& e){
@@ -117,10 +121,12 @@ class state_machine : public state<Statemachine>{
     std::shared_ptr<base> impl;
     long long state;
   public:
+    holder(const holder&) = default;
+    holder(holder&&) = default;
     template<template<typename>class Wrapper, typename T>
     holder(Wrapper<T>&& t) : impl(new derived<T>()), state(status_id<T>::value){}
-    template<typename T>
-    void transit(){impl.reset();impl.reset(new derived<T>());state = status_id<T>::value;}
+    template<typename T, typename... Args>
+    void transit(Args&&... args){impl.reset();impl = std::make_shared<derived<T>>(std::forward<Args>(args)...);state = status_id<T>::value;}
     friend bool operator==(const holder& lhs, long long rhs){return lhs.state == rhs;}
     friend bool operator!=(const holder& lhs, long long rhs){return !(lhs == rhs);}
   }state;
@@ -141,6 +147,21 @@ class state_machine : public state<Statemachine>{
       }
       exec_events_<Event, N+1>::exec(state, tt);
     }
+    template<typename EventArgs>
+    static void exec(holder& state, const TransitionTable& tt, const EventArgs& e){
+      using transition = type_at<TransitionTable,N>;
+      if(state == status_id<type_at<transition,0>>::value && (std::is_same<Event, type_at<transition,1>>::value || std::is_same<none, type_at<transition,1>>::value)){
+        Event ev = make<Event>(e.args);
+        if(veiler::get<N>(tt.table).guard(ev)){
+          veiler::get<N>(tt.table).action(ev);
+          if(state != status_id<type_at<transition,2>>::value)
+            state.template transit<type_at<transition,2>>(ev);
+          exec_events_<none, N+1>::exec(state, tt);
+          return;
+        }
+      }
+      exec_events_<Event, N+1>::exec(state, tt, e);
+    }
   };
   template<typename Event, std::size_t N>
   struct exec_events_<Event,N,false>{static void exec(holder&, const TransitionTable&){}};
@@ -148,13 +169,24 @@ class state_machine : public state<Statemachine>{
   void exec_events(){
     exec_events_<Event>::exec(state, tt);
   }
+  template<typename Event, typename EventArgs>
+  void exec_events(const EventArgs& e){
+    exec_events_<Event>::exec(state, tt, e);
+  }
  public:
-  state_machine(const TransitionTable& table) : tt(table), state(typename Statemachine::initial_state{}){}
+  state_machine(const TransitionTable& table) : tt(             table ), state(typename Statemachine::initial_state{}){}
+  state_machine(const state_machine&   sm   ) : tt(          sm.tt    ), state(typename Statemachine::initial_state{}){}
+  state_machine(      state_machine&&  sm   ) : tt(std::move(sm.tt   )), state(typename Statemachine::initial_state{}){}
   template<typename Status>
   bool is(const deus::impl::state<Status>&){return state == status_id<Status>::value;}
   template<typename Event>
   friend state_machine& operator<<=(state_machine& sm, const event<Event>& e){
     sm.exec_events<Event>();
+    return sm;
+  }
+  template<typename Event, typename... Args>
+  friend state_machine& operator<<=(state_machine& sm, const typename event<Event>::wrapper<Args...>& e){
+    sm.exec_events<Event>(e);
     return sm;
   }
 };
