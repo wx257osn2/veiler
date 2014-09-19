@@ -21,7 +21,7 @@ struct index_at_impl<type_tuple<Types...>>{template<typename T>static constexpr 
 template<typename T, std::size_t N>
 class index_at{
   template<template<long long...>class IndexTuple, long long... Indices>
-  static constexpr long long impl(IndexTuple<Indices...> t)noexcept{return index_at_impl<make_type_tuple<N, long long>>::eval(Indices...);}
+  static constexpr long long impl(IndexTuple<Indices...>)noexcept{return index_at_impl<make_type_tuple<N, long long>>::eval(Indices...);}
  public:
   static constexpr long long value = impl(T{});
   constexpr operator long long()const noexcept{return value;}

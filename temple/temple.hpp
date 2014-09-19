@@ -478,8 +478,8 @@ struct name ## t{\
 }constexpr name
 VEILER_TEMPLE_DECL_OPERATE(add_, + , constexpr std::nullptr_t operator()(const value_btree<>& arg)const noexcept;);
 VEILER_TEMPLE_DECL_OPERATE(mul_, * , constexpr std::nullptr_t operator()(const value_btree<>& arg)const noexcept;);
-VEILER_TEMPLE_DECL_OPERATE(and_, &&, constexpr bool operator()(const value_btree<>& arg)const noexcept{return false;});
-VEILER_TEMPLE_DECL_OPERATE(or_ , ||, constexpr bool operator()(const value_btree<>& arg)const noexcept{return false;});
+VEILER_TEMPLE_DECL_OPERATE(and_, &&, constexpr bool operator()(const value_btree<>&)const noexcept{return false;});
+VEILER_TEMPLE_DECL_OPERATE(or_ , ||, constexpr bool operator()(const value_btree<>&)const noexcept{return false;});
 #undef VEILER_TEMPLE_DECL_OPERATE
 
 }
