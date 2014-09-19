@@ -80,7 +80,7 @@ template<long long N>struct placeholder<N, typename std::enable_if<(N<=0)>::type
   using ret_type = ret_type_dummy;
   constexpr placeholder() = default;
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
-  constexpr R run(const S&, Args&&... args)const{
+  constexpr R run(const S&, Args&&...)const{
     return R{};
   }
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
@@ -330,7 +330,7 @@ class Bind{
   }
 #ifdef __clang__
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(, typename std::enable_if<(VEILER_LAMPADS_RECURSION_LIMIT <  RecursionCounter * TemplateDepth)>::type* = nullptr), long long... Indices, typename S, typename... Args>
-  constexpr R run_impl(veiler::index_tuple<Indices...>, const S& s, Args&&... args)const{
+  constexpr R run_impl(veiler::index_tuple<Indices...>, const S&, Args&&...)const{
          return R{};
   }
 #endif
