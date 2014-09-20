@@ -24,4 +24,8 @@ int main(){
   constexpr auto e = if_(1_ == 3)[2_ + 3_ + 4_].else_[self(1_ + 1, 1_tail)](1, 1, 2, 3);
 #endif
   static_assert(e == 6, "");
+  constexpr auto f = 1_ % 2 == 0;
+  static_assert(f(3) == false, "");
+  constexpr auto g = if_(f)[1_].else_[1_ + 1](3);
+  static_assert(g == 4, "");
 }
