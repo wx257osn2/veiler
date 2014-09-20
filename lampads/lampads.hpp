@@ -42,9 +42,12 @@ class lampads{
   using ret_type = typename T::ret_type;
  public:
   T t;
-  template<typename... Args>
-  constexpr lampads(Args&&... args):t(veiler::forward<Args>(args)...){}
+  constexpr lampads() = default;
+  constexpr lampads(const lampads&) = default;
+  constexpr lampads(lampads&&) = default;
   constexpr lampads(T t):t(veiler::forward<T>(t)){}
+  template<typename X, typename Y, typename... Args>
+  constexpr lampads(X&& x, Y&& y, Args&&... args):t(veiler::forward<X>(x), veiler::forward<Y>(y), veiler::forward<Args>(args)...){}
   template<typename... Args>
   constexpr auto operator()(Args&&... args)const
                         ->typename std::conditional<std::is_same<R, ret_type_dummy>::value, decltype((ret_type::eval(veiler::forward<Args>(args)...))), R>::type{
@@ -148,7 +151,7 @@ class val{
                        ret_type_dummy\
                      >::type;\
     template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>\
-    constexpr R run(const S& s, Args... args)const{\
+    constexpr R run(const S& s, Args&&... args)const{\
       return t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,args...) ope u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,args...);\
     }\
     template<typename... LTypes, typename... RTypes, long long... Indices>\
