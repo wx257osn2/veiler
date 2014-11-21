@@ -30,7 +30,7 @@ namespace lampads{
 
 
 struct ret_type_dummy:std::false_type{
-  static void eval(...);
+  template<typename... Args>static void eval(Args&&...);
   template<typename R, typename...>
   using type = R;
 };
@@ -131,16 +131,17 @@ class val{
   T t;
  public:
   using ret_type = struct:std::true_type{
-    static T eval(...);
+    template<typename... Args>static T eval(Args&&...);
     template<typename, typename...>using type = T;
   };
   constexpr val() = default;
   constexpr val(T t):t(veiler::forward<T>(t)){}
-  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL()>
-  constexpr T run(...)const{return t;}
-  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL()>
-  constexpr veiler::tuple<T> bind_run(...)const{return veiler::make_tuple(t);}
-  constexpr T operator()(...)const{return t;}
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename... Args>
+  constexpr T run(Args&&...)const{return t;}
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename... Args>
+  constexpr veiler::tuple<T> bind_run(Args&&...)const{return veiler::make_tuple(t);}
+  template<typename... Args>
+  constexpr T operator()(Args&&...)const{return t;}
 };
 
 
