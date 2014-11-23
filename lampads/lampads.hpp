@@ -45,7 +45,6 @@ class Val{
     template<typename...>using type = T;
   };
   constexpr Val() = default;
-  constexpr Val(const T& t):t(t){}
   constexpr Val(T&& t):t(veiler::forward<T>(t)){}
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename... Args>
   constexpr T run(Args&&...)const{return t;}
