@@ -58,28 +58,32 @@ struct ret_type_dummy:std::false_type{
 };
 
 
+#define VEILER_LAMPADS_DECL_LAMPADS(...) {\
+  using ret_type = typename T::ret_type;\
+  T t;\
+ public:\
+  constexpr Lampads() = default;\
+  constexpr Lampads(const Lampads&) = default;\
+  constexpr Lampads(Lampads&&) = default;\
+  template<typename X, typename... Args>\
+  constexpr Lampads(X&& x, Args&&... args):t(veiler::forward<X>(x), veiler::forward<Args>(args)...){}\
+  static constexpr T&& _get(Lampads&& t){return veiler::forward<T>(t.t);}\
+  static constexpr const T& _get(const Lampads& t){return t.t;}\
+  __VA_ARGS__\
+}
+
 template<typename T, typename R = ret_type_dummy
 #ifdef __clang__
 ,long long RecursionCounter = 0ll
 #endif
 >
-class Lampads{
-  using ret_type = typename T::ret_type;
-  T t;
- public:
+class Lampads VEILER_LAMPADS_DECL_LAMPADS(
   using result_type = R;
-  constexpr Lampads() = default;
-  constexpr Lampads(const Lampads&) = default;
-  constexpr Lampads(Lampads&&) = default;
-  template<typename X, typename... Args>
-  constexpr Lampads(X&& x, Args&&... args):t(veiler::forward<X>(x), veiler::forward<Args>(args)...){}
   template<typename... Args>
   constexpr R operator()(Args&&... args)const{
     return t.template run<R VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...);
   }
-  static constexpr T&& _get(Lampads&& t){return veiler::forward<T>(t.t);}
-  static constexpr const T& _get(const Lampads& t){return t.t;}
-};
+);
 template<typename T
 #ifdef __clang__
 ,long long RecursionCounter
@@ -89,23 +93,15 @@ class Lampads<T, ret_type_dummy
 #ifdef __clang__
 , RecursionCounter
 #endif
->{
-  using ret_type = typename T::ret_type;
-  T t;
- public:
-  constexpr Lampads() = default;
-  constexpr Lampads(const Lampads&) = default;
-  constexpr Lampads(Lampads&&) = default;
-  template<typename X, typename... Args>
-  constexpr Lampads(X&& x, Args&&... args):t(veiler::forward<X>(x), veiler::forward<Args>(args)...){}
+> VEILER_LAMPADS_DECL_LAMPADS(
   template<typename... Args>
   constexpr auto operator()(Args&&... args)const
                         ->typename ret_type::template type<void, unwrap_refil_t<Args>...>{
     return t.template run<typename ret_type::template type<void, unwrap_refil_t<Args>...> VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...);
   }
-  static constexpr T&& _get(Lampads&& t){return veiler::forward<T>(t.t);}
-  static constexpr const T& _get(const Lampads& t){return t.t;}
-};
+);
+
+#undef VEILER_LAMPADS_DECL_LAMPADS
 
 
 template<typename T>
@@ -208,7 +204,7 @@ constexpr typename udl_to_variadic_placeholder<0, Chars...,'\0'>::type operator"
 }
 
 
-#define DECL_BIOPE(ope,id) \
+#define VEILER_LAMPADS_DECL_BIOPE(ope,id) \
   template<typename T, typename U>\
   class id{\
     T t;\
@@ -247,7 +243,7 @@ constexpr typename udl_to_variadic_placeholder<0, Chars...,'\0'>::type operator"
      return Lampads<id<unwrap_lampads_or_valize_t<T>, unwrap_lampads_or_valize_t<U>>>(unwrap_lampads_or_valize(veiler::forward<T>(t)), unwrap_lampads_or_valize(veiler::forward<U>(u)));\
   }
 
-#define DECL_UNOPE(ope,id)\
+#define VEILER_LAMPADS_DECL_UNOPE(ope,id)\
   template<typename T>\
   class id{\
     T t;\
@@ -281,7 +277,7 @@ constexpr typename udl_to_variadic_placeholder<0, Chars...,'\0'>::type operator"
      return Lampads<id<unwrap_lampads_or_valize_t<T>>>(unwrap_lampads_or_valize(veiler::forward<T>(t)));\
   }
 
-#define DECL_PSOPE(ope,id)\
+#define VEILER_LAMPADS_DECL_PSOPE(ope,id)\
   template<typename T>\
   class id{\
     T t;\
@@ -315,48 +311,48 @@ constexpr typename udl_to_variadic_placeholder<0, Chars...,'\0'>::type operator"
      return Lampads<id<unwrap_lampads_or_valize_t<T>>>(unwrap_lampads_or_valize(veiler::forward<T>(t)));\
   }
 
-  DECL_BIOPE(+,Add)
-  DECL_BIOPE(-,Sub)
-  DECL_BIOPE(*,Mul)
-  DECL_BIOPE(/,Div)
-  DECL_BIOPE(%,Rem)
-  DECL_BIOPE(==,Eq)
-  DECL_BIOPE(!=,Ne)
-  DECL_BIOPE(<,Lt)
-  DECL_BIOPE(>,Gt)
-  DECL_BIOPE(<=,Le)
-  DECL_BIOPE(>=,Ge)
-  DECL_BIOPE(&&,And)
-  DECL_BIOPE(||,Or)
-  DECL_BIOPE(<<,Lsh)
-  DECL_BIOPE(>>,Rsh)
-  DECL_BIOPE(&,Band)
-  DECL_BIOPE(|,Bor)
-  DECL_BIOPE(^,Bxor)
-  DECL_BIOPE(+=,Sadd)
-  DECL_BIOPE(-=,Ssub)
-  DECL_BIOPE(*=,Smul)
-  DECL_BIOPE(/=,Sdiv)
-  DECL_BIOPE(%=,Srem)
-  DECL_BIOPE(<<=,Slsh)
-  DECL_BIOPE(>>=,Srsh)
-  DECL_BIOPE(&=,Sand)
-  DECL_BIOPE(|=,Sor)
-  DECL_BIOPE(VEILER_PELOPS_ULLR_COMMA,Comma)
-  DECL_UNOPE(+,Pos)
-  DECL_UNOPE(-,Neg)
-  DECL_UNOPE(++,PreInc)
-  DECL_UNOPE(--,PreDec)
-  DECL_PSOPE(++,PostInc)
-  DECL_PSOPE(--,PostDec)
-  DECL_UNOPE(!,Not)
-  DECL_UNOPE(~,Bnot)
-  DECL_UNOPE(*,Ref)
-  DECL_UNOPE(&,Addr)
+  VEILER_LAMPADS_DECL_BIOPE(+,Add)
+  VEILER_LAMPADS_DECL_BIOPE(-,Sub)
+  VEILER_LAMPADS_DECL_BIOPE(*,Mul)
+  VEILER_LAMPADS_DECL_BIOPE(/,Div)
+  VEILER_LAMPADS_DECL_BIOPE(%,Rem)
+  VEILER_LAMPADS_DECL_BIOPE(==,Eq)
+  VEILER_LAMPADS_DECL_BIOPE(!=,Ne)
+  VEILER_LAMPADS_DECL_BIOPE(<,Lt)
+  VEILER_LAMPADS_DECL_BIOPE(>,Gt)
+  VEILER_LAMPADS_DECL_BIOPE(<=,Le)
+  VEILER_LAMPADS_DECL_BIOPE(>=,Ge)
+  VEILER_LAMPADS_DECL_BIOPE(&&,And)
+  VEILER_LAMPADS_DECL_BIOPE(||,Or)
+  VEILER_LAMPADS_DECL_BIOPE(<<,Lsh)
+  VEILER_LAMPADS_DECL_BIOPE(>>,Rsh)
+  VEILER_LAMPADS_DECL_BIOPE(&,Band)
+  VEILER_LAMPADS_DECL_BIOPE(|,Bor)
+  VEILER_LAMPADS_DECL_BIOPE(^,Bxor)
+  VEILER_LAMPADS_DECL_BIOPE(+=,Sadd)
+  VEILER_LAMPADS_DECL_BIOPE(-=,Ssub)
+  VEILER_LAMPADS_DECL_BIOPE(*=,Smul)
+  VEILER_LAMPADS_DECL_BIOPE(/=,Sdiv)
+  VEILER_LAMPADS_DECL_BIOPE(%=,Srem)
+  VEILER_LAMPADS_DECL_BIOPE(<<=,Slsh)
+  VEILER_LAMPADS_DECL_BIOPE(>>=,Srsh)
+  VEILER_LAMPADS_DECL_BIOPE(&=,Sand)
+  VEILER_LAMPADS_DECL_BIOPE(|=,Sor)
+  VEILER_LAMPADS_DECL_BIOPE(VEILER_PELOPS_ULLR_COMMA,Comma)
+  VEILER_LAMPADS_DECL_UNOPE(+,Pos)
+  VEILER_LAMPADS_DECL_UNOPE(-,Neg)
+  VEILER_LAMPADS_DECL_UNOPE(++,PreInc)
+  VEILER_LAMPADS_DECL_UNOPE(--,PreDec)
+  VEILER_LAMPADS_DECL_PSOPE(++,PostInc)
+  VEILER_LAMPADS_DECL_PSOPE(--,PostDec)
+  VEILER_LAMPADS_DECL_UNOPE(!,Not)
+  VEILER_LAMPADS_DECL_UNOPE(~,Bnot)
+  VEILER_LAMPADS_DECL_UNOPE(*,Ref)
+  VEILER_LAMPADS_DECL_UNOPE(&,Addr)
 
-#undef DECL_BIOPE
-#undef DECL_UNOPE
-#undef DECL_PSOPE
+#undef VEILER_LAMPADS_DECL_BIOPE
+#undef VEILER_LAMPADS_DECL_UNOPE
+#undef VEILER_LAMPADS_DECL_PSOPE
 
 
 template<typename, typename, typename = void>
