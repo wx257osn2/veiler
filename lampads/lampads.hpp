@@ -134,6 +134,10 @@ template<typename T, typename R>
 struct is_lampads<Lampads<T, R>> : std::true_type{};
 
 
+template<typename T, typename std::enable_if<!is_lampads<T>::value>::type* = nullptr>
+constexpr Lampads<Val<unwrap_refil_t<T>>> val(T&& t){return unwrap_refil_or_copy(veiler::forward<T>(t));}
+
+
 template<long long N, typename = void>struct Placeholder;
 template<long long N>
 struct Placeholder<N, typename std::enable_if<(N>0)>::type>{
@@ -519,6 +523,7 @@ using _detail::lampads::udl::operator"" _tail;
 using _detail::lampads::self;
 using _detail::lampads::bind;
 using _detail::lampads::ret;
+using _detail::lampads::val;
 
 }//End : namespace lampads
 
