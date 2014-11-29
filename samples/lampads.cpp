@@ -25,6 +25,6 @@ int main(){
   static_assert(f(3) == false, "");
   constexpr auto g = if_(f)[1_].else_[1_ + 1](3);
   static_assert(g == 4, "");
-  constexpr auto h = if_(num_of_args == 1)[1_].else_[self(1_ + 2_, 2_tail)](1, 2, 3);
+  constexpr auto h = if_(num_of_args == 1ul)[1_].else_[self(1_ + 2_, 2_tail)](1, 2, 3);
   static_assert(h == 6, "");
 }
