@@ -241,10 +241,15 @@ struct Placeholder<N, typename std::enable_if<(N>0)>::type>{
     ->decltype((veiler::get<N-1>(veiler::forward_as_tuple<Args&&...>(veiler::forward<Args>(args)...)))){
          return veiler::get<N-1>(veiler::forward_as_tuple<Args&&...>(veiler::forward<Args>(args)...));
   }
-  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<N-1 < sizeof...(Args)>::type* = nullptr>
   constexpr auto bind_run(const S&, Args&&... args)const
     ->decltype((veiler::make_tuple(veiler::get<N-1>(veiler::forward_as_tuple<Args&&...>(veiler::forward<Args>(args)...))))){
          return veiler::make_tuple(veiler::get<N-1>(veiler::forward_as_tuple<Args&&...>(veiler::forward<Args>(args)...)));
+  }
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<(N-1 >= sizeof...(Args))>::type* = nullptr>
+  constexpr auto bind_run(const S&, Args&&...)const
+    ->veiler::tuple<>{
+    return veiler::make_tuple();
   }
 };
 template<long long N>
@@ -263,10 +268,15 @@ struct Placeholder<N, typename std::enable_if<(N<=0)>::type>{
     //throw std::logic_error("Veiler.Lampads - can't use variadic placeholder except in self and bind.");
     return R{};
   }
-  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<-N < sizeof...(Args)>::type* = nullptr>
   constexpr auto bind_run(const S&, Args&&... args)const
     ->decltype((this->run_impl(veiler::make_index_range<-N, sizeof...(Args)>{}, veiler::forward<Args>(args)...))){
          return this->run_impl(veiler::make_index_range<-N, sizeof...(Args)>{}, veiler::forward<Args>(args)...);
+  }
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<(-N >= sizeof...(Args))>::type* = nullptr>
+  constexpr auto bind_run(const S&, Args&&...)const
+    ->veiler::tuple<>{
+    return veiler::make_tuple();
   }
 };
 
@@ -320,6 +330,16 @@ constexpr typename udl_to_variadic_placeholder<0, Chars...,'\0'>::type operator"
     constexpr auto bind_run_impl(veiler::tuple<LTypes...> lt, veiler::tuple<RTypes...> rt, veiler::index_tuple<Indices...>)const\
       ->decltype((veiler::make_tuple((veiler::get<Indices>(veiler::forward<veiler::tuple<LTypes...>>(lt)) ope veiler::get<Indices>(veiler::forward<veiler::tuple<RTypes...>>(rt)))...))){\
            return veiler::make_tuple((veiler::get<Indices>(veiler::forward<veiler::tuple<LTypes...>>(lt)) ope veiler::get<Indices>(veiler::forward<veiler::tuple<RTypes...>>(rt)))...);\
+    }\
+    template<typename... RTypes, long long... Indices>\
+    constexpr auto bind_run_impl(veiler::tuple<>, veiler::tuple<RTypes...> rt, veiler::index_tuple<Indices...>)const\
+      ->veiler::tuple<RTypes...>{\
+      return veiler::forward<veiler::tuple<RTypes...>>(rt);\
+    }\
+    template<typename... LTypes, long long... Indices>\
+    constexpr auto bind_run_impl(veiler::tuple<LTypes...> lt, veiler::tuple<>, veiler::index_tuple<Indices...>)const\
+      ->veiler::tuple<LTypes...>{\
+      return veiler::forward<veiler::tuple<LTypes...>>(lt);\
     }\
     template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>\
     constexpr auto bind_run(const S& s, Args&&... args)const\

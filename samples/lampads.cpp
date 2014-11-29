@@ -18,14 +18,12 @@ int main(){
   static_assert(c == 24,"");
   constexpr auto d = bind(func, 0_tail)(1,2,3);
   static_assert(d == 6, "");
-#ifndef __clang__
   constexpr auto e = if_(1_ == 3)[bind(func, 1_tail)].else_[self(1_ + 1, 1_tail)](1, 1, 2, 3);
-#else
-  constexpr auto e = if_(1_ == 3)[2_ + 3_ + 4_].else_[self(1_ + 1, 1_tail)](1, 1, 2, 3);
-#endif
   static_assert(e == 6, "");
   constexpr auto f = 1_ % 2 == 0;
   static_assert(f(3) == false, "");
   constexpr auto g = if_(f)[1_].else_[1_ + 1](3);
   static_assert(g == 4, "");
+  constexpr auto h = if_(1_ == 0)[2_].else_[self(1_ - 1, 2_ + 3_, 3_tail)](3, 1, 2, 3);
+  static_assert(h == 6, "");
 }
