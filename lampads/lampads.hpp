@@ -183,7 +183,7 @@ class Lampads VEILER_LAMPADS_DECL_LAMPADS(
   using result_type = R;
   template<typename... Args>
   constexpr R operator()(Args&&... args)const{
-    return t.template run<R VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...);
+    return static_cast<R>(t.template run<R VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...));
   }
 );
 template<typename T
