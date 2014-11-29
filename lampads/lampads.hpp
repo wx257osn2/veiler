@@ -225,7 +225,9 @@ struct is_lampads<Lampads<T, R>> : std::true_type{};
 
 
 template<typename T, typename std::enable_if<!is_lampads<T>::value>::type* = nullptr>
-constexpr Lampads<Val<unwrap_refil_t<T>>> val(T&& t){return unwrap_refil_or_copy(veiler::forward<T>(t));}
+constexpr Lampads<Val<unwrap_refil_t<T>>> val(T&& t){
+   return Lampads<Val<unwrap_refil_t<T>>>(unwrap_refil_or_copy(veiler::forward<T>(t)));
+}
 
 
 template<long long N, typename = void>struct Placeholder;
