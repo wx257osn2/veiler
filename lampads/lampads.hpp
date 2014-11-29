@@ -308,6 +308,28 @@ constexpr typename udl_to_variadic_placeholder<0, Chars...,'\0'>::type operator"
 }
 
 
+struct NumOfArgs{
+  using ret_type = struct:std::true_type{
+    template<typename, typename...>
+    using type = std::size_t;
+  };
+  constexpr NumOfArgs() = default;
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
+  constexpr std::size_t run(const S&, Args&&...)const{
+    return sizeof...(Args);
+  }
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
+  constexpr veiler::tuple<std::size_t> bind_run(const S&, Args&&...)const{
+    return veiler::make_tuple(sizeof...(Args));
+  }
+};
+
+namespace{
+
+constexpr Lampads<NumOfArgs> num_of_args{};
+
+}
+
 #define VEILER_LAMPADS_DECL_BIOPE(ope,id) \
   template<typename T, typename U>\
   class id{\
@@ -634,6 +656,7 @@ using _detail::lampads::self;
 using _detail::lampads::bind;
 using _detail::lampads::ret;
 using _detail::lampads::val;
+using _detail::lampads::num_of_args;
 
 }//End : namespace lampads
 

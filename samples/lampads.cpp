@@ -5,6 +5,7 @@ using veiler::lampads::udl::operator"" _tail;
 using veiler::lampads::self;
 using veiler::lampads::bind;
 using veiler::lampads::ret;
+using veiler::lampads::num_of_args;
 
 constexpr auto func(int a, int b, int c)->int{
   return a + b + c;
@@ -24,6 +25,6 @@ int main(){
   static_assert(f(3) == false, "");
   constexpr auto g = if_(f)[1_].else_[1_ + 1](3);
   static_assert(g == 4, "");
-  constexpr auto h = if_(1_ == 0)[2_].else_[self(1_ - 1, 2_ + 3_, 3_tail)](3, 1, 2, 3);
+  constexpr auto h = if_(num_of_args == 1)[1_].else_[self(1_ + 2_, 2_tail)](1, 2, 3);
   static_assert(h == 6, "");
 }
