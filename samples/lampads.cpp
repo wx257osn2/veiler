@@ -5,11 +5,17 @@ using veiler::lampads::udl::operator"" _tail;
 using veiler::lampads::self;
 using veiler::lampads::bind;
 using veiler::lampads::ret;
+using veiler::lampads::val;
 using veiler::lampads::num_of_args;
 
 constexpr auto func(int a, int b, int c)->int{
   return a + b + c;
 }
+
+struct hoge{
+  int a, b;
+  constexpr hoge(int a, int b):a(a), b(b){}
+};
 
 int main(){
   constexpr auto a = if_(1_ == 3)[3].else_[2_](1,2,3,4);
@@ -27,4 +33,6 @@ int main(){
   static_assert(g == 4, "");
   constexpr auto h = if_(num_of_args == 1ul)[1_].else_[self(1_ + 2_, 2_tail)](1, 2, 3);
   static_assert(h == 6, "");
+  constexpr auto i = val<hoge>(1, 2)();
+  static_assert(i.a == 1 && i.b == 2, "");
 }

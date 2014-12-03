@@ -44,8 +44,8 @@ class Val{
   using ret_type = struct:std::true_type{
     template<typename...>using type = T;
   };
-  constexpr Val() = default;
-  constexpr Val(T&& t):t(veiler::forward<T>(t)){}
+  template<typename... Args>
+  constexpr Val(Args&&... args):t(veiler::forward<Args>(args)...){}
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename... Args>
   constexpr T run(Args&&...)const{return t;}
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename... Args>
@@ -228,6 +228,12 @@ template<typename T, typename std::enable_if<!is_lampads<T>::value>::type* = nul
 constexpr Lampads<Val<unwrap_refil_t<T>>> val(T&& t){
    return Lampads<Val<unwrap_refil_t<T>>>(unwrap_refil_or_copy(veiler::forward<T>(t)));
 }
+
+template<typename T, typename... Args, typename std::enable_if<!is_lampads<T>::value>::type* = nullptr>
+constexpr Lampads<Val<T>> val(Args&&... args){
+   return Lampads<Val<T>>(veiler::forward<Args>(args)...);
+}
+
 
 
 template<long long N, typename = void>struct Placeholder;
