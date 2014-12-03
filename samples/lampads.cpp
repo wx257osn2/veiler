@@ -35,4 +35,7 @@ int main(){
   static_assert(h == 6, "");
   constexpr auto i = val<hoge>(1, 2)();
   static_assert(i.a == 1 && i.b == 2, "");
+  constexpr auto j = ret<double>(if_(1_ == 0)[1].else_[1_ * self(1_-1)]);
+  static_assert(std::is_same<decltype(j)::result_type, double>::value, "");
+  static_assert(j(4) == 24., "");
 }
