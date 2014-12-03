@@ -55,7 +55,7 @@ class Val{
 
 
 struct ret_type_dummy:std::false_type{
-  template<typename R, typename...>using type = R;
+  template<typename...>using type = void;
   static constexpr bool depends_on_args = true;
 };
 
@@ -65,8 +65,8 @@ class Brac{
   T t;
   U u;
   struct ret_type_t:std::true_type{
-    template<typename R, typename... Args>
-    using type = decltype((std::declval<typename T::ret_type::template type<R, Args...>>()[std::declval<typename U::ret_type::template type<R, Args...>>()]));
+    template<typename... Args>
+    using type = decltype((std::declval<typename T::ret_type::template type<Args...>>()[std::declval<typename U::ret_type::template type<Args...>>()]));
     static constexpr bool depends_on_args = T::ret_type::depends_on_args || U::ret_type::depends_on_args;
   };
  public:
@@ -101,8 +101,8 @@ class Asgn{
   T t;
   U u;
   struct ret_type_t:std::true_type{
-    template<typename R, typename... Args>
-    using type = decltype((std::declval<typename T::ret_type::template type<R, Args...>>() = std::declval<typename U::ret_type::template type<R, Args...>>()));
+    template<typename... Args>
+    using type = decltype((std::declval<typename T::ret_type::template type<Args...>>() = std::declval<typename U::ret_type::template type<Args...>>()));
     static constexpr bool depends_on_args = T::ret_type::depends_on_args || U::ret_type::depends_on_args;
   };
  public:
@@ -192,7 +192,7 @@ class Lampads<T
 #endif
 , typename std::enable_if<T::ret_type::depends_on_args == false>::type
 > VEILER_LAMPADS_DECL_LAMPADS(
-  using result_type = typename T::ret_type::template type<ret_type_dummy>;
+  using result_type = typename T::ret_type::template type<>;
   template<typename... Args>
   constexpr result_type operator()(Args&&... args)const{
     return veiler::forward<result_type>(t.template run<result_type VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...));
@@ -211,8 +211,8 @@ class Lampads<T
 > VEILER_LAMPADS_DECL_LAMPADS(
   template<typename... Args>
   constexpr auto operator()(Args&&... args)const
-                        ->typename ret_type::template type<void, unwrap_refil_t<Args>...>{
-    return t.template run<typename ret_type::template type<void, unwrap_refil_t<Args>...> VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...);
+                        ->typename ret_type::template type<unwrap_refil_t<Args>...>{
+    return t.template run<typename ret_type::template type<unwrap_refil_t<Args>...> VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...);
   }
 );
 
@@ -249,7 +249,7 @@ class Ret{
   T t;
  public:
   struct ret_type:std::true_type{
-    template<typename, typename...>using type = RetType;
+    template<typename...>using type = RetType;
     static constexpr bool depends_on_args = false;
   };
   constexpr Ret(T&& t):t(veiler::forward<T>(t)){}
@@ -270,7 +270,7 @@ template<long long N, typename = void>struct Placeholder;
 template<long long N>
 struct Placeholder<N, typename std::enable_if<(N>0)>::type>{
   struct ret_type:std::true_type{
-    template<typename, typename... Args>
+    template<typename... Args>
     using type = veiler::type_at<veiler::type_tuple<Args...>, N-1>;
     static constexpr bool depends_on_args = true;
   };
@@ -349,7 +349,7 @@ constexpr typename udl_to_variadic_placeholder<0, Chars...,'\0'>::type operator"
 
 struct NumOfArgs{
   struct ret_type:std::true_type{
-    template<typename, typename...>
+    template<typename...>
     using type = std::size_t;
     static constexpr bool depends_on_args = false;
   };
@@ -374,8 +374,8 @@ constexpr Lampads<NumOfArgs> num_of_args{};
     T t;\
     U u;\
     struct ret_type_t:std::true_type{\
-      template<typename R, typename... Args>\
-      using type = decltype((std::declval<typename T::ret_type::template type<R, Args...>>() ope std::declval<typename U::ret_type::template type<R, Args...>>()));\
+      template<typename... Args>\
+      using type = decltype((std::declval<typename T::ret_type::template type<Args...>>() ope std::declval<typename U::ret_type::template type<Args...>>()));\
       static constexpr bool depends_on_args = T::ret_type::depends_on_args || U::ret_type::depends_on_args;\
     };\
    public:\
@@ -423,8 +423,8 @@ constexpr Lampads<NumOfArgs> num_of_args{};
   class id{\
     T t;\
     struct ret_type_t:std::true_type{\
-      template<typename R, typename... Args>\
-      using type = decltype((ope std::declval<typename T::ret_type::template type<R, Args...>>()));\
+      template<typename... Args>\
+      using type = decltype((ope std::declval<typename T::ret_type::template type<Args...>>()));\
       static constexpr bool depends_on_args = T::ret_type::depends_on_args;\
     };\
    public:\
@@ -458,8 +458,8 @@ constexpr Lampads<NumOfArgs> num_of_args{};
   class id{\
     T t;\
     struct ret_type_t:std::true_type{\
-      template<typename R, typename... Args>\
-      using type = decltype((std::declval<typename T::ret_type::template type<R, Args...>>() ope));\
+      template<typename... Args>\
+      using type = decltype((std::declval<typename T::ret_type::template type<Args...>>() ope));\
       static constexpr bool depends_on_args = T::ret_type::depends_on_args;\
     };\
    public:\
@@ -553,34 +553,30 @@ struct common_type<T, U, typename std::enable_if<std::is_convertible<T, U>::valu
 template<typename, typename, typename = void>struct _IfImpl_ret_type;
 template<typename T, typename U>
 struct _IfImpl_ret_type<T, U, typename std::enable_if< T::ret_type::value &&  U::ret_type::value>::type>{
-  template<typename R, typename... Args>
-  using type = typename common_type<typename T::ret_type::template type<R, Args...>, typename U::ret_type::template type<R, Args...>>::type;
+  template<typename... Args>
+  using type = typename common_type<typename T::ret_type::template type<Args...>, typename U::ret_type::template type<Args...>>::type;
   static constexpr bool depends_on_args = T::ret_type::depends_on_args || U::ret_type::depends_on_args;
 };
 template<typename T, typename U>
 struct _IfImpl_ret_type<T, U, typename std::enable_if< T::ret_type::value && !U::ret_type::value>::type>{
-  template<typename R, typename... Args>
-  using type = typename T::ret_type::template type<R, Args...>;
+  template<typename... Args>
+  using type = typename T::ret_type::template type<Args...>;
   static constexpr bool depends_on_args = T::ret_type::depends_on_args;
 };
 template<typename T, typename U>
 struct _IfImpl_ret_type<T, U, typename std::enable_if<!T::ret_type::value &&  U::ret_type::value>::type>{
-  template<typename R, typename... Args>
-  using type = typename U::ret_type::template type<R, Args...>;
+  template<typename... Args>
+  using type = typename U::ret_type::template type<Args...>;
   static constexpr bool depends_on_args = U::ret_type::depends_on_args;
 };
 template<typename T, typename U>
-struct _IfImpl_ret_type<T, U, typename std::enable_if<!T::ret_type::value && !U::ret_type::value>::type>{
-  template<typename R, typename...>
-  using type = R;
-  static constexpr bool depends_on_args = false;
-};
+struct _IfImpl_ret_type<T, U, typename std::enable_if<!T::ret_type::value && !U::ret_type::value>::type>:ret_type_dummy{};
 
 template<typename C, typename T, typename U>class IfImpl{
   C c; T t; U u;
   struct ret_type_t:std::true_type{
-    template<typename R, typename... Args>
-    using type = typename _IfImpl_ret_type<T, U>::template type<R, Args...>;
+    template<typename... Args>
+    using type = typename _IfImpl_ret_type<T, U>::template type<Args...>;
     static constexpr bool depends_on_args = _IfImpl_ret_type<T, U>::depends_on_args;
   };
  public:
@@ -588,7 +584,7 @@ template<typename C, typename T, typename U>class IfImpl{
   constexpr IfImpl(C c, T t, U u):c(veiler::forward<C>(c)),t(veiler::forward<T>(t)),u(veiler::forward<U>(u)){}
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr auto run(const S& s, Args&&... args)const
-    ->typename _IfImpl_ret_type<T, U>::template type<R, Args...>{
+    ->typename _IfImpl_ret_type<T, U>::template type<Args...>{
     return c.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)
           ?t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)
           :u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...);}
@@ -638,7 +634,7 @@ class Bind{
 #endif
  public:
   struct ret_type:std::true_type{
-    template<typename, typename... Args>
+    template<typename...>
     using type = typename veiler::func_troy<F>::result_type;
     static constexpr bool depends_on_args = false;
   };
