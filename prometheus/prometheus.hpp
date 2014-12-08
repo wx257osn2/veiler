@@ -1,11 +1,12 @@
 #ifndef VEILER_PROMETHEUS_HPP_INCLUDED
 #define VEILER_PROMETHEUS_HPP_INCLUDED
 
-#include<utility>
+#include<cstddef>
+#include<type_traits>
 
 namespace veiler{
 
-namespace detail{
+namespace _detail{
 
 namespace prometheus{
 
@@ -17,10 +18,10 @@ template<>             struct prometheus<0>{};
 }
 
 template<std::size_t N>
-using prometheus = const detail::prometheus::prometheus<N>*const;
+using prometheus = const _detail::prometheus::prometheus<N>*const;
 
 template<std::size_t N>
-constexpr prometheus<N> prometheus_fire(){return static_cast<prometheus<N>>(nullptr);}
+constexpr typename std::remove_const<prometheus<N>>::type prometheus_fire(){return static_cast<prometheus<N>>(nullptr);}
 
 
 }//End : namespace veiler
