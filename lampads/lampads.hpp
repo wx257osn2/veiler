@@ -233,7 +233,7 @@ template<typename T>
 struct is_lampads<Lampads<T>> : std::true_type{};
 
 
-template<typename T, typename std::enable_if<!is_lampads<T>::value>::type* = nullptr>
+template<typename T>
 constexpr Lampads<Val<unwrap_refil_t<T>>> val(T&& t){
    return Lampads<Val<unwrap_refil_t<T>>>(unwrap_refil_or_copy(veiler::forward<T>(t)));
 }

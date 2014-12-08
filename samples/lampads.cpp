@@ -42,4 +42,6 @@ int main(){
   static_assert(j(4) == 24., "");
   constexpr auto k = 1_ ->* _a;
   static_assert(k(i) == 1, "");
+  constexpr auto l = 1_ - val(1_);
+  static_assert(l(2)(1) == 1, "");
 }
