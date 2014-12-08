@@ -686,6 +686,18 @@ constexpr Lampads<Self<unwrap_lampads_or_valize_t<Params>...>> self(Params&&... 
 }
 
 
+#define VEILER_LAMPADS_POLYMORPHIC_VALUE_MEMBER_ACCESSOR(member) \
+  struct VEILER_PELOPS_ULLR_CAT(member, Accessor){\
+    constexpr VEILER_PELOPS_ULLR_CAT(member, Accessor)() = default;\
+    template<typename T, typename std::enable_if<std::is_rvalue_reference<T&&>::value>::type* = nullptr>\
+    friend constexpr auto operator->*(T&& lhs, const VEILER_PELOPS_ULLR_CAT(member, Accessor)&)->decltype(veiler::forward<T>(lhs).member){return veiler::forward<T>(lhs).member;}\
+    template<typename T, typename std::enable_if<std::is_lvalue_reference<typename std::remove_const<T&&>::type>::value>::type* = nullptr>\
+    friend constexpr auto operator->*(T&& lhs, const VEILER_PELOPS_ULLR_CAT(member, Accessor)&)->decltype((lhs.member)){return lhs.member;}\
+  }
+
+
+
+
 #undef VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH
 #undef VEILER_LAMPADS_RECURSION_COUNTER
 #undef VEILER_LAMPADS_RECURSION_COUNTER_DECL

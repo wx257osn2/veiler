@@ -17,6 +17,8 @@ struct hoge{
   constexpr hoge(int a, int b):a(a), b(b){}
 };
 
+constexpr VEILER_LAMPADS_POLYMORPHIC_VALUE_MEMBER_ACCESSOR(a) _a{};
+
 int main(){
   constexpr auto a = if_(1_ == 3)[3].else_[2_](1,2,3,4);
   constexpr auto b = (3_ * 4)(1,2,3,4);
@@ -38,4 +40,6 @@ int main(){
   constexpr auto j = ret<double>(if_(1_ == 0)[1].else_[1_ * self(1_-1)]);
   static_assert(std::is_same<decltype(j)::result_type, double>::value, "");
   static_assert(j(4) == 24., "");
+  constexpr auto k = 1_ ->* _a;
+  static_assert(k(i) == 1, "");
 }
