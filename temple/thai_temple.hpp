@@ -39,6 +39,18 @@ template<std::size_t N, typename T = void>
 using make_type_tuple = typename make_type_tuple_impl<N, T>::type;
 
 
+template<typename>struct tuple_size_impl;
+template<template<typename...>class Tuple, typename... Types>
+struct tuple_size_impl<Tuple<Types...>>{
+  static constexpr std::size_t value = sizeof...(Types);
+  constexpr operator std::size_t()const{return value;}
+  constexpr tuple_size_impl(){}
+};
+
+template<typename T>
+using tuple_size = tuple_size_impl<typename std::remove_cv<typename std::remove_reference<T>::type>::type>;
+
+
 template<typename>struct type_at_impl_impl_impl;
 template<typename... Types>
 struct type_at_impl_impl_impl<type_tuple<Types...>>{template<typename T>static T eval(Types*..., T*, ...);};
@@ -50,6 +62,7 @@ struct type_at_impl_impl{
 
 template<typename T, std::size_t N>
 class type_at_impl{
+  static_assert(tuple_size<T>::value > N, "Veiler.Temple - type_at can't access there, out of range.");
   template<template<typename...>class Type, class... Args>
   static auto impl(type_wrapper<Type<Args...>>)->typename type_at_impl_impl<N, type_wrapper<Args>...>::type;
  public:
@@ -59,16 +72,6 @@ class type_at_impl{
 template<typename T, std::size_t N>
 using type_at = typename type_at_impl<typename std::remove_cv<typename std::remove_reference<T>::type>::type, N>::type;
 
-template<typename>struct tuple_size_impl;
-template<template<typename...>class Tuple, typename... Types>
-struct tuple_size_impl<Tuple<Types...>>{
-  static constexpr std::size_t value = sizeof...(Types);
-  constexpr operator std::size_t()const{return value;}
-  constexpr tuple_size_impl(){}
-};
-
-template<typename T>
-using tuple_size = tuple_size_impl<typename std::remove_cv<typename std::remove_reference<T>::type>::type>;
 
 struct duplicate_type;
 template<long long A, long long B>struct add{static const long long value = A+B;static const long long default_value = 0;};
