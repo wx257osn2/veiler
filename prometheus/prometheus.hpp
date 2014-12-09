@@ -21,7 +21,7 @@ template<std::size_t N>
 using prometheus = const _detail::prometheus::prometheus<N>*const;
 
 template<std::size_t N>
-constexpr typename std::remove_const<prometheus<N>>::type prometheus_fire(){return static_cast<prometheus<N>>(nullptr);}
+constexpr typename std::decay<prometheus<N>>::type prometheus_fire(){return static_cast<prometheus<N>>(nullptr);}
 
 
 }//End : namespace veiler
