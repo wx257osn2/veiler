@@ -755,6 +755,10 @@ using _detail::lampads::bind;
 using _detail::lampads::ret;
 using _detail::lampads::val;
 using _detail::lampads::num_of_args;
+template<long long N>
+using arg_t = _detail::lampads::Lampads<_detail::lampads::Placeholder<N>>;
+template<long long N>
+using arg_tail_t = _detail::lampads::Lampads<_detail::lampads::Placeholder<-N>>;
 
 }//End : namespace lampads
 
