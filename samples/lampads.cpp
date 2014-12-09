@@ -17,7 +17,7 @@ struct hoge{
   constexpr hoge(int a, int b):a(a), b(b){}
 };
 
-constexpr VEILER_LAMPADS_POLYMORPHIC_VALUE_MEMBER_ACCESSOR(a) _a{};
+constexpr VEILER_LAMPADS_POLYMORPHIC_MEMBER_ACCESSOR(a) _a{};
 
 int main(){
   constexpr auto a = if_(1_ == 3)[3].else_[2_](1,2,3,4);
