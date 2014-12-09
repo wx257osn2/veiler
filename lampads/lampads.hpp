@@ -266,9 +266,9 @@ template<typename R, typename T>
 constexpr Lampads<Ret<R, T>> ret(const Lampads<T>& t){return Lampads<Ret<R, T>>{Lampads<T>::_get(t)};}
 
 
-template<long long N, typename = void>struct Placeholder;
 template<long long N>
-struct Placeholder<N, typename std::enable_if<(N>0)>::type>{
+struct Placeholder{
+  static_assert(N > 0, "Veiler.Lampads - Placeholder can't be negative and zero.");
   struct ret_type:std::true_type{
     template<typename... Args>
     using type = veiler::type_at<veiler::type_tuple<Args...>, N-1>;
@@ -292,7 +292,8 @@ struct Placeholder<N, typename std::enable_if<(N>0)>::type>{
   }
 };
 template<long long N>
-struct Placeholder<N, typename std::enable_if<(N<=0)>::type>{
+struct VariadicPlaceholder{
+  static_assert(N >= 0, "Veiler.Lampads - VariadicPlaceholder can't be negative.");
  private:
   template<long long... Indices, typename... Args>
   constexpr auto run_impl(veiler::index_tuple<Indices...>, Args&&... args)const
@@ -301,18 +302,18 @@ struct Placeholder<N, typename std::enable_if<(N<=0)>::type>{
   }
  public:
   using ret_type = ret_type_dummy;
-  constexpr Placeholder() = default;
+  constexpr VariadicPlaceholder() = default;
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr R run(const S&, Args&&...)const{
     //throw std::logic_error("Veiler.Lampads - can't use variadic placeholder except in self and bind.");
     return R{};
   }
-  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<-N < sizeof...(Args)>::type* = nullptr>
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<N < sizeof...(Args)>::type* = nullptr>
   constexpr auto bind_run(const S&, Args&&... args)const
-    ->decltype((this->run_impl(veiler::make_index_range<-N, sizeof...(Args)>{}, veiler::forward<Args>(args)...))){
-         return this->run_impl(veiler::make_index_range<-N, sizeof...(Args)>{}, veiler::forward<Args>(args)...);
+    ->decltype((this->run_impl(veiler::make_index_range<N, sizeof...(Args)>{}, veiler::forward<Args>(args)...))){
+         return this->run_impl(veiler::make_index_range<N, sizeof...(Args)>{}, veiler::forward<Args>(args)...);
   }
-  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<(-N >= sizeof...(Args))>::type* = nullptr>
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<(N >= sizeof...(Args))>::type* = nullptr>
   constexpr auto bind_run(const S&, Args&&...)const
     ->veiler::tuple<>{
     return veiler::make_tuple();
@@ -338,7 +339,7 @@ struct udl_to_variadic_placeholder{
   using type = typename std::enable_if<'0'<=c && c<='9', typename udl_to_variadic_placeholder<N*10 + c-'0', Chars...>::type>::type;
 };
 template<long long N>
-struct udl_to_variadic_placeholder<N,'\0'>{using type = Lampads<Placeholder<-N>>;};
+struct udl_to_variadic_placeholder<N,'\0'>{using type = Lampads<VariadicPlaceholder<N>>;};
 template<char... Chars>
 constexpr typename udl_to_variadic_placeholder<0, Chars...,'\0'>::type operator""_tail(){
    return typename udl_to_variadic_placeholder<0, Chars...,'\0'>::type{};
@@ -758,7 +759,7 @@ using _detail::lampads::num_of_args;
 template<long long N>
 using arg_t = _detail::lampads::Lampads<_detail::lampads::Placeholder<N>>;
 template<long long N>
-using arg_tail_t = _detail::lampads::Lampads<_detail::lampads::Placeholder<-N>>;
+using arg_tail_t = _detail::lampads::Lampads<_detail::lampads::VariadicPlaceholder<N>>;
 
 }//End : namespace lampads
 
