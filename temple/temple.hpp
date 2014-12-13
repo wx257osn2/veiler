@@ -26,6 +26,7 @@ namespace detail{
 
 namespace temple{
 
+namespace here = temple;
 
 
 template<typename...>class value_btree;
@@ -928,8 +929,8 @@ class _apply_impl_t{
     F f;
     template<typename Func, typename Tuple, long long... Indices>
     static constexpr auto impl(Func&& f, Tuple&& tup, index_tuple<Indices...>)
-      ->decltype(veiler::invoke(veiler::forward<Func>(f), get<Indices>(veiler::forward<Tuple>(tup))...)){
-          return veiler::invoke(veiler::forward<Func>(f), get<Indices>(veiler::forward<Tuple>(tup))...);
+      ->decltype(veiler::invoke(veiler::forward<Func>(f), here::get<Indices>(veiler::forward<Tuple>(tup))...)){
+          return veiler::invoke(veiler::forward<Func>(f), here::get<Indices>(veiler::forward<Tuple>(tup))...);
     }
    public:
     constexpr curried_apply(F&& f):f(veiler::forward<F>(f)){}
@@ -948,8 +949,8 @@ class _apply_impl_t{
   constexpr _apply_impl_t() = default;
   template<typename F, typename Tuple, long long... Indices>
   constexpr auto impl(F&& f, Tuple&& tup, index_tuple<Indices...>)const
-    ->decltype(veiler::invoke(veiler::forward<F>(f), get<Indices>(veiler::forward<Tuple>(tup))...)){
-        return veiler::invoke(veiler::forward<F>(f), get<Indices>(veiler::forward<Tuple>(tup))...);
+    ->decltype(veiler::invoke(veiler::forward<F>(f), here::get<Indices>(veiler::forward<Tuple>(tup))...)){
+        return veiler::invoke(veiler::forward<F>(f), here::get<Indices>(veiler::forward<Tuple>(tup))...);
   }
   template<typename F, typename Tuple>
   constexpr auto operator()(F&& f, Tuple&& tup)const
@@ -969,9 +970,9 @@ template<typename... Types1, long long... Indices1, typename... Types2, long lon
 constexpr tuple<Types1..., Types2..., Types3...> tuple_cat_impl_impl(tuple<Types1...>&& t1, index_tuple<Indices1...>,
                                                                      tuple<Types2...>&& t2, index_tuple<Indices2...>,
                                                                      tuple<Types3...>&& t3, index_tuple<Indices3...>){
-  return tuple<Types1..., Types2..., Types3...>(get<Indices1>(veiler::forward<tuple<Types1...>>(t1))...,
-                                                get<Indices2>(veiler::forward<tuple<Types2...>>(t2))...,
-                                                get<Indices3>(veiler::forward<tuple<Types3...>>(t3))...);
+  return tuple<Types1..., Types2..., Types3...>(here::get<Indices1>(veiler::forward<tuple<Types1...>>(t1))...,
+                                                here::get<Indices2>(veiler::forward<tuple<Types2...>>(t2))...,
+                                                here::get<Indices3>(veiler::forward<tuple<Types3...>>(t3))...);
 }
 
 struct _tuple_cat_impl{
