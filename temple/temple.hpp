@@ -916,10 +916,10 @@ constexpr auto make_tuple(Args&&... args)
 namespace{
 
 struct _ignore_t{
-  constexpr _ignore_t(){}
+  constexpr _ignore_t() = default;
   template<typename T>
   constexpr const _ignore_t& operator=(T&&)const noexcept{return *this;}
-}constexpr ignore;
+}constexpr ignore{};
 
 
 class _apply_impl_t{
@@ -945,7 +945,7 @@ class _apply_impl_t{
     }
   };
  public:
-  constexpr _apply_impl_t(){}
+  constexpr _apply_impl_t() = default;
   template<typename F, typename Tuple, long long... Indices>
   constexpr auto impl(F&& f, Tuple&& tup, index_tuple<Indices...>)const
     ->decltype(veiler::invoke(veiler::forward<F>(f), get<Indices>(veiler::forward<Tuple>(tup))...)){
@@ -960,7 +960,7 @@ class _apply_impl_t{
   friend constexpr curried_apply<F> operator|(F&& f, const _apply_impl_t&){
     return curried_apply<F>(veiler::forward<F>(f));
   }
-}constexpr apply;
+}constexpr apply{};
 
 }
 
@@ -1031,8 +1031,8 @@ constexpr auto operator()(value_btree<Dummy1, Dummy2, tuple<Types...>, value_btr
                veiler::forward<value_btree<Dummy1, Dummy2, tuple<Types...>, value_btree<Lefts...>, value_btree<Rights...>>>(btree),
                *this);
 }
-constexpr _tuple_cat_impl_t(){}
-}constexpr tuple_cat_impl;
+constexpr _tuple_cat_impl_t() = default
+}constexpr tuple_cat_impl{};
 
 }
 
