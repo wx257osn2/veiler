@@ -1033,16 +1033,28 @@ constexpr _tuple_cat_impl() = default;
 };
 
 template<typename... Types>
-constexpr tuple<Types...>&& convert_to_tuple(tuple<Types...>&& tpl)noexcept{return veiler::forward<tuple<Types...>>(tpl);}
+constexpr tuple<Types...> convert_to_tuple(tuple<Types...>&& tpl)noexcept{return veiler::forward<tuple<Types...>>(tpl);}
+template<typename... Types>
+constexpr tuple<Types...> convert_to_tuple(const tuple<Types...>& tpl)noexcept{return tpl;}
 template<typename U1, typename U2>
 constexpr tuple<U1, U2> convert_to_tuple(std::pair<U1, U2>&& pair)
   noexcept(std::is_nothrow_constructible<tuple<U1, U2>, std::pair<U1, U2>&&>::value){
   return tuple<U1, U2>(veiler::forward<std::pair<U1, U2>>(pair));
 }
+template<typename U1, typename U2>
+constexpr tuple<U1, U2> convert_to_tuple(const std::pair<U1, U2>& pair)
+  noexcept(std::is_nothrow_constructible<tuple<U1, U2>, const std::pair<U1, U2>&>::value){
+  return tuple<U1, U2>(pair);
+}
 template<typename T, std::size_t N, long long... Indices, typename... Types>
 constexpr tuple<Types...> convert_array_to_tuple_impl(std::array<T, N>&& array, index_tuple<Indices...>, type_tuple<Types...>)
   noexcept(std::is_nothrow_constructible<tuple<Types...>, Types&&...>::value){
   return tuple<Types...>(veiler::forward<T>(array[Indices])...);
+}
+template<typename T, std::size_t N, long long... Indices, typename... Types>
+constexpr tuple<Types...> convert_array_to_tuple_impl(const std::array<T, N>& array, index_tuple<Indices...>, type_tuple<Types...>)
+  noexcept(std::is_nothrow_constructible<tuple<Types...>, const Types&...>::value){
+  return tuple<Types...>(array[Indices]...);
 }
 template<typename T, std::size_t N>
 constexpr auto convert_to_tuple(std::array<T, N>&& array)
@@ -1053,6 +1065,18 @@ constexpr auto convert_to_tuple(std::array<T, N>&& array)
                                        make_index_range<0, N, 1>{},
                                        make_type_tuple<N,T>{})){
              return convert_array_to_tuple_impl(veiler::forward<std::array<T, N>>(array),
+                                       make_index_range<0, N, 1>{},
+                                       make_type_tuple<N,T>{});
+}
+template<typename T, std::size_t N>
+constexpr auto convert_to_tuple(const std::array<T, N>& array)
+  noexcept(noexcept(convert_array_to_tuple_impl(array,
+                                       make_index_range<0, N, 1>{},
+                                       make_type_tuple<N, T>{})))
+         ->decltype(convert_array_to_tuple_impl(array,
+                                       make_index_range<0, N, 1>{},
+                                       make_type_tuple<N,T>{})){
+             return convert_array_to_tuple_impl(array,
                                        make_index_range<0, N, 1>{},
                                        make_type_tuple<N,T>{});
 }
