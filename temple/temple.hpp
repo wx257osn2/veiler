@@ -974,9 +974,7 @@ constexpr tuple<Types1..., Types2..., Types3...> tuple_cat_impl_impl(tuple<Types
                                                 get<Indices3>(veiler::forward<tuple<Types3...>>(t3))...);
 }
 
-namespace{
-
-struct _tuple_cat_impl_t{
+struct _tuple_cat_impl{
 template<typename... Types, typename... Lefts, typename... Rights>
 constexpr auto operator()(value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>&& btree)const
   ->decltype(tuple_cat_impl_impl(value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>::template get<0>
@@ -1031,10 +1029,8 @@ constexpr auto operator()(value_btree<Dummy1, Dummy2, tuple<Types...>, value_btr
                veiler::forward<value_btree<Dummy1, Dummy2, tuple<Types...>, value_btree<Lefts...>, value_btree<Rights...>>>(btree),
                *this);
 }
-constexpr _tuple_cat_impl_t() = default
-}constexpr tuple_cat_impl{};
-
-}
+constexpr _tuple_cat_impl() = default;
+};
 
 template<typename... Types>
 constexpr tuple<Types...>&& convert_to_tuple(tuple<Types...>&& tpl)noexcept{return veiler::forward<tuple<Types...>>(tpl);}
@@ -1063,8 +1059,8 @@ constexpr auto convert_to_tuple(std::array<T, N>&& array)
 
 template<typename... Tuples>
 constexpr auto tuple_cat_(Tuples&&... tpls)
-  ->decltype(tuple_cat_impl(typename make_value_btree<sizeof...(Tuples), type_tuple<Tuples...>>::type(veiler::forward<Tuples>(tpls)...))){
-      return tuple_cat_impl(typename make_value_btree<sizeof...(Tuples), type_tuple<Tuples...>>::type(veiler::forward<Tuples>(tpls)...));
+  ->decltype(_tuple_cat_impl{}(typename make_value_btree<sizeof...(Tuples), type_tuple<Tuples...>>::type(veiler::forward<Tuples>(tpls)...))){
+      return _tuple_cat_impl{}(typename make_value_btree<sizeof...(Tuples), type_tuple<Tuples...>>::type(veiler::forward<Tuples>(tpls)...));
 }
 
 template<typename... TupleLikes>
