@@ -768,6 +768,12 @@ constexpr Lampads<Self<unwrap_lampads_or_valize_t<Params>...>> self(Params&&... 
     }\
   }
 
+#define VEILER_LAMPADS_POLYMORPHIC_FUNCTION_ACCESSOR(function) \
+  struct VEILER_PELOPS_ULLR_CAT(funcAccessor, __LINE__){\
+    constexpr VEILER_PELOPS_ULLR_CAT(funcAccessor, __LINE__)() = default;\
+    template<typename... Args>\
+    constexpr auto operator()(Args&&... args)const->decltype(function(std::declval<Args>()...)){return function(veiler::forward<Args>(args)...);}\
+  }
 
 
 }//End : namespace lampads
