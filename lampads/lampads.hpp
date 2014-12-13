@@ -718,7 +718,7 @@ constexpr Lampads<Self<unwrap_lampads_or_valize_t<Params>...>> self(Params&&... 
 
 
 #define VEILER_LAMPADS_POLYMORPHIC_MEMBER_ACCESSOR(member) \
-  class VEILER_PELOPS_ULLR_CAT(member, Accessor){\
+  class VEILER_PELOPS_ULLR_CAT(memberAccessor, __LINE__){\
     template<typename... Args>\
     class FunctionAccessor{\
       veiler::tuple<Args...> args;\
@@ -757,11 +757,11 @@ constexpr Lampads<Self<unwrap_lampads_or_valize_t<Params>...>> self(Params&&... 
         return veiler::make_tuple<decltype(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...))>(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...));}\
     };\
    public:\
-    constexpr VEILER_PELOPS_ULLR_CAT(member, Accessor)() = default;\
+    constexpr VEILER_PELOPS_ULLR_CAT(memberAccessor, __LINE__)() = default;\
     template<typename T, typename std::enable_if<std::is_rvalue_reference<T&&>::value>::type* = nullptr>\
-    friend constexpr auto operator->*(T&& lhs, const VEILER_PELOPS_ULLR_CAT(member, Accessor)&)->decltype(veiler::forward<T>(lhs).member){return veiler::forward<T>(lhs).member;}\
+    friend constexpr auto operator->*(T&& lhs, const VEILER_PELOPS_ULLR_CAT(memberAccessor, __LINE__)&)->decltype(veiler::forward<T>(lhs).member){return veiler::forward<T>(lhs).member;}\
     template<typename T, typename std::enable_if<std::is_lvalue_reference<typename std::remove_const<T&&>::type>::value>::type* = nullptr>\
-    friend constexpr auto operator->*(T&& lhs, const VEILER_PELOPS_ULLR_CAT(member, Accessor)&)->decltype((lhs.member)){return lhs.member;}\
+    friend constexpr auto operator->*(T&& lhs, const VEILER_PELOPS_ULLR_CAT(memberAccessor, __LINE__)&)->decltype((lhs.member)){return lhs.member;}\
     template<typename... Params>\
     constexpr veiler::_detail::lampads::Lampads<FunctionBinder<veiler::_detail::lampads::unwrap_lampads_or_valize_t<Params>...>> operator()(Params&&... ps)const{\
        return veiler::_detail::lampads::Lampads<FunctionBinder<veiler::_detail::lampads::unwrap_lampads_or_valize_t<Params>...>>(veiler::_detail::lampads::unwrap_lampads_or_valize(veiler::forward<Params>(ps))...);\
