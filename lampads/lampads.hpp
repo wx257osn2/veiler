@@ -211,11 +211,10 @@ class Lampads<T
 > VEILER_LAMPADS_DECL_LAMPADS(
   template<typename... Args>
   constexpr auto operator()(Args&&... args)const
-                        ->typename ret_type::template type<unwrap_refil_t<Args>...>{
-    return t.template run<typename ret_type::template type<unwrap_refil_t<Args>...> VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...);
+    ->decltype(t.template run<typename ret_type::template type<unwrap_refil_t<Args>...> VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...)){
+        return t.template run<typename ret_type::template type<unwrap_refil_t<Args>...> VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...);
   }
 );
-
 #undef VEILER_LAMPADS_DECL_LAMPADS
 
 
@@ -277,13 +276,13 @@ struct Placeholder{
   constexpr Placeholder() = default;
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr auto run(const S&, Args&&... args)const
-    ->decltype((veiler::get<N-1>(veiler::forward_as_tuple<Args&&...>(veiler::forward<Args>(args)...)))){
-         return veiler::get<N-1>(veiler::forward_as_tuple<Args&&...>(veiler::forward<Args>(args)...));
+    ->veiler::type_at<veiler::type_tuple<Args...>, N-1>{
+    return veiler::get<N-1>(veiler::forward_as_tuple<Args&&...>(veiler::forward<Args>(args)...));
   }
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<N-1 < sizeof...(Args)>::type* = nullptr>
   constexpr auto bind_run(const S&, Args&&... args)const
-    ->decltype((veiler::make_tuple(veiler::get<N-1>(veiler::forward_as_tuple<Args&&...>(veiler::forward<Args>(args)...))))){
-         return veiler::make_tuple(veiler::get<N-1>(veiler::forward_as_tuple<Args&&...>(veiler::forward<Args>(args)...)));
+    ->veiler::tuple<veiler::type_at<veiler::type_tuple<Args...>, N-1>>{
+    return veiler::make_tuple(veiler::get<N-1>(veiler::forward_as_tuple<Args&&...>(veiler::forward<Args>(args)...)));
   }
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<(N-1 >= sizeof...(Args))>::type* = nullptr>
   constexpr auto bind_run(const S&, Args&&...)const
