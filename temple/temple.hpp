@@ -66,14 +66,14 @@ class value_btree<T, Left, Right>{
     swap(right, rhs.right);
   }
   template<typename F>
-  static constexpr auto btree_apply(value_btree&& btree, const F& f)
-     ->decltype(f(veiler::forward<value_btree>(btree))){
-         return f(veiler::forward<value_btree>(btree));
+  static constexpr auto btree_apply(value_btree&& btree, F&& f)
+    ->decltype(veiler::forward<F>(f)(veiler::forward<value_btree>(btree))){
+        return veiler::forward<F>(f)(veiler::forward<value_btree>(btree));
   }
   template<typename F>
-  static constexpr auto btree_apply(const value_btree& btree, const F& f)
-     ->decltype(f(btree)){
-         return f(btree);
+  static constexpr auto btree_apply(const value_btree& btree, F&& f)
+    ->decltype(veiler::forward<F>(f)(btree)){
+        return veiler::forward<F>(f)(btree);
   }
   template<typename U, typename L, typename R>
   friend constexpr bool operator==(const value_btree<T, Left, Right>& lhs, const value_btree<U, L, R>& rhs)
@@ -138,14 +138,14 @@ class value_btree<T, Left>{
     swap(left, rhs.left);
   }
   template<typename F>
-  static constexpr auto btree_apply(value_btree&& btree, const F& f)
-     ->decltype(f(veiler::forward<value_btree>(btree))){
-         return f(veiler::forward<value_btree>(btree));
+  static constexpr auto btree_apply(value_btree&& btree, F&& f)
+    ->decltype(veiler::forward<F>(f)(veiler::forward<value_btree>(btree))){
+        return veiler::forward<F>(f)(veiler::forward<value_btree>(btree));
   }
   template<typename F>
-  static constexpr auto btree_apply(const value_btree& btree, const F& f)
-     ->decltype(f(btree)){
-         return f(btree);
+  static constexpr auto btree_apply(const value_btree& btree, F&& f)
+    ->decltype(veiler::forward<F>(f)(btree)){
+        return veiler::forward<F>(f)(btree);
   }
   template<typename U, typename L>
   friend constexpr bool operator==(const value_btree<T, Left>& lhs, const value_btree<U, L>& rhs)
@@ -199,14 +199,14 @@ class value_btree<T>{
     swap(t, rhs.t);
   }
   template<typename F>
-  static constexpr auto btree_apply(value_btree&& btree, const F& f)
-     ->decltype(f(veiler::forward<value_btree>(btree))){
-         return f(veiler::forward<value_btree>(btree));
+  static constexpr auto btree_apply(value_btree&& btree, F&& f)
+    ->decltype(veiler::forward<F>(f)(veiler::forward<value_btree>(btree))){
+        return veiler::forward<F>(f)(veiler::forward<value_btree>(btree));
   }
   template<typename F>
-  static constexpr auto btree_apply(const value_btree& btree, const F& f)
-     ->decltype(f(btree)){
-         return f(btree);
+  static constexpr auto btree_apply(const value_btree& btree, F&& f)
+    ->decltype(veiler::forward<F>(f)(btree)){
+        return veiler::forward<F>(f)(btree);
   }
   template<typename U>
   friend constexpr bool operator==(const value_btree<T>& lhs, const value_btree<U>& rhs)
@@ -301,46 +301,46 @@ class value_btree<type_tuple<LArgs...>, type_tuple<RArgs...>, T, value_btree<Lef
     right.swap(rhs.right);
   }
   template<typename F>
-  static constexpr auto btree_apply(value_btree&& btree, const F& f)
-    noexcept(noexcept(f(value_btree<T,
-                                    decltype(value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  f)),
-                                    decltype(value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), f))>(
+  static constexpr auto btree_apply(value_btree&& btree, F&& f)
+    noexcept(noexcept(veiler::forward<F>(f)(value_btree<T,
+                                    decltype(value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  veiler::forward<F>(f))),
+                                    decltype(value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), veiler::forward<F>(f)))>(
                                       veiler::forward<T>(btree.t),
-                                      value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  f),
-                                      value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), f)))))
-           ->decltype(f(value_btree<T,
-                                    decltype(value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  f)),
-                                    decltype(value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), f))>(
+                                      value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  veiler::forward<F>(f)),
+                                      value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), veiler::forward<F>(f))))))
+           ->decltype(veiler::forward<F>(f)(value_btree<T,
+                                    decltype(value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  veiler::forward<F>(f))),
+                                    decltype(value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), veiler::forward<F>(f)))>(
                                       veiler::forward<T>(btree.t),
-                                      value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  f),
-                                      value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), f)))){
-               return f(value_btree<T,
-                                    decltype(value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  f)),
-                                    decltype(value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), f))>(
+                                      value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  veiler::forward<F>(f)),
+                                      value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), veiler::forward<F>(f))))){
+               return veiler::forward<F>(f)(value_btree<T,
+                                    decltype(value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  veiler::forward<F>(f))),
+                                    decltype(value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), veiler::forward<F>(f)))>(
                                       veiler::forward<T>(btree.t),
-                                      value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  f),
-                                      value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), f)));
+                                      value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  veiler::forward<F>(f)),
+                                      value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), veiler::forward<F>(f))));
   }
   template<typename F>
-  static constexpr auto btree_apply(const value_btree& btree, const F& f)
-    noexcept(noexcept(f(value_btree<T,
-                                    decltype(value_btree<Lefts... >::btree_apply(btree.left,  f)),
-                                    decltype(value_btree<Rights...>::btree_apply(btree.right, f))>(
+  static constexpr auto btree_apply(const value_btree& btree, F&& f)
+    noexcept(noexcept(veiler::forward<F>(f)(value_btree<T,
+                                    decltype(value_btree<Lefts... >::btree_apply(btree.left,  veiler::forward<F>(f))),
+                                    decltype(value_btree<Rights...>::btree_apply(btree.right, veiler::forward<F>(f)))>(
                                       btree.t,
-                                      value_btree<Lefts... >::btree_apply(btree.left,  f),
-                                      value_btree<Rights...>::btree_apply(btree.right, f)))))
-           ->decltype(f(value_btree<T,
-                                    decltype(value_btree<Lefts... >::btree_apply(btree.left,  f)),
-                                    decltype(value_btree<Rights...>::btree_apply(btree.right, f))>(
+                                      value_btree<Lefts... >::btree_apply(btree.left,  veiler::forward<F>(f)),
+                                      value_btree<Rights...>::btree_apply(btree.right, veiler::forward<F>(f))))))
+           ->decltype(veiler::forward<F>(f)(value_btree<T,
+                                    decltype(value_btree<Lefts... >::btree_apply(btree.left,  veiler::forward<F>(f))),
+                                    decltype(value_btree<Rights...>::btree_apply(btree.right, veiler::forward<F>(f)))>(
                                       btree.t,
-                                      value_btree<Lefts... >::btree_apply(btree.left,  f),
-                                      value_btree<Rights...>::btree_apply(btree.right, f)))){
-               return f(value_btree<T,
-                                    decltype(value_btree<Lefts... >::btree_apply(btree.left,  f)),
-                                    decltype(value_btree<Rights...>::btree_apply(btree.right, f))>(
+                                      value_btree<Lefts... >::btree_apply(btree.left,  veiler::forward<F>(f)),
+                                      value_btree<Rights...>::btree_apply(btree.right, veiler::forward<F>(f))))){
+               return veiler::forward<F>(f)(value_btree<T,
+                                    decltype(value_btree<Lefts... >::btree_apply(btree.left,  veiler::forward<F>(f))),
+                                    decltype(value_btree<Rights...>::btree_apply(btree.right, veiler::forward<F>(f)))>(
                                       btree.t,
-                                      value_btree<Lefts... >::btree_apply(btree.left,  f),
-                                      value_btree<Rights...>::btree_apply(btree.right, f)));
+                                      value_btree<Lefts... >::btree_apply(btree.left,  veiler::forward<F>(f)),
+                                      value_btree<Rights...>::btree_apply(btree.right, veiler::forward<F>(f))));
   }
   template<typename... As, typename... Bs, typename U, typename... Ls, typename... Rs>
   friend constexpr bool operator==(const value_btree<type_tuple<LArgs...>, type_tuple<RArgs...>, T, value_btree<Lefts...>, value_btree<Rights...>>& lhs,
