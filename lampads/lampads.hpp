@@ -246,6 +246,11 @@ constexpr Lampads<Val<T>> val(Args&&... args){
 template<typename RetType, typename T>
 class Ret{
   T t;
+  template<typename... Types, long long... Indices>
+  constexpr auto bind_run_impl(veiler::tuple<Types...> tu, veiler::index_tuple<Indices...>)const
+    ->decltype(veiler::make_tuple(veiler::forward<RetType>(veiler::get<Indices>(veiler::forward<veiler::tuple<Types...>>(tu)))...)){
+        return veiler::make_tuple(veiler::forward<RetType>(veiler::get<Indices>(veiler::forward<veiler::tuple<Types...>>(tu)))...);
+  }
  public:
   struct ret_type:std::true_type{
     template<typename...>using type = RetType;
@@ -256,7 +261,10 @@ class Ret{
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr RetType run(const S& s, Args&&... args)const{return veiler::forward<RetType>(t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, veiler::forward<Args>(args)...));}
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
-  constexpr veiler::tuple<RetType> bind_run(const S& s, Args&&... args)const{return veiler::make_tuple(veiler::forward<RetType>(t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, veiler::forward<Args>(args)...)));}
+  constexpr auto bind_run(const S& s, Args&&... args)const
+    ->decltype(this->bind_run_impl(veiler::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::make_index_range<0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>{}>{})){
+        return this->bind_run_impl(veiler::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::make_index_range<0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>{}>{});
+  }
 };
 
 template<typename R, typename T>
