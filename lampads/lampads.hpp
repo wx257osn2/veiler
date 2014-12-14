@@ -553,9 +553,9 @@ struct common_type<T, T&&, typename std::enable_if<!std::is_lvalue_reference<T>:
 template<typename T>
 struct common_type<T&&, T, typename std::enable_if<!std::is_lvalue_reference<T>::value>::type>{using type = T;};
 template<typename T, typename U>
-struct common_type<T, U, typename std::enable_if<std::is_convertible<T, U>::value && !std::is_convertible<U, T>::value>::type>{using type = T;};
+struct common_type<T, U, typename std::enable_if<std::is_convertible<T, U>::value && !std::is_convertible<U, T>::value>::type>{using type = U;};
 template<typename T, typename U>
-struct common_type<T, U, typename std::enable_if<std::is_convertible<U, T>::value && !std::is_convertible<T, U>::value>::type>{using type = U;};
+struct common_type<T, U, typename std::enable_if<std::is_convertible<U, T>::value && !std::is_convertible<T, U>::value>::type>{using type = T;};
 template<typename T, typename U>
 struct common_type<T, U, typename std::enable_if<std::is_convertible<T, U>::value &&  std::is_convertible<U, T>::value && !std::is_same<T, U>::value>::type>{using type = typename std::common_type<T, U>::type;};
 
