@@ -147,7 +147,7 @@ template<typename T>
 using unwrap_lampads_or_valize_t = decltype(unwrap_lampads_or_valize(std::declval<T>()));
 
 
-enum class pass:bool{by_value, by_reference};
+enum pass:bool{by_value, by_reference};
 
 #ifndef VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY
 #define VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY pass::by_reference
@@ -832,6 +832,9 @@ constexpr Lampads<Self<unwrap_lampads_or_valize_t<Params>...>> self(Params&&... 
 
 namespace lampads{
 
+using _detail::lampads::pass;
+using _detail::lampads::by_value;
+using _detail::lampads::by_reference;
 using _detail::lampads::if_;
 namespace udl{
 using _detail::lampads::udl::operator"" _;
