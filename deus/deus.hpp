@@ -2,6 +2,8 @@
 #include<tuple>
 #include<memory>
 #include<veiler/temple.hpp>
+#include<veiler/aux_/forward.hpp>
+#include<veiler/aux_/move.hpp>
 
 namespace veiler{
 
@@ -26,23 +28,23 @@ class transition{
   Guard  g;
   Action a;
  public:
-  transition(Guard&& g):g(std::forward<Guard>(g)){}
-  transition(Action&& a):a(std::forward<Action>(a)){}
-  transition(Guard&& g, Action&& a):g(std::forward<Guard>(g), std::forward<Action>(a)){}
+  transition(Guard&& g):g(veiler::forward<Guard>(g)){}
+  transition(Action&& a):a(veiler::forward<Action>(a)){}
+  transition(Guard&& g, Action&& a):g(veiler::forward<Guard>(g), veiler::forward<Action>(a)){}
   template<typename E>
-  bool guard(E&& ev)const{return g(std::forward<E>(ev));}
+  bool guard(E&& ev)const{return g(veiler::forward<E>(ev));}
   template<typename E>
-  void action(E&& ev)const{a(std::forward<E>(ev));}
+  void action(E&& ev)const{a(veiler::forward<E>(ev));}
 };
 template<typename From, typename Event, typename To, typename Guard>
 class transition<From, Event, To, Guard, default_action>{
   Guard  g;
  public:
-  transition(Guard&& g):g(std::forward<Guard>(g)){}
+  transition(Guard&& g):g(veiler::forward<Guard>(g)){}
   template<typename A>
-  transition<From, Event, To, Guard, A> operator=(A&& a)const{return transition<From, Event, To, Guard, A>(std::forward<Guard>(g), std::forward<A>(a));}
+  transition<From, Event, To, Guard, A> operator=(A&& a)const{return transition<From, Event, To, Guard, A>(veiler::forward<Guard>(g), veiler::forward<A>(a));}
   template<typename E>
-  bool guard(E&& ev)const{return g(std::forward<E>(ev));}
+  bool guard(E&& ev)const{return g(veiler::forward<E>(ev));}
   template<typename E>
   void action(E&& ev)const{}
 };
@@ -50,9 +52,9 @@ template<typename From, typename Event, typename To>
 class transition<From, Event, To, default_guard, default_action>{
 public:
   template<typename G>
-  transition<From, Event, To, G, default_action> operator[](G&& g)const{return transition<From, Event, To, G, default_action>(std::forward<G>(g));}
+  transition<From, Event, To, G, default_action> operator[](G&& g)const{return transition<From, Event, To, G, default_action>(veiler::forward<G>(g));}
   template<typename A>
-  transition<From, Event, To, default_guard, A> operator=(A&& a)const{return transition<From, Event, To, default_guard, A>(std::forward<A>(a));}
+  transition<From, Event, To, default_guard, A> operator=(A&& a)const{return transition<From, Event, To, default_guard, A>(veiler::forward<A>(a));}
   template<typename E>
   bool guard(E&& ev)const{return true;}
   template<typename E>
@@ -62,9 +64,9 @@ template<typename State>
 struct state{
   constexpr state(){}
   template<typename Guard>
-  transition<none, none, State, Guard, default_action> operator[](Guard&& g)const{return transition<none, none, State, Guard, default_action>(std::forward<Guard>(g));}
+  transition<none, none, State, Guard, default_action> operator[](Guard&& g)const{return transition<none, none, State, Guard, default_action>(veiler::forward<Guard>(g));}
   template<typename Action>
-  transition<none, none, State, default_guard, Action> operator=(Action&& a)const{return transition<none, none, State, default_guard, Action>(std::forward<Action>(a));}
+  transition<none, none, State, default_guard, Action> operator=(Action&& a)const{return transition<none, none, State, default_guard, Action>(veiler::forward<Action>(a));}
   transition<State, none, none, default_guard, default_action> operator--(int)const{ return transition<State, none, none, default_guard, default_action>(); }
 };
 template<typename Event>
@@ -81,7 +83,7 @@ class event{
   template<typename... Args>
   struct wrapper{tuple<Args...> args;};
   template<typename... Args>
-  wrapper<Args...> operator()(Args&&... args){return wrapper<Args...>{{std::forward<Args>(args)...}};}
+  wrapper<Args...> operator()(Args&&... args){return wrapper<Args...>{{veiler::forward<Args>(args)...}};}
 };
 template<typename From, typename Event, typename To, typename Guard, typename Action>
 transition<From, Event, To, Guard, Action> operator>(transition<From, Event, none, default_guard, default_action>&& s, transition<none, none, To, Guard, Action>&& e){
@@ -126,7 +128,7 @@ class state_machine : public state<Statemachine>{
     template<template<typename>class Wrapper, typename T>
     holder(Wrapper<T>&& t) : impl(new derived<T>()), state(status_id<T>::value){}
     template<typename T, typename... Args>
-    void transit(Args&&... args){impl.reset();impl = std::make_shared<derived<T>>(std::forward<Args>(args)...);state = status_id<T>::value;}
+    void transit(Args&&... args){impl.reset();impl = std::make_shared<derived<T>>(veiler::forward<Args>(args)...);state = status_id<T>::value;}
     friend bool operator==(const holder& lhs, long long rhs){return lhs.state == rhs;}
     friend bool operator!=(const holder& lhs, long long rhs){return !(lhs == rhs);}
   }state;
@@ -174,9 +176,9 @@ class state_machine : public state<Statemachine>{
     exec_events_<Event>::exec(state, tt, e);
   }
  public:
-  state_machine(const TransitionTable& table) : tt(             table ), state(typename Statemachine::initial_state{}){}
-  state_machine(const state_machine&   sm   ) : tt(          sm.tt    ), state(typename Statemachine::initial_state{}){}
-  state_machine(      state_machine&&  sm   ) : tt(std::move(sm.tt   )), state(typename Statemachine::initial_state{}){}
+  state_machine(const TransitionTable& table) : tt(                table ), state(typename Statemachine::initial_state{}){}
+  state_machine(const state_machine&   sm   ) : tt(             sm.tt    ), state(typename Statemachine::initial_state{}){}
+  state_machine(      state_machine&&  sm   ) : tt(veiler::move(sm.tt   )), state(typename Statemachine::initial_state{}){}
   template<typename Status>
   bool is(const deus::impl::state<Status>&){return state == status_id<Status>::value;}
   template<typename Event>
@@ -215,7 +217,7 @@ struct transition_table{
 template<typename... Transitions>
 auto make_transition_table(Transitions&&... transitions)
        ->transition_table<Transitions...>{
-  return transition_table<Transitions...>{tuple<Transitions...>{std::forward<Transitions>(transitions)...}};
+  return transition_table<Transitions...>{tuple<Transitions...>{veiler::forward<Transitions>(transitions)...}};
 }
 
 }

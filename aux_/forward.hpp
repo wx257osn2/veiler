@@ -16,7 +16,6 @@ constexpr T&& forward(typename std::remove_reference<T>::type&& t)noexcept{
   return static_cast<T&&>(t);
 }
 
-
 }//End : namespace veiler
 
 #endif//VEILER_AUX_FORWARD_HPP_INCLUDED
