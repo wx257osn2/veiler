@@ -8,6 +8,7 @@
 #include<veiler/refil.hpp>
 #include<veiler/temple/thai_temple.hpp>
 #include<veiler/temple/indian_temple.hpp>
+#include<veiler/aux_/move.hpp>
 #include<veiler/aux_/forward.hpp>
 
 #ifdef VEILER_TEMPLE_USE_STRICT_AND_POSITIVE_INSTANTIATION
@@ -68,8 +69,8 @@ class value_btree<T, Left, Right>{
   }
   template<typename F>
   static constexpr auto btree_apply(value_btree&& btree, F&& f)
-    ->decltype(veiler::forward<F>(f)(veiler::forward<value_btree>(btree))){
-        return veiler::forward<F>(f)(veiler::forward<value_btree>(btree));
+    ->decltype(veiler::forward<F>(f)(veiler::move(btree))){
+        return veiler::forward<F>(f)(veiler::move(btree));
   }
   template<typename F>
   static constexpr auto btree_apply(const value_btree& btree, F&& f)
@@ -140,8 +141,8 @@ class value_btree<T, Left>{
   }
   template<typename F>
   static constexpr auto btree_apply(value_btree&& btree, F&& f)
-    ->decltype(veiler::forward<F>(f)(veiler::forward<value_btree>(btree))){
-        return veiler::forward<F>(f)(veiler::forward<value_btree>(btree));
+    ->decltype(veiler::forward<F>(f)(veiler::move(btree))){
+        return veiler::forward<F>(f)(veiler::move(btree));
   }
   template<typename F>
   static constexpr auto btree_apply(const value_btree& btree, F&& f)
@@ -201,8 +202,8 @@ class value_btree<T>{
   }
   template<typename F>
   static constexpr auto btree_apply(value_btree&& btree, F&& f)
-    ->decltype(veiler::forward<F>(f)(veiler::forward<value_btree>(btree))){
-        return veiler::forward<F>(f)(veiler::forward<value_btree>(btree));
+    ->decltype(veiler::forward<F>(f)(veiler::move(btree))){
+        return veiler::forward<F>(f)(veiler::move(btree));
   }
   template<typename F>
   static constexpr auto btree_apply(const value_btree& btree, F&& f)
@@ -265,13 +266,13 @@ class value_btree<type_tuple<LArgs...>, type_tuple<RArgs...>, T, value_btree<Lef
   static constexpr T&& get(value_btree&& btree)noexcept{return veiler::forward<T>(btree.t);}
   template<std::size_t N, typename std::enable_if<N-1 < (size-1)/2>::type* = nullptr>
   static constexpr auto get(value_btree&& btree)noexcept
-    ->decltype(value_btree<Lefts...>::template get<N-1>(veiler::forward<value_btree<Lefts...>>(btree.left))){
-        return value_btree<Lefts...>::template get<N-1>(veiler::forward<value_btree<Lefts...>>(btree.left));
+    ->decltype(value_btree<Lefts...>::template get<N-1>(veiler::move(btree.left))){
+        return value_btree<Lefts...>::template get<N-1>(veiler::move(btree.left));
   }
   template<std::size_t N, typename std::enable_if<(size-1)/2 <= N-1>::type* = nullptr>
   static constexpr auto get(value_btree&& btree)noexcept
-    ->decltype(value_btree<Rights...>::template get<N-1 - (size-1)/2>(veiler::forward<value_btree<Rights...>>(btree.right))){
-        return value_btree<Rights...>::template get<N-1 - (size-1)/2>(veiler::forward<value_btree<Rights...>>(btree.right));
+    ->decltype(value_btree<Rights...>::template get<N-1 - (size-1)/2>(veiler::move(btree.right))){
+        return value_btree<Rights...>::template get<N-1 - (size-1)/2>(veiler::move(btree.right));
   }
   template<std::size_t N, typename std::enable_if<N==0>::type* = nullptr>
   static constexpr const T& get(const value_btree& btree)noexcept{return btree.t;}
@@ -286,10 +287,10 @@ class value_btree<type_tuple<LArgs...>, type_tuple<RArgs...>, T, value_btree<Lef
         return value_btree<Rights...>::template get<N-1 - (size-1)/2>(btree.right);
   }
   static constexpr value_btree<Lefts...>& get_left(value_btree& btree)noexcept{return btree.left;}
-  static constexpr value_btree<Lefts...>&& get_left(value_btree&& btree)noexcept{return veiler::forward<value_btree<Lefts...>>(btree.left);}
+  static constexpr value_btree<Lefts...>&& get_left(value_btree&& btree)noexcept{return veiler::move(btree.left);}
   static constexpr const value_btree<Lefts...>& get_left(const value_btree& btree)noexcept{return btree.left;}
   static constexpr value_btree<Rights...>& get_right(value_btree& btree)noexcept{return btree.right;}
-  static constexpr value_btree<Rights...>&& get_right(value_btree&& btree)noexcept{return veiler::forward<value_btree<Rights...>>(btree.right);}
+  static constexpr value_btree<Rights...>&& get_right(value_btree&& btree)noexcept{return veiler::move(btree.right);}
   static constexpr const value_btree<Rights...>& get_right(const value_btree& btree)noexcept{return btree.right;}
  
   void swap(value_btree& rhs)
@@ -304,23 +305,23 @@ class value_btree<type_tuple<LArgs...>, type_tuple<RArgs...>, T, value_btree<Lef
   template<typename F>
   static constexpr auto btree_apply(value_btree&& btree, F&& f)
     noexcept(noexcept(veiler::forward<F>(f)(value_btree<T,
-                                    decltype(value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  veiler::forward<F>(f))),
-                                    decltype(value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), veiler::forward<F>(f)))>(
-                                      veiler::forward<T>(btree.t),
-                                      value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  veiler::forward<F>(f)),
-                                      value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), veiler::forward<F>(f))))))
+                                    decltype(value_btree<Lefts... >::btree_apply(veiler::move(btree.left),  veiler::forward<F>(f))),
+                                    decltype(value_btree<Rights...>::btree_apply(veiler::move(btree.right), veiler::forward<F>(f)))>(
+                                      veiler::move(btree.t),
+                                      value_btree<Lefts... >::btree_apply(veiler::move(btree.left),  veiler::forward<F>(f)),
+                                      value_btree<Rights...>::btree_apply(veiler::move(btree.right), veiler::forward<F>(f))))))
            ->decltype(veiler::forward<F>(f)(value_btree<T,
-                                    decltype(value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  veiler::forward<F>(f))),
-                                    decltype(value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), veiler::forward<F>(f)))>(
-                                      veiler::forward<T>(btree.t),
-                                      value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  veiler::forward<F>(f)),
-                                      value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), veiler::forward<F>(f))))){
+                                    decltype(value_btree<Lefts... >::btree_apply(veiler::move(btree.left),  veiler::forward<F>(f))),
+                                    decltype(value_btree<Rights...>::btree_apply(veiler::move(btree.right), veiler::forward<F>(f)))>(
+                                      veiler::move(btree.t),
+                                      value_btree<Lefts... >::btree_apply(veiler::move(btree.left),  veiler::forward<F>(f)),
+                                      value_btree<Rights...>::btree_apply(veiler::move(btree.right), veiler::forward<F>(f))))){
                return veiler::forward<F>(f)(value_btree<T,
-                                    decltype(value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  veiler::forward<F>(f))),
-                                    decltype(value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), veiler::forward<F>(f)))>(
-                                      veiler::forward<T>(btree.t),
-                                      value_btree<Lefts... >::btree_apply(veiler::forward<value_btree<Lefts... >>(btree.left),  veiler::forward<F>(f)),
-                                      value_btree<Rights...>::btree_apply(veiler::forward<value_btree<Rights...>>(btree.right), veiler::forward<F>(f))));
+                                    decltype(value_btree<Lefts... >::btree_apply(veiler::move(btree.left),  veiler::forward<F>(f))),
+                                    decltype(value_btree<Rights...>::btree_apply(veiler::move(btree.right), veiler::forward<F>(f)))>(
+                                      veiler::move(btree.t),
+                                      value_btree<Lefts... >::btree_apply(veiler::move(btree.left),  veiler::forward<F>(f)),
+                                      value_btree<Rights...>::btree_apply(veiler::move(btree.right), veiler::forward<F>(f))));
   }
   template<typename F>
   static constexpr auto btree_apply(const value_btree& btree, F&& f)
@@ -522,14 +523,14 @@ class tuple{
   template<typename... UTypes, long long... Indices>
   constexpr tuple(tuple<UTypes...>&& u, index_tuple<Indices...>)
     VEILER_TEMPLE_POSITIVE_NOEXCEPT(make_operate_tuple<bool>(std::is_nothrow_constructible<Types, UTypes&&>::value...).and_()) :
-    impl(tuple<UTypes...>::template get<Indices>(veiler::forward<tuple<UTypes...>>(u))...){}
+    impl(tuple<UTypes...>::template get<Indices>(veiler::move(u))...){}
   template<typename... Args>
   static void expand_variadic_templates(Args&&...){}
   template<long long... Indices>
   tuple& move_assign(tuple&& src, index_tuple<Indices...>)
     VEILER_TEMPLE_POSITIVE_NOEXCEPT(make_operate_tuple<bool>(std::is_nothrow_move_assignable<Types>::value...).and_()){
     expand_variadic_templates((
-          get<Indices>(*this) = get<Indices>(veiler::forward<tuple>(src))
+          get<Indices>(*this) = get<Indices>(veiler::move(src))
     ,nullptr)...);
     return *this;
   }
@@ -561,7 +562,7 @@ class tuple{
   VEILER_TEMPLE_STRICT_CHECK(sizeof...(Types) == sizeof...(UTypes) && make_operate_tuple<bool>(std::is_constructible<Types, UTypes&&>::value...).and_())>
   constexpr tuple(tuple<UTypes...>&& u)
     VEILER_TEMPLE_POSITIVE_NOEXCEPT(make_operate_tuple<bool>(std::is_constructible<Types, UTypes&&>::value...).and_()) :
-    tuple(veiler::forward<tuple<UTypes...>>(u), make_indexes<UTypes...>{}){}
+    tuple(veiler::move(u), make_indexes<UTypes...>{}){}
   template<typename U1, typename U2,
   VEILER_TEMPLE_STRICT_CHECK(sizeof...(Types) == 2                                      &&
                              std::is_constructible<type_at<tuple, 0>, const U1&>::value &&
@@ -587,7 +588,7 @@ class tuple{
   template<VEILER_TEMPLE_STRICT_CHECK(make_operate_tuple<bool>(std::is_move_assignable<Types>::value...).and_())>
   tuple& operator=(tuple&& src)
     VEILER_TEMPLE_POSITIVE_NOEXCEPT(make_operate_tuple<bool>(std::is_nothrow_move_assignable<Types>::value...).and_()){
-      this->impl = veiler::forward<impl_type>(src.impl);
+      this->impl = veiler::move(src.impl);
       return *this;
   }
   template<typename... UTypes,
@@ -595,7 +596,7 @@ class tuple{
                      make_operate_tuple<bool>(std::is_assignable<Types&, const UTypes&>::value...).and_())>
   tuple& operator=(const tuple<UTypes...>& src)
     VEILER_TEMPLE_POSITIVE_NOEXCEPT(make_operate_tuple<bool>(std::is_nothrow_constructible<Types, const UTypes&>::value...).and_()){
-      this->impl = veiler::forward<impl_type>(tuple(src).impl);
+      this->impl = veiler::move(tuple(src).impl);
       return *this;
   }
   template<typename... UTypes,
@@ -603,7 +604,7 @@ class tuple{
                      make_operate_tuple<bool>(std::is_assignable<Types&,UTypes&&>::value...).and_())>
   tuple& operator=(tuple<UTypes...>&& src)
     VEILER_TEMPLE_POSITIVE_NOEXCEPT(make_operate_tuple<bool>(std::is_nothrow_constructible<Types, UTypes&&>::value...).and_()){
-      this->impl = veiler::forward<impl_type>(tuple(veiler::forward<tuple<UTypes...>>(src)).impl);
+      this->impl = veiler::move(tuple(veiler::move(src)).impl);
       return *this;
   }
   template<typename U1, typename U2,
@@ -646,8 +647,8 @@ class tuple{
   }
   template<std::size_t N>
   static constexpr auto get(tuple&& tpl)noexcept
-    ->decltype(impl_type::template get<N>(veiler::forward<impl_type>(tpl.impl))){
-        return impl_type::template get<N>(veiler::forward<impl_type>(tpl.impl));
+    ->decltype(impl_type::template get<N>(veiler::move(tpl.impl))){
+        return impl_type::template get<N>(veiler::move(tpl.impl));
   }
   template<typename... Rights,
   VEILER_TEMPLE_STRICT_CHECK(sizeof...(Types) == sizeof...(Rights) &&
@@ -740,7 +741,7 @@ class tuple<Type>{
   VEILER_TEMPLE_STRICT_CHECK(std::is_constructible<Type, UType&&>::value)>
   constexpr tuple(tuple<UType>&& u)
     VEILER_TEMPLE_POSITIVE_NOEXCEPT(std::is_constructible<Type, UType&&>::value) :
-    impl(tuple<UType>::template get<0>(veiler::forward<tuple<UType>>(u))){}
+    impl(tuple<UType>::template get<0>(veiler::move(u))){}
   template<VEILER_TEMPLE_STRICT_CHECK(std::is_copy_assignable<Type>::value)>
   tuple& operator=(const tuple& src)
     VEILER_TEMPLE_POSITIVE_NOEXCEPT(std::is_nothrow_copy_assignable<Type>::value){
@@ -750,21 +751,21 @@ class tuple<Type>{
   template<VEILER_TEMPLE_STRICT_CHECK(std::is_move_assignable<Type>::value)>
   tuple& operator=(tuple&& src)
     VEILER_TEMPLE_POSITIVE_NOEXCEPT(std::is_nothrow_move_assignable<Type>::value){
-      this->impl = veiler::forward<impl_type>(src.impl);
+      this->impl = veiler::move(src.impl);
       return *this;
   }
   template<typename UType,
   VEILER_TEMPLE_STRICT_CHECK(std::is_assignable<Type&, const UType&>::value)>
   tuple& operator=(const tuple<UType>& src)
     VEILER_TEMPLE_POSITIVE_NOEXCEPT(std::is_nothrow_constructible<Type, const UType&>::value){
-      this->impl = veiler::forward<impl_type>(tuple(src).impl);
+      this->impl = veiler::move(tuple(src).impl);
       return *this;
   }
   template<typename UType,
   VEILER_TEMPLE_STRICT_CHECK(std::is_assignable<Type&,UType&&>::value)>
   tuple& operator=(tuple<UType>&& src)
     VEILER_TEMPLE_POSITIVE_NOEXCEPT(std::is_nothrow_constructible<Type, UType&&>::value){
-      this->impl = veiler::forward<impl_type>(tuple(veiler::forward<tuple<UType>>(src)).impl);
+      this->impl = veiler::move(tuple(veiler::move(src)).impl);
       return *this;
   }
   template<std::size_t N>
@@ -785,8 +786,8 @@ class tuple<Type>{
   }
   template<std::size_t N>
   static constexpr auto get(tuple&& tpl)noexcept
-    ->decltype(impl_type::template get<N>(veiler::forward<impl_type>(tpl.impl))){
-        return impl_type::template get<N>(veiler::forward<impl_type>(tpl.impl));
+    ->decltype(impl_type::template get<N>(veiler::move(tpl.impl))){
+        return impl_type::template get<N>(veiler::move(tpl.impl));
   }
   template<typename Right,
   VEILER_TEMPLE_STRICT_CHECK(std::is_convertible<decltype(impl == std::declval<typename tuple<Right>::impl_type>()),bool>::value)>
@@ -850,8 +851,8 @@ constexpr auto get(tuple<Types...>& tpl)noexcept
 }
 template<std::size_t N, typename... Types>
 constexpr auto get(tuple<Types...>&& tpl)noexcept
-  ->decltype(tuple<Types...>::template get<N>(veiler::forward<tuple<Types...>>(tpl))){
-      return tuple<Types...>::template get<N>(veiler::forward<tuple<Types...>>(tpl));
+  ->decltype(tuple<Types...>::template get<N>(veiler::move(tpl))){
+      return tuple<Types...>::template get<N>(veiler::move(tpl));
 }
 template<std::size_t N, typename... Types>
 constexpr auto get(const tuple<Types...>& tpl)noexcept
@@ -873,10 +874,8 @@ constexpr auto get(tuple<Types...>& tpl)noexcept
 template<typename T, typename... Types,
 VEILER_TEMPLE_STRICT_CHECK(make_operate_tuple<long long>(std::is_same<T,Types>::value...).add_() == 1)>
 constexpr auto get(tuple<Types...>&& tpl)noexcept
-  ->decltype(tuple<Types...>::template get<calc_index_from_type(index_tuple<std::is_same<T, Types>::value...>{}, make_indexes<Types...>{})>
-                                          (veiler::forward<tuple<Types...>>(tpl))){
-      return tuple<Types...>::template get<calc_index_from_type(index_tuple<std::is_same<T, Types>::value...>{}, make_indexes<Types...>{})>
-                                          (veiler::forward<tuple<Types...>>(tpl));
+  ->decltype(tuple<Types...>::template get<calc_index_from_type(index_tuple<std::is_same<T, Types>::value...>{}, make_indexes<Types...>{})>(veiler::move(tpl))){
+      return tuple<Types...>::template get<calc_index_from_type(index_tuple<std::is_same<T, Types>::value...>{}, make_indexes<Types...>{})>(veiler::move(tpl));
 }
 template<typename T, typename... Types,
 VEILER_TEMPLE_STRICT_CHECK(make_operate_tuple<long long>(std::is_same<T,Types>::value...).add_() == 1)>
@@ -970,77 +969,51 @@ template<typename... Types1, long long... Indices1, typename... Types2, long lon
 constexpr tuple<Types1..., Types2..., Types3...> tuple_cat_impl_impl(tuple<Types1...>&& t1, index_tuple<Indices1...>,
                                                                      tuple<Types2...>&& t2, index_tuple<Indices2...>,
                                                                      tuple<Types3...>&& t3, index_tuple<Indices3...>){
-  return tuple<Types1..., Types2..., Types3...>(here::get<Indices1>(veiler::forward<tuple<Types1...>>(t1))...,
-                                                here::get<Indices2>(veiler::forward<tuple<Types2...>>(t2))...,
-                                                here::get<Indices3>(veiler::forward<tuple<Types3...>>(t3))...);
+  return tuple<Types1..., Types2..., Types3...>(here::get<Indices1>(veiler::move(t1))...,
+                                                here::get<Indices2>(veiler::move(t2))...,
+                                                here::get<Indices3>(veiler::move(t3))...);
 }
 
 struct _tuple_cat_impl{
 template<typename... Types, typename... Lefts, typename... Rights>
 constexpr auto operator()(value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>&& btree)const
-  ->decltype(tuple_cat_impl_impl(value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>::template get<0>
-                                   (veiler::forward<value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>>(btree)),
-                                 make_indexes<Types...>{},
-                                 value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>::template get<1>
-                                   (veiler::forward<value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>>(btree)),
-                                 make_indexes<Lefts...>{},
-                                 value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>::template get<2>
-                                   (veiler::forward<value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>>(btree)),
-                                 make_indexes<Rights...>{})){
-      return tuple_cat_impl_impl(value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>::template get<0>
-                                   (veiler::forward<value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>>(btree)),
-                                 make_indexes<Types...>{},
-                                 value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>::template get<1>
-                                   (veiler::forward<value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>>(btree)),
-                                 make_indexes<Lefts...>{},
-                                 value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>::template get<2>
-                                   (veiler::forward<value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>>(btree)),
-                                 make_indexes<Rights...>{});
+  ->decltype(tuple_cat_impl_impl(value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>::template get<0>(veiler::move(btree)), make_indexes<Types...>{},
+                                 value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>::template get<1>(veiler::move(btree)), make_indexes<Lefts...>{},
+                                 value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>::template get<2>(veiler::move(btree)), make_indexes<Rights...>{})){
+      return tuple_cat_impl_impl(value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>::template get<0>(veiler::move(btree)), make_indexes<Types...>{},
+                                 value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>::template get<1>(veiler::move(btree)), make_indexes<Lefts...>{},
+                                 value_btree<tuple<Types...>, tuple<Lefts...>, tuple<Rights...>>::template get<2>(veiler::move(btree)), make_indexes<Rights...>{});
 }
 template<typename... Types, typename... Lefts>
 constexpr auto operator()(value_btree<tuple<Types...>,tuple<Lefts...>>&& btree)const
-  ->decltype(tuple_cat_impl_impl(value_btree<tuple<Types...>, tuple<Lefts...>>::template get<0>
-                                   (veiler::forward<value_btree<tuple<Types...>, tuple<Lefts...>>>(btree)),
-                                 make_indexes<Types...>{},
-                                 value_btree<tuple<Types...>, tuple<Lefts...>>::template get<1>
-                                   (veiler::forward<value_btree<tuple<Types...>, tuple<Lefts...>>>(btree)),
-                                 make_indexes<Lefts...>{},
-                                 tuple<>{},
-                                 index_tuple<>{})){
-      return tuple_cat_impl_impl(value_btree<tuple<Types...>, tuple<Lefts...>>::template get<0>
-                                   (veiler::forward<value_btree<tuple<Types...>, tuple<Lefts...>>>(btree)),
-                                 make_indexes<Types...>{},
-                                 value_btree<tuple<Types...>, tuple<Lefts...>>::template get<1>
-                                   (veiler::forward<value_btree<tuple<Types...>, tuple<Lefts...>>>(btree)),
-                                 make_indexes<Lefts...>{},
-                                 tuple<>{},
-                                 index_tuple<>{});
+  ->decltype(tuple_cat_impl_impl(value_btree<tuple<Types...>, tuple<Lefts...>>::template get<0>(veiler::move(btree)), make_indexes<Types...>{},
+                                 value_btree<tuple<Types...>, tuple<Lefts...>>::template get<1>(veiler::move(btree)), make_indexes<Lefts...>{},
+                                 tuple<>{},                                                                           index_tuple<>{})){
+      return tuple_cat_impl_impl(value_btree<tuple<Types...>, tuple<Lefts...>>::template get<0>(veiler::move(btree)), make_indexes<Types...>{},
+                                 value_btree<tuple<Types...>, tuple<Lefts...>>::template get<1>(veiler::move(btree)), make_indexes<Lefts...>{},
+                                 tuple<>{},                                                                           index_tuple<>{});
 }
 template<typename... Types>
 constexpr tuple<Types...> operator()(value_btree<tuple<Types...>>&& btree)const noexcept{
-  return veiler::forward<tuple<Types...>>(value_btree<tuple<Types...>>::template get<0>(veiler::forward<value_btree<tuple<Types...>>>(btree)));
+  return veiler::move(value_btree<tuple<Types...>>::template get<0>(veiler::move(btree)));
 }
 constexpr tuple<> operator()(value_btree<>)const noexcept{return tuple<>{};}
 template<typename Dummy1, typename Dummy2, typename Dummy3, typename Dummy4, typename Dummy5>
 constexpr auto operator()(value_btree<Dummy1, Dummy2, Dummy3, Dummy4, Dummy5>&& btree)const
-  ->decltype(value_btree<Dummy1, Dummy2, Dummy3, Dummy4, Dummy5>::btree_apply(
-               veiler::forward<value_btree<Dummy1, Dummy2, Dummy3, Dummy4, Dummy5>>(btree),
-               *this)){
-      return value_btree<Dummy1, Dummy2, Dummy3, Dummy4, Dummy5>::btree_apply(
-               veiler::forward<value_btree<Dummy1, Dummy2, Dummy3, Dummy4, Dummy5>>(btree),
-               *this);
+  ->decltype(value_btree<Dummy1, Dummy2, Dummy3, Dummy4, Dummy5>::btree_apply(veiler::move(btree), *this)){
+      return value_btree<Dummy1, Dummy2, Dummy3, Dummy4, Dummy5>::btree_apply(veiler::move(btree), *this);
 }
 constexpr _tuple_cat_impl() = default;
 };
 
 template<typename... Types>
-constexpr tuple<Types...> convert_to_tuple(tuple<Types...>&& tpl)noexcept{return veiler::forward<tuple<Types...>>(tpl);}
+constexpr tuple<Types...> convert_to_tuple(tuple<Types...>&& tpl)noexcept{return veiler::move(tpl);}
 template<typename... Types>
 constexpr tuple<Types...> convert_to_tuple(const tuple<Types...>& tpl)noexcept{return tpl;}
 template<typename U1, typename U2>
 constexpr tuple<U1, U2> convert_to_tuple(std::pair<U1, U2>&& pair)
   noexcept(std::is_nothrow_constructible<tuple<U1, U2>, std::pair<U1, U2>&&>::value){
-  return tuple<U1, U2>(veiler::forward<std::pair<U1, U2>>(pair));
+  return tuple<U1, U2>(veiler::move(pair));
 }
 template<typename U1, typename U2>
 constexpr tuple<U1, U2> convert_to_tuple(const std::pair<U1, U2>& pair)
@@ -1050,7 +1023,7 @@ constexpr tuple<U1, U2> convert_to_tuple(const std::pair<U1, U2>& pair)
 template<typename T, std::size_t N, long long... Indices, typename... Types>
 constexpr tuple<Types...> convert_array_to_tuple_impl(std::array<T, N>&& array, index_tuple<Indices...>, type_tuple<Types...>)
   noexcept(std::is_nothrow_constructible<tuple<Types...>, Types&&...>::value){
-  return tuple<Types...>(veiler::forward<T>(array[Indices])...);
+  return tuple<Types...>(veiler::move(array[Indices])...);
 }
 template<typename T, std::size_t N, long long... Indices, typename... Types>
 constexpr tuple<Types...> convert_array_to_tuple_impl(const std::array<T, N>& array, index_tuple<Indices...>, type_tuple<Types...>)
@@ -1059,27 +1032,15 @@ constexpr tuple<Types...> convert_array_to_tuple_impl(const std::array<T, N>& ar
 }
 template<typename T, std::size_t N>
 constexpr auto convert_to_tuple(std::array<T, N>&& array)
-  noexcept(noexcept(convert_array_to_tuple_impl(veiler::forward<std::array<T, N>>(array),
-                                       make_index_range<0, N, 1>{},
-                                       make_type_tuple<N, T>{})))
-         ->decltype(convert_array_to_tuple_impl(veiler::forward<std::array<T, N>>(array),
-                                       make_index_range<0, N, 1>{},
-                                       make_type_tuple<N,T>{})){
-             return convert_array_to_tuple_impl(veiler::forward<std::array<T, N>>(array),
-                                       make_index_range<0, N, 1>{},
-                                       make_type_tuple<N,T>{});
+  noexcept(noexcept(convert_array_to_tuple_impl(veiler::move(array), make_index_range<0, N, 1>{}, make_type_tuple<N, T>{})))
+         ->decltype(convert_array_to_tuple_impl(veiler::move(array), make_index_range<0, N, 1>{}, make_type_tuple<N,T>{})){
+             return convert_array_to_tuple_impl(veiler::move(array), make_index_range<0, N, 1>{}, make_type_tuple<N,T>{});
 }
 template<typename T, std::size_t N>
 constexpr auto convert_to_tuple(const std::array<T, N>& array)
-  noexcept(noexcept(convert_array_to_tuple_impl(array,
-                                       make_index_range<0, N, 1>{},
-                                       make_type_tuple<N, T>{})))
-         ->decltype(convert_array_to_tuple_impl(array,
-                                       make_index_range<0, N, 1>{},
-                                       make_type_tuple<N,T>{})){
-             return convert_array_to_tuple_impl(array,
-                                       make_index_range<0, N, 1>{},
-                                       make_type_tuple<N,T>{});
+  noexcept(noexcept(convert_array_to_tuple_impl(array, make_index_range<0, N, 1>{}, make_type_tuple<N, T>{})))
+         ->decltype(convert_array_to_tuple_impl(array, make_index_range<0, N, 1>{}, make_type_tuple<N,T>{})){
+             return convert_array_to_tuple_impl(array, make_index_range<0, N, 1>{}, make_type_tuple<N,T>{});
 }
 
 template<typename... Tuples>
