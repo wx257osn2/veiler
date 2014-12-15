@@ -767,15 +767,15 @@ constexpr Lampads<Self<unwrap_lampads_or_valize_t<Params>...>> self(Params&&... 
 }
 
 
-#define VEILER_LAMPADS_POLYMORPHIC_MEMBER_ACCESSOR(member) \
+#define VEILER_LAMPADS_POLYMORPHIC_MEMBER_ACCESSOR(...) \
   class VEILER_PELOPS_ULLR_CAT(memberAccessor, __LINE__){\
     template<typename... Args>\
     class FunctionAccessor{\
       veiler::tuple<Args...> args;\
       template<typename T, long long... Indices, typename std::enable_if<std::is_rvalue_reference<T&&>::value>::type* = nullptr>\
-      static constexpr auto impl(T&& lhs, const FunctionAccessor& rhs, veiler::index_tuple<Indices...>)->decltype(veiler::forward<T>(lhs).member(veiler::get<Indices>(rhs.args)...)){return veiler::forward<T>(lhs).member(veiler::get<Indices>(rhs.args)...);}\
+      static constexpr auto impl(T&& lhs, const FunctionAccessor& rhs, veiler::index_tuple<Indices...>)->decltype(veiler::forward<T>(lhs).__VA_ARGS__(veiler::get<Indices>(rhs.args)...)){return veiler::forward<T>(lhs).__VA_ARGS__(veiler::get<Indices>(rhs.args)...);}\
       template<typename T, long long... Indices, typename std::enable_if<std::is_lvalue_reference<typename std::remove_const<T&&>::type>::value>::type* = nullptr>\
-      static constexpr auto impl(T&& lhs, const FunctionAccessor& rhs, veiler::index_tuple<Indices...>)->decltype(lhs.member(veiler::get<Indices>(rhs.args)...)){return lhs.member(veiler::get<Indices>(rhs.args)...);}\
+      static constexpr auto impl(T&& lhs, const FunctionAccessor& rhs, veiler::index_tuple<Indices...>)->decltype(lhs.__VA_ARGS__(veiler::get<Indices>(rhs.args)...)){return lhs.__VA_ARGS__(veiler::get<Indices>(rhs.args)...);}\
      public:\
       template<typename Tuple>\
       constexpr FunctionAccessor(Tuple&& tpl):args(veiler::forward<Tuple>(tpl)){}\
@@ -809,20 +809,20 @@ constexpr Lampads<Self<unwrap_lampads_or_valize_t<Params>...>> self(Params&&... 
    public:\
     constexpr VEILER_PELOPS_ULLR_CAT(memberAccessor, __LINE__)() = default;\
     template<typename T, typename std::enable_if<std::is_rvalue_reference<T&&>::value>::type* = nullptr>\
-    friend constexpr auto operator->*(T&& lhs, const VEILER_PELOPS_ULLR_CAT(memberAccessor, __LINE__)&)->decltype(veiler::forward<T>(lhs).member){return veiler::forward<T>(lhs).member;}\
+    friend constexpr auto operator->*(T&& lhs, const VEILER_PELOPS_ULLR_CAT(memberAccessor, __LINE__)&)->decltype(veiler::forward<T>(lhs).__VA_ARGS__){return veiler::forward<T>(lhs).__VA_ARGS__;}\
     template<typename T, typename std::enable_if<std::is_lvalue_reference<typename std::remove_const<T&&>::type>::value>::type* = nullptr>\
-    friend constexpr auto operator->*(T&& lhs, const VEILER_PELOPS_ULLR_CAT(memberAccessor, __LINE__)&)->decltype((lhs.member)){return lhs.member;}\
+    friend constexpr auto operator->*(T&& lhs, const VEILER_PELOPS_ULLR_CAT(memberAccessor, __LINE__)&)->decltype((lhs.__VA_ARGS__)){return lhs.__VA_ARGS__;}\
     template<typename... Params>\
     constexpr veiler::_detail::lampads::Lampads<FunctionBinder<veiler::_detail::lampads::unwrap_lampads_or_valize_t<Params>...>> operator()(Params&&... ps)const{\
        return veiler::_detail::lampads::Lampads<FunctionBinder<veiler::_detail::lampads::unwrap_lampads_or_valize_t<Params>...>>(veiler::_detail::lampads::unwrap_lampads_or_valize(veiler::forward<Params>(ps))...);\
     }\
   }
 
-#define VEILER_LAMPADS_POLYMORPHIC_FUNCTION_ACCESSOR(function) \
+#define VEILER_LAMPADS_POLYMORPHIC_FUNCTION_ACCESSOR(...) \
   struct VEILER_PELOPS_ULLR_CAT(funcAccessor, __LINE__){\
     constexpr VEILER_PELOPS_ULLR_CAT(funcAccessor, __LINE__)() = default;\
     template<typename... Args>\
-    constexpr auto operator()(Args&&... args)const->decltype(function(std::declval<Args>()...)){return function(veiler::forward<Args>(args)...);}\
+    constexpr auto operator()(Args&&... args)const->decltype(__VA_ARGS__(std::declval<Args>()...)){return __VA_ARGS__(veiler::forward<Args>(args)...);}\
   }
 
 
