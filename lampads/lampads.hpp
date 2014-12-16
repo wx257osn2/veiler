@@ -150,7 +150,7 @@ using unwrap_lampads_or_valize_t = decltype(unwrap_lampads_or_valize(std::declva
 enum pass:bool{by_value, by_reference};
 
 #ifndef VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY
-#define VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY pass::by_reference
+#define VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY pass::by_value
 #endif//VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY
 
 
