@@ -150,7 +150,7 @@ using unwrap_lampads_or_valize_t = decltype(unwrap_lampads_or_valize(std::declva
 enum pass:bool{by_value, by_reference};
 
 #ifndef VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY
-#define VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY pass::by_value
+#define VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY pass::by_reference
 #endif//VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY
 
 
@@ -315,6 +315,11 @@ template<typename R, typename T>
 constexpr Lampads<Ret<R, T>> ret(const Lampads<T>& t){return Lampads<Ret<R, T>>{Lampads<T>::_get(t)};}
 
 
+template<typename T, typename std::enable_if<std::is_lvalue_reference<T&&>::value>::type* = nullptr>
+constexpr veiler::refil<typename std::remove_reference<T>::type> wrap_refil_if_ref(T&& t)noexcept{return veiler::ref(t);}
+template<typename T, typename std::enable_if<std::is_rvalue_reference<T&&>::value>::type* = nullptr>
+constexpr T wrap_refil_if_ref(T&& t)noexcept{return t;}
+
 template<long long N>
 struct Placeholder{
   static_assert(N > 0, "Veiler.Lampads - Placeholder can't be negative and zero.");
@@ -332,7 +337,7 @@ struct Placeholder{
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<N-1 < sizeof...(Args)>::type* = nullptr>
   constexpr auto bind_run(const S&, Args&&... args)const
     ->veiler::tuple<veiler::type_at<veiler::type_tuple<Args...>, N-1>>{
-    return veiler::make_tuple(veiler::get<N-1>(veiler::forward_as_tuple<Args&&...>(veiler::forward<Args>(args)...)));
+    return veiler::make_tuple(wrap_refil_if_ref(veiler::get<N-1>(veiler::forward_as_tuple<Args&&...>(veiler::forward<Args>(args)...))));
   }
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<(N-1 >= sizeof...(Args))>::type* = nullptr>
   constexpr auto bind_run(const S&, Args&&...)const
