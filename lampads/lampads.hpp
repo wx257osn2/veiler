@@ -751,8 +751,8 @@ class Bind<false, F, Params...>{
 };
 
 template<typename F, typename... Params>
-constexpr Lampads<Bind<veiler::hastur<has_result_type>::type<veiler::func_troy<F>>::value, F, unwrap_lampads_or_valize_t<Params>...>> bind(F&& f, Params&&... ps){
-   return Lampads<Bind<veiler::hastur<has_result_type>::type<veiler::func_troy<F>>::value, F, unwrap_lampads_or_valize_t<Params>...>>(veiler::forward<F>(f), unwrap_lampads_or_valize(veiler::forward<Params>(ps))...);
+constexpr Lampads<Bind<veiler::hastur<has_result_type>::type<veiler::func_troy<F>>::value, unremove_reference_decay<F>, unwrap_lampads_or_valize_t<Params>...>> bind(F&& f, Params&&... ps){
+   return Lampads<Bind<veiler::hastur<has_result_type>::type<veiler::func_troy<F>>::value, unremove_reference_decay<F>, unwrap_lampads_or_valize_t<Params>...>>(veiler::forward<F>(f), unwrap_lampads_or_valize(veiler::forward<Params>(ps))...);
 }
 
 
