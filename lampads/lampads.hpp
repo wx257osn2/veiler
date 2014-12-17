@@ -369,10 +369,7 @@ struct VariadicPlaceholder{
   using ret_type = ret_type_dummy;
   constexpr VariadicPlaceholder() = default;
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
-  constexpr R run(const S&, Args&&...)const{
-    //throw std::logic_error("Veiler.Lampads - can't use variadic placeholder except in self and bind.");
-    return R{};
-  }
+  constexpr R run(const S&, Args&&...)const; //Veiler.Lampads - can't use variadic placeholder except in self and bind.
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<N < sizeof...(Args)>::type* = nullptr>
   constexpr auto bind_run(const S&, Args&&... args)const
     ->decltype(this->run_impl(veiler::make_index_range<N, sizeof...(Args)>{}, veiler::forward<Args>(args)...)){
