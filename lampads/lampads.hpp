@@ -149,6 +149,17 @@ using unwrap_lampads_or_valize_t = decltype(unwrap_lampads_or_valize(std::declva
 
 enum pass:bool{by_value, by_reference};
 
+
+template<typename T, typename U = typename std::remove_reference<T>::type, bool = std::is_array<U>::value || std::is_function<U>::value>struct unremove_reference_decay_impl;
+template<typename T, typename U>
+struct unremove_reference_decay_impl<T, U, true>{using type = typename std::decay<U>::type;};
+template<typename T, typename U>
+struct unremove_reference_decay_impl<T, U, false>{using type = T;};
+
+template<typename T>
+using unremove_reference_decay = typename unremove_reference_decay_impl<T>::type;
+
+
 #ifndef VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY
 #define VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY pass::by_reference
 #endif//VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY
@@ -225,7 +236,7 @@ class Lampads<T
   struct call_impl<pass::by_reference, Dummy>{
     template<typename... Args>
     static constexpr result_type call(const T& t, Args&&... args){
-      return veiler::forward<result_type>(t.template run<result_type VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, veiler::forward<Args>(args)...));
+      return veiler::forward<result_type>(t.template run<result_type VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, veiler::forward<unremove_reference_decay<Args>>(args)...));
     }
   };
 );
@@ -252,8 +263,8 @@ class Lampads<T
   struct call_impl<pass::by_reference, Dummy>{
     template<typename... Args>
     static constexpr auto call(const T& t, Args&&... args)
-      ->decltype(t.template run<typename ret_type::template type<Args...> VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, veiler::forward<Args>(args)...)){
-          return t.template run<typename ret_type::template type<Args...> VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, veiler::forward<Args>(args)...);
+      ->decltype(t.template run<typename ret_type::template type<unremove_reference_decay<Args>...> VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, veiler::forward<unremove_reference_decay<Args>>(args)...)){
+          return t.template run<typename ret_type::template type<unremove_reference_decay<Args>...> VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, veiler::forward<unremove_reference_decay<Args>>(args)...);
     }
   };
 );
