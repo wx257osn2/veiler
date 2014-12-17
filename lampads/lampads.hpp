@@ -31,7 +31,7 @@ namespace lampads{
 
 
 template<typename T>
-constexpr T unwrap_refil_or_copy(T t){return t;}
+constexpr T unwrap_refil_or_copy(T t){return veiler::move(t);}
 template<typename T>
 constexpr T& unwrap_refil_or_copy(veiler::refil<T> t){return t.get();}
 template<typename T>
@@ -318,7 +318,7 @@ constexpr Lampads<Ret<R, T>> ret(const Lampads<T>& t){return Lampads<Ret<R, T>>{
 template<typename T, typename std::enable_if<std::is_lvalue_reference<T&&>::value>::type* = nullptr>
 constexpr veiler::refil<typename std::remove_reference<T>::type> wrap_refil_if_ref(T&& t)noexcept{return veiler::ref(t);}
 template<typename T, typename std::enable_if<std::is_rvalue_reference<T&&>::value>::type* = nullptr>
-constexpr T wrap_refil_if_ref(T&& t)noexcept{return t;}
+constexpr T&& wrap_refil_if_ref(T&& t)noexcept{return veiler::forward<T>(t);}
 
 template<long long N>
 struct Placeholder{
