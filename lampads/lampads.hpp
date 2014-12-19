@@ -20,6 +20,7 @@ namespace lampads{
 #define VEILER_LAMPADS_RECURSION_COUNTER_DECL(...) , long long RecursionCounter, long long TemplateDepth __VA_ARGS__
 #define VEILER_LAMPADS_RECURSION_COUNTER(...) , RecursionCounter __VA_ARGS__
 #define VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(...) , TemplateDepth __VA_ARGS__
+#define VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(...) __VA_ARGS__
 #ifndef VEILER_LAMPADS_RECURSION_LIMIT
 #define VEILER_LAMPADS_RECURSION_LIMIT 96
 #endif
@@ -27,6 +28,7 @@ namespace lampads{
 #define VEILER_LAMPADS_RECURSION_COUNTER_DECL(...)
 #define VEILER_LAMPADS_RECURSION_COUNTER(...)
 #define VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(...)
+#define VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(...)
 #endif
 
 
@@ -165,110 +167,91 @@ using unremove_reference_decay = typename unremove_reference_decay_impl<T>::type
 #endif//VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY
 
 
-#define VEILER_LAMPADS_DECL_LAMPADS(...) {\
-  using ret_type = typename T::ret_type;\
-  T t;\
-  template<pass, typename = void>struct call_impl;\
-  __VA_ARGS__\
- public:\
-  constexpr Lampads() = default;\
-  constexpr Lampads(const Lampads&) = default;\
-  constexpr Lampads(Lampads&&) = default;\
-  template<typename X, typename... Args>\
-  explicit constexpr Lampads(X&& x, Args&&... args):t(veiler::forward<X>(x), veiler::forward<Args>(args)...){}\
-  static constexpr T&& _get(Lampads&& t){return veiler::forward<T>(t.t);}\
-  static constexpr const T& _get(const Lampads& t){return t.t;}\
-  template<typename U>\
-  Lampads<Brac<T, unwrap_lampads_or_valize_t<U>>> operator [](U&& u)&&{\
-     return Lampads<Brac<T, unwrap_lampads_or_valize_t<U>>>(veiler::forward<T>(t), unwrap_lampads_or_valize(veiler::forward<U>(u)));\
-  }\
-  template<typename U>\
-  Lampads<Asgn<T, unwrap_lampads_or_valize_t<U>>> operator =(U&& u)&&{\
-     return Lampads<Asgn<T, unwrap_lampads_or_valize_t<U>>>(veiler::forward<T>(t), unwrap_lampads_or_valize(veiler::forward<U>(u)));\
-  }\
-  template<typename U>\
-  constexpr Lampads<Brac<T, unwrap_lampads_or_valize_t<U>>> operator [](U&& u)const &{\
-     return Lampads<Brac<T, unwrap_lampads_or_valize_t<U>>>(t, unwrap_lampads_or_valize(veiler::forward<U>(u)));\
-  }\
-  template<typename U>\
-  constexpr Lampads<Asgn<T, unwrap_lampads_or_valize_t<U>>> operator =(U&& u)const &{\
-     return Lampads<Asgn<T, unwrap_lampads_or_valize_t<U>>>(t, unwrap_lampads_or_valize(veiler::forward<U>(u)));\
-  }\
-  template<typename... Args>\
-  constexpr auto operator()(Args&&... args)const\
-    ->decltype(call_impl<VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY>::call(t, veiler::forward<Args>(args)...)){\
-        return call_impl<VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY>::call(t, veiler::forward<Args>(args)...);\
-  }\
-  template<pass P, typename... Args>\
-  constexpr auto call(Args&&... args)const\
-    ->decltype(call_impl<P>::call(t, veiler::forward<Args>(args)...)){\
-        return call_impl<P>::call(t, veiler::forward<Args>(args)...);\
-  }\
-}
-
-template<typename T
-#ifdef __clang__
-,long long RecursionCounter = 0ll
-#endif
-,typename = void>class Lampads;
-template<typename T
-#ifdef __clang__
-,long long RecursionCounter
-#endif
->
-class Lampads<T
-#ifdef __clang__
-, RecursionCounter
-#endif
-, typename std::enable_if<T::ret_type::depends_on_args == false>::type
-> VEILER_LAMPADS_DECL_LAMPADS(
+template<typename T, typename = void>class LampadsImpl;
+template<typename T>
+class LampadsImpl<T, typename std::enable_if<T::ret_type::depends_on_args == false>::type>{
  public:
   using result_type = typename T::ret_type::template type<>;
- private:
+ protected:
+  template<pass, typename = void>struct call_impl;
   template<typename Dummy>
   struct call_impl<pass::by_value, Dummy>{
     template<typename... Args>
     static constexpr result_type call(const T& t, Args&&... args){
-      return veiler::forward<result_type>(t.template run<result_type VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...));
+      return veiler::forward<result_type>(t.template run<result_type VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...));
     }
   };
   template<typename Dummy>
   struct call_impl<pass::by_reference, Dummy>{
     template<typename... Args>
     static constexpr result_type call(const T& t, Args&&... args){
-      return veiler::forward<result_type>(t.template run<result_type VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, veiler::forward<unremove_reference_decay<Args>>(args)...));
+      return veiler::forward<result_type>(t.template run<result_type VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, veiler::forward<unremove_reference_decay<Args>>(args)...));
     }
   };
-);
-template<typename T
-#ifdef __clang__
-,long long RecursionCounter
-#endif
->
-class Lampads<T
-#ifdef __clang__
-, RecursionCounter
-#endif
-, typename std::enable_if<T::ret_type::depends_on_args == true>::type
-> VEILER_LAMPADS_DECL_LAMPADS(
+};
+template<typename T>
+class LampadsImpl<T, typename std::enable_if<T::ret_type::depends_on_args == true>::type>{
+ protected:
+  template<pass, typename = void>struct call_impl;
   template<typename Dummy>
   struct call_impl<pass::by_value, Dummy>{
     template<typename... Args>
     static constexpr auto call(const T& t, Args&&... args)
-      ->decltype(t.template run<typename ret_type::template type<unwrap_refil_t<Args>...> VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...)){
-          return t.template run<typename ret_type::template type<unwrap_refil_t<Args>...> VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...);
+      ->decltype(t.template run<typename T::ret_type::template type<unwrap_refil_t<Args>...> VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...)){
+          return t.template run<typename T::ret_type::template type<unwrap_refil_t<Args>...> VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...);
     }
   };
   template<typename Dummy>
   struct call_impl<pass::by_reference, Dummy>{
     template<typename... Args>
     static constexpr auto call(const T& t, Args&&... args)
-      ->decltype(t.template run<typename ret_type::template type<unremove_reference_decay<Args>...> VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, veiler::forward<unremove_reference_decay<Args>>(args)...)){
-          return t.template run<typename ret_type::template type<unremove_reference_decay<Args>...> VEILER_LAMPADS_RECURSION_COUNTER(, 1ll)>(t, veiler::forward<unremove_reference_decay<Args>>(args)...);
+      ->decltype(t.template run<typename T::ret_type::template type<unremove_reference_decay<Args>...> VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, veiler::forward<unremove_reference_decay<Args>>(args)...)){
+          return t.template run<typename T::ret_type::template type<unremove_reference_decay<Args>...> VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, veiler::forward<unremove_reference_decay<Args>>(args)...);
     }
   };
-);
-#undef VEILER_LAMPADS_DECL_LAMPADS
+};
+
+#undef VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL
+
+template<typename T>
+class Lampads : public LampadsImpl<T>{
+  T t;
+  using impl_t = LampadsImpl<T>;
+ public:
+  constexpr Lampads() = default;
+  constexpr Lampads(const Lampads&) = default;
+  constexpr Lampads(Lampads&&) = default;
+  template<typename X, typename... Args>
+  explicit constexpr Lampads(X&& x, Args&&... args):t(veiler::forward<X>(x), veiler::forward<Args>(args)...){}
+  static constexpr T&& _get(Lampads&& t){return veiler::forward<T>(t.t);}
+  static constexpr const T& _get(const Lampads& t){return t.t;}
+  template<typename U>
+  Lampads<Brac<T, unwrap_lampads_or_valize_t<U>>> operator [](U&& u)&&{
+     return Lampads<Brac<T, unwrap_lampads_or_valize_t<U>>>(veiler::forward<T>(t), unwrap_lampads_or_valize(veiler::forward<U>(u)));
+  }
+  template<typename U>
+  Lampads<Asgn<T, unwrap_lampads_or_valize_t<U>>> operator =(U&& u)&&{
+     return Lampads<Asgn<T, unwrap_lampads_or_valize_t<U>>>(veiler::forward<T>(t), unwrap_lampads_or_valize(veiler::forward<U>(u)));
+  }
+  template<typename U>
+  constexpr Lampads<Brac<T, unwrap_lampads_or_valize_t<U>>> operator [](U&& u)const &{
+     return Lampads<Brac<T, unwrap_lampads_or_valize_t<U>>>(t, unwrap_lampads_or_valize(veiler::forward<U>(u)));
+  }
+  template<typename U>
+  constexpr Lampads<Asgn<T, unwrap_lampads_or_valize_t<U>>> operator =(U&& u)const &{
+     return Lampads<Asgn<T, unwrap_lampads_or_valize_t<U>>>(t, unwrap_lampads_or_valize(veiler::forward<U>(u)));
+  }
+  template<typename... Args>
+  constexpr auto operator()(Args&&... args)const
+    ->decltype(impl_t::template call_impl<VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY>::call(t, veiler::forward<Args>(args)...)){
+        return impl_t::template call_impl<VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY>::call(t, veiler::forward<Args>(args)...);
+  }
+  template<pass P, typename... Args>
+  constexpr auto call(Args&&... args)const
+    ->decltype(impl_t::template call_impl<P>::call(t, veiler::forward<Args>(args)...)){
+        return impl_t::template call_impl<P>::call(t, veiler::forward<Args>(args)...);
+  }
+};
 
 
 template<typename T>
