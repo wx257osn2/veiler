@@ -346,7 +346,7 @@ struct VariadicPlaceholder{
   template<long long... Indices, typename... Args>
   constexpr auto run_impl(veiler::index_tuple<Indices...>, Args&&... args)const
     ->veiler::tuple<veiler::type_at<veiler::type_tuple<Args...>, Indices>...>{
-    return veiler::make_tuple<veiler::type_at<veiler::type_tuple<Args...>, Indices>...>(veiler::get<Indices>(veiler::forward_as_tuple<Args&&...>(veiler::forward<Args>(args)...))...);
+    return veiler::make_tuple(wrap_refil_if_ref(veiler::get<Indices>(veiler::forward_as_tuple<Args&&...>(veiler::forward<Args>(args)...)))...);
   }
  public:
   using ret_type = ret_type_dummy;
