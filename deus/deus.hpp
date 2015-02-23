@@ -24,22 +24,20 @@ template<typename>class event;
 template<typename>struct state;
 
 template<typename From, typename Event, typename To, typename Guard, typename Action>
-class transition{
+struct transition{
   Guard  g;
   Action a;
- public:
   transition(Guard&& g):g(veiler::forward<Guard>(g)){}
   transition(Action&& a):a(veiler::forward<Action>(a)){}
-  transition(Guard&& g, Action&& a):g(veiler::forward<Guard>(g), veiler::forward<Action>(a)){}
+  transition(Guard&& g, Action&& a):g(veiler::forward<Guard>(g)), a(veiler::forward<Action>(a)){}
   template<typename E>
   bool guard(E&& ev)const{return g(veiler::forward<E>(ev));}
   template<typename E>
   void action(E&& ev)const{a(veiler::forward<E>(ev));}
 };
 template<typename From, typename Event, typename To, typename Guard>
-class transition<From, Event, To, Guard, default_action>{
+struct transition<From, Event, To, Guard, default_action>{
   Guard  g;
- public:
   transition(Guard&& g):g(veiler::forward<Guard>(g)){}
   template<typename A>
   transition<From, Event, To, Guard, A> operator=(A&& a)const{return transition<From, Event, To, Guard, A>(veiler::forward<Guard>(g), veiler::forward<A>(a));}
@@ -49,8 +47,7 @@ class transition<From, Event, To, Guard, default_action>{
   void action(E&& ev)const{}
 };
 template<typename From, typename Event, typename To>
-class transition<From, Event, To, default_guard, default_action>{
-public:
+struct transition<From, Event, To, default_guard, default_action>{
   template<typename G>
   transition<From, Event, To, G, default_action> operator[](G&& g)const{return transition<From, Event, To, G, default_action>(veiler::forward<G>(g));}
   template<typename A>
@@ -87,7 +84,11 @@ class event{
 };
 template<typename From, typename Event, typename To, typename Guard, typename Action>
 transition<From, Event, To, Guard, Action> operator>(transition<From, Event, none, default_guard, default_action>&& s, transition<none, none, To, Guard, Action>&& e){
-  return transition<From, Event, To, Guard, Action>{};
+  return transition<From, Event, To, Guard, Action>{std::forward<Guard>(e.g), std::forward<Action>(e.a)};
+}
+template<typename From, typename Event, typename To, typename Guard>
+transition<From, Event, To, Guard, default_action> operator>(transition<From, Event, none, default_guard, default_action>&& s, transition<none, none, To, Guard, default_action>&& e){
+  return transition<From, Event, To, Guard, default_action>{std::forward<Guard>(e.g)};
 }
 template<typename From, typename Event, typename To>
 transition<From, Event, To, default_guard, default_action> operator>(transition<From, Event, none, default_guard, default_action>&& s, const state<To>& e){
