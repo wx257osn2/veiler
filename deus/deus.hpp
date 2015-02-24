@@ -11,11 +11,14 @@ namespace deus{
 
 namespace impl{
 
-template<typename T, typename... Args, std::size_t... Indices>
-T make_impl(veiler::tuple<Args...>&& t, veiler::index_tuple<Indices...>){return T(std::forward<Args>(veiler::get<Indices>(t))...);}
+template<typename T, typename Tuple, std::size_t... Indices>
+T make_impl(Tuple&& t, index_tuple<Indices...>){return T(veiler::get<Indices>(t)...);}
 
 template<typename T, typename... Args>
 T make(veiler::tuple<Args...>&& t){return make_impl<T>(std::forward<veiler::tuple<Args...>>(t), veiler::make_indexes<Args...>{});}
+
+template<typename T, typename... Args>
+T make(const veiler::tuple<Args...>& t){return make_impl<T>(t, veiler::make_indexes<Args...>{});}
 
 struct none{};
 struct default_guard{
@@ -68,6 +71,8 @@ struct state{
   transition<none, none, State, default_guard, Action> operator/(Action&& a)const{return transition<none, none, State, default_guard, Action>(veiler::forward<Action>(a));}
   transition<State, none, none, default_guard, default_action> operator--(int)const{return transition<State, none, none, default_guard, default_action>{};}
 };
+template<typename Event, typename... Args>
+struct event_args_wrapper{veiler::tuple<Args...> args;};
 template<typename Event>
 class event{
   struct sysu{
@@ -99,9 +104,7 @@ class event{
   template<typename Guard>
   _guarded_event<Guard> operator[](Guard&& g)const{return _guarded_event<Guard>(std::forward<Guard>(g));}
   template<typename... Args>
-  struct wrapper{tuple<Args...> args;};
-  template<typename... Args>
-  wrapper<Args...> operator()(Args&&... args){return wrapper<Args...>{{veiler::forward<Args>(args)...}};}
+  event_args_wrapper<Event, Args...> operator()(Args&&... args)const{return event_args_wrapper<Event, Args...>{veiler::tuple<Args...>{std::forward<Args>(args)...}};}
 };
 template<typename From, typename Event, typename To, typename Guard, typename Action>
 inline transition<From, Event, To, Guard, Action> operator>(transition<From, Event, none, Guard, default_action>&& s, transition<none, none, To, default_guard, Action>&& e){
@@ -176,10 +179,10 @@ class state_machine : public state<Statemachine>{
       exec_events_<Event, N+1>::exec(state, tt);
     }
     template<typename EventArgs>
-    static void exec(holder& state, const TransitionTable& tt, const EventArgs& e){
+    static void exec(holder& state, const TransitionTable& tt, const EventArgs& args){
       using transition = type_at<TransitionTable,N>;
       if(state == status_id<type_at<transition,0>>::value && (std::is_same<Event, type_at<transition,1>>::value || std::is_same<none, type_at<transition,1>>::value)){
-        Event ev = make<Event>(e.args);
+        Event ev = make<Event>(args);
         if(veiler::get<N>(tt.table).guard(ev)){
           veiler::get<N>(tt.table).action(ev);
           if(state != status_id<type_at<transition,2>>::value)
@@ -188,18 +191,18 @@ class state_machine : public state<Statemachine>{
           return;
         }
       }
-      exec_events_<Event, N+1>::exec(state, tt, e);
+      exec_events_<Event, N+1>::exec(state, tt, args);
     }
   };
   template<typename Event, std::size_t N>
-  struct exec_events_<Event,N,false>{static void exec(holder&, const TransitionTable&){}};
+  struct exec_events_<Event,N,false>{static void exec(holder&, const TransitionTable&){}template<typename T>static void exec(holder&, const TransitionTable&, T&&){}};
   template<typename Event>
   void exec_events(){
     exec_events_<Event>::exec(state, tt);
   }
   template<typename Event, typename EventArgs>
-  void exec_events(const EventArgs& e){
-    exec_events_<Event>::exec(state, tt, e);
+  void exec_events(const EventArgs& args){
+    exec_events_<Event>::exec(state, tt, args);
   }
  public:
   state_machine(const TransitionTable& table) : tt(                table ), state(typename Statemachine::initial_state{}){}
@@ -213,8 +216,8 @@ class state_machine : public state<Statemachine>{
     return sm;
   }
   template<typename Event, typename... Args>
-  friend state_machine& operator<<=(state_machine& sm, const typename event<Event>::template wrapper<Args...>& e){
-    sm.exec_events<Event>(e);
+  friend state_machine& operator<<=(state_machine& sm, const event_args_wrapper<Event, Args...>& e){
+    sm.exec_events<Event>(e.args);
     return sm;
   }
 };
