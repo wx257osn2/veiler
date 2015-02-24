@@ -11,6 +11,12 @@ namespace deus{
 
 namespace impl{
 
+template<typename T, typename... Args, std::size_t... Indices>
+T make_impl(veiler::tuple<Args...>&& t, veiler::index_tuple<Indices...>){return T(std::forward<Args>(veiler::get<Indices>(t))...);}
+
+template<typename T, typename... Args>
+T make(veiler::tuple<Args...>&& t){return make_impl<T>(std::forward<veiler::tuple<Args...>>(t), veiler::make_indexes<Args...>{});}
+
 struct none{};
 struct default_guard{
   template<typename T>
@@ -188,7 +194,7 @@ class state_machine : public state<Statemachine>{
     return sm;
   }
   template<typename Event, typename... Args>
-  friend state_machine& operator<<=(state_machine& sm, const typename event<Event>::wrapper<Args...>& e){
+  friend state_machine& operator<<=(state_machine& sm, const typename event<Event>::template wrapper<Args...>& e){
     sm.exec_events<Event>(e);
     return sm;
   }
