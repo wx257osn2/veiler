@@ -22,8 +22,8 @@ namespace event{
 
 int main(){
   auto sm = veiler::deus::make_state_machine(veiler::deus::make_transition_table(
-    state::main    --- event::toggle --> state::setting = [&](const event::detail::toggle&){std::cout << "Toggle" << std::endl;},
-    state::setting --- event::toggle --> state::main    = [&](const auto&){std::cout << "Toggle" << std::endl;}
+    state::main    --- event::toggle[([](auto&&){return  true;})]--> state::setting / [&](const event::detail::toggle&){std::cout << "Toggle" << std::endl;},
+    state::setting --- event::toggle[([](auto&&){return false;})]--> state::main   / [&](const auto                 &){std::cout << "Toggle" << std::endl;}
   ), state::main);
   std::cout << sm.is(state::main) << std::endl;
   sm <<= event::toggle;
