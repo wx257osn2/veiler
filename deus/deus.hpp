@@ -154,7 +154,8 @@ class state_machine : public state<Statemachine>{
     struct base{};
     template<typename T>
     struct derived : base{
-      derived() : t(){}
+      template<typename... Args>
+      explicit derived(Args&&... args) : t(std::forward<Args>(args)...){}
       T t;
     };
     std::shared_ptr<base> impl;
