@@ -20,7 +20,10 @@ T create_instance(veiler::tuple<Args...>&& t){return create_instance_impl<T>(std
 template<typename T, typename... Args>
 T create_instance(const veiler::tuple<Args...>& t){return create_instance_impl<T>(t, veiler::make_indexes<Args...>{});}
 
-struct none{};
+struct none{
+  template<typename... Args>
+  constexpr none(Args&&...)noexcept{}
+};
 struct default_guard{
   template<typename T>
   bool operator()(const T&)const{return true;}
@@ -170,7 +173,72 @@ class state_machine : public state<Statemachine>{
     friend bool operator==(const holder& lhs, long long rhs){return lhs.state == rhs;}
     friend bool operator!=(const holder& lhs, long long rhs){return !(lhs == rhs);}
   }state;
-  
+#if 0
+  template<typename Event, std::size_t N, typename F, typename G>
+  static void exec_events_impl(holder& state, TransitionTable& tt, F&& f, G&& g){
+    using transition = type_at<TransitionTable,N>;
+    if(state != status_id<type_at<transition,0>>::value){
+      f(state, tt);
+      return;
+    }
+    Event ev;
+    if(!veiler::get<N>(tt.table).guard(ev))return;
+    veiler::get<N>(tt.table).action(ev);
+    if(state != status_id<type_at<transition,2>>::value)
+      state.template transit<type_at<transition,2>>();
+    g(state, tt);
+  }
+  template<typename Event, std::size_t N, typename EventArgs, typename F, typename G>
+  static void exec_events_impl(holder& state, TransitionTable& tt, const EventArgs& args, F&& f, G&& g){
+    using transition = type_at<TransitionTable,N>;
+    if(state != status_id<type_at<transition,0>>::value){
+      f(state, tt, args);
+      return;
+    }
+    Event ev = (create_instance<Event>)(args);
+    if(!veiler::get<N>(tt.table).guard(ev))return;
+    veiler::get<N>(tt.table).action(ev);
+    if(state != status_id<type_at<transition,2>>::value)
+      state.template transit<type_at<transition,2>>();
+    g(state, tt, args);
+  }
+  template<typename Event, std::size_t N = 0, bool = std::is_same<Event, type_at<type_at<TransitionTable,N>,1>>::value, bool = std::is_same<none, type_at<type_at<TransitionTable,N>,1>>::value, bool FinaleFlag = N != TransitionTable::size-1>
+  struct exec_events_{
+    static void exec(holder& state, TransitionTable& tt){
+      exec_events_impl<Event, N>(state, tt, [](holder& s, TransitionTable& t){exec_events_<Event, N, false, false, FinaleFlag>::exec(s, t);}, [](holder& s, TransitionTable& t){exec_events_<none, N, false, false, FinaleFlag>::exec(s, t);});
+    }
+    template<typename EventArgs>
+    static void exec(holder& state, TransitionTable& tt, const EventArgs& args){
+      exec_events_impl<Event, N>(state, tt, args, [](holder& s, TransitionTable& t, const EventArgs& a){exec_events_<Event, N, false, false, FinaleFlag>::exec(s, t, a);}, [](holder& s, TransitionTable& t, auto&&){exec_events_<none, N, false, false, FinaleFlag>::exec(s, t);});
+    }
+  };
+  template<typename Event, std::size_t N, bool IsEvent, bool FinaleFlag>
+  struct exec_events_<Event, N, IsEvent, true, FinaleFlag>{
+    static void exec(holder& state, TransitionTable& tt){
+      exec_events_impl<none, N>(state, tt, [](holder& s, TransitionTable& t){exec_events_<Event, N, false, false, FinaleFlag>::exec(s, t);}, [](holder& s, TransitionTable& t){exec_events_<Event, N, false, false, FinaleFlag>::exec(s, t);});
+    }
+    template<typename EventArgs>
+    static void exec(holder& state, TransitionTable& tt, const EventArgs& args){
+      exec_events_impl<none, N>(state, tt, args, [](holder& s, TransitionTable& t, const EventArgs& a){exec_events_<Event, N, false, false, FinaleFlag>::exec(s, t, a);}, [](holder& s, TransitionTable& t, const EventArgs& a){exec_events_<Event, N, false, false, FinaleFlag>::exec(s, t, a);});
+    }
+  };
+  template<typename Event, std::size_t N>
+  struct exec_events_<Event, N, false, false, true>{
+    static void exec(holder& state, TransitionTable& tt){
+      exec_events_<Event, N+1>::exec(state, tt);
+    }
+    template<typename EventArgs>
+    static void exec(holder& state, TransitionTable& tt, const EventArgs& args){
+      exec_events_<Event, N+1>::exec(state, tt, args);
+    }
+  };
+  template<typename Event, std::size_t N>
+  struct exec_events_<Event, N, false, false, false>{
+    static void exec(holder& state, TransitionTable& tt){}
+    template<typename EventArgs>
+    static void exec(holder& state, TransitionTable& tt, const EventArgs& args){}
+  };
+#else
   template<typename Event, std::size_t N = 0, bool = std::is_same<Event, type_at<type_at<TransitionTable,N>,1>>::value, bool = std::is_same<none, type_at<type_at<TransitionTable,N>,1>>::value, bool = N != TransitionTable::size-1>
   struct exec_events_{
     static void exec(holder& state, TransitionTable& tt){
@@ -291,6 +359,7 @@ class state_machine : public state<Statemachine>{
     template<typename EventArgs>
     static void exec(holder& state, TransitionTable& tt, const EventArgs& args){}
   };
+#endif
   template<typename Event>
   void exec_events(){
     exec_events_<Event>::exec(state, tt);
