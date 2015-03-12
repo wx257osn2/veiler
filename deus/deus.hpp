@@ -12,13 +12,13 @@ namespace deus{
 namespace impl{
 
 template<typename T, typename Tuple, std::size_t... Indices>
-T make_impl(Tuple&& t, index_tuple<Indices...>){return T(veiler::get<Indices>(t)...);}
+T create_instance_impl(Tuple&& t, index_tuple<Indices...>){return T(veiler::get<Indices>(t)...);}
 
 template<typename T, typename... Args>
-T make(veiler::tuple<Args...>&& t){return make_impl<T>(std::forward<veiler::tuple<Args...>>(t), veiler::make_indexes<Args...>{});}
+T create_instance(veiler::tuple<Args...>&& t){return create_instance_impl<T>(std::forward<veiler::tuple<Args...>>(t), veiler::make_indexes<Args...>{});}
 
 template<typename T, typename... Args>
-T make(const veiler::tuple<Args...>& t){return make_impl<T>(t, veiler::make_indexes<Args...>{});}
+T create_instance(const veiler::tuple<Args...>& t){return create_instance_impl<T>(t, veiler::make_indexes<Args...>{});}
 
 struct none{};
 struct default_guard{
@@ -32,94 +32,102 @@ struct default_action{
 template<typename>class event;
 template<typename>struct state;
 
+struct guard_tag{};
+struct action_tag{};
+struct both_tag{};
+
 template<typename From, typename Event, typename To, typename Guard, typename Action>
-struct transition{
-  Guard  g;
-  Action a;
-  transition(Guard&& g):g(veiler::forward<Guard>(g)){}
-  transition(Action&& a):a(veiler::forward<Action>(a)){}
-  transition(Guard&& g, Action&& a):g(veiler::forward<Guard>(g)), a(veiler::forward<Action>(a)){}
-  template<typename E>
-  bool guard(E&& ev)const{return g(veiler::forward<E>(ev));}
-  template<typename E>
-  void action(E&& ev)const{a(veiler::forward<E>(ev));}
-};
-template<typename From, typename Event, typename To, typename Guard>
-struct transition<From, Event, To, Guard, default_action>{
-  Guard  g;
-  transition(Guard&& g):g(veiler::forward<Guard>(g)){}
+struct transition : Guard, Action{
+  explicit constexpr transition()noexcept{static_assert(std::is_same<Guard, default_guard>::value && std::is_same<Action, default_action>::value, "");}
+  template<typename G>
+  constexpr transition(guard_tag&&, G&& g):Guard(std::forward<G>(g)){}
   template<typename A>
-  transition<From, Event, To, Guard, A> operator/(A&& a)const{return transition<From, Event, To, Guard, A>(veiler::forward<Guard>(g), veiler::forward<A>(a));}
-  template<typename E>
-  bool guard(E&& ev)const{return g(veiler::forward<E>(ev));}
-  template<typename E>
-  void action(E&& ev)const{}
-};
-template<typename From, typename Event, typename To>
-struct transition<From, Event, To, default_guard, default_action>{
+  constexpr transition(action_tag&&, A&& a):Action(std::forward<A>(a)){}
+  template<typename G, typename A>
+  constexpr transition(both_tag&&, G&& g, A&& a):Guard(std::forward<G>(g)), Action(std::forward<A>(a)){}
   template<typename A>
-  transition<From, Event, To, default_guard, A> operator/(A&& a)const{return transition<From, Event, To, default_guard, A>(veiler::forward<A>(a));}
+  constexpr transition<From, Event, To, Guard, A> operator/(A&& a)const{
+    static_assert(std::is_same<Action, default_action>::value, "Veiler.Deus - cannot add two or more actions to transition.");
+    return transition<From, Event, To, Guard, A>(both_tag{}, std::forward<Guard>(*this), std::forward<A>(a));
+  }
   template<typename E>
-  bool guard(E&& ev)const{return true;}
+  bool guard(E&& ev){return (*static_cast<Guard*>(this))(std::forward<E>(ev));}
   template<typename E>
-  void action(E&& ev)const{}
+  void action(E&& ev){(*static_cast<Action*>(this))(std::forward<E>(ev));}
+};
+template<typename State, typename Guard>
+struct _guarded_state : Guard{
+  template<typename G>
+  constexpr _guarded_state(G&& g):Guard(std::forward<G>(g)){}
+  constexpr transition<State, none, none, Guard, default_action> operator--(int)const{
+    return transition<State, none, none, Guard, default_action>{guard_tag{}, std::forward<Guard>(*const_cast<_guarded_state<State, Guard>*>(this))};
+  }
 };
 template<typename State>
-struct state{
-  constexpr state(){}
+class state{
+  struct inner{
+    using state_type = State;
+    constexpr inner()noexcept = default;
+    constexpr transition<State, none, none, default_guard, default_action> operator--(int)const{return transition<State, none, none, default_guard, default_action>{};}
+    template<typename Guard>
+    constexpr _guarded_state<State, std::decay_t<Guard>> operator[](Guard&& g)const{return _guarded_state<State, std::decay_t<Guard>>{std::forward<Guard>(g)};}
+  };
+ public:
+  constexpr state()noexcept{}
   template<typename Action>
-  transition<none, none, State, default_guard, Action> operator/(Action&& a)const{return transition<none, none, State, default_guard, Action>(veiler::forward<Action>(a));}
-  transition<State, none, none, default_guard, default_action> operator--(int)const{return transition<State, none, none, default_guard, default_action>{};}
+  constexpr transition<none, none, State, default_guard, std::decay_t<Action>> operator/(Action&& a)const{
+    return transition<none, none, State, default_guard, std::decay_t<Action>>{action_tag{}, veiler::forward<Action>(a)};
+  }
+  constexpr inner operator--(int)const{return inner{};}
 };
 template<typename Event, typename... Args>
 struct event_args_wrapper{veiler::tuple<Args...> args;};
 template<typename Event>
 class event{
   struct sysu{
-    template<typename From>
-    friend transition<From, Event, none, default_guard, default_action> operator-(transition<From, none, none, default_guard, default_action>&& s, sysu&&){
+    constexpr sysu()noexcept = default;
+    template<typename State, typename From = typename std::decay<State>::type::state_type>
+    friend constexpr transition<From, Event, none, default_guard, default_action> operator-(State&& s, sysu&&)noexcept{
       return transition<From, Event, none, default_guard, default_action>{};
     }
   };
   template<typename Guard>
-  class _guarded_event{
-    Guard g;
-    class sysu{
-      Guard g;
-     public:
+  class _guarded_event : Guard{
+    struct sysu : private Guard{
       template<typename G>
-      sysu(G&& g):g(std::forward<G>(g)){}
-      template<typename From>
-      friend transition<From, Event, none, Guard, default_action> operator-(transition<From, none, none, default_guard, default_action>&& s, sysu&& g){
-        return transition<From, Event, none, Guard, default_action>{std::forward<sysu>(g).g};
+      constexpr sysu(G&& g):Guard(std::forward<G>(g)){}
+      template<typename State, typename From = typename std::decay<State>::type::state_type>
+      friend constexpr transition<From, Event, none, Guard, default_action> operator-(State&& s, sysu&& g){
+        return transition<From, Event, none, Guard, default_action>{guard_tag{}, std::forward<Guard>(g)};
       }
     };
    public:
-    _guarded_event(Guard&& g):g(std::forward<Guard>(g)){}
-    sysu operator--(int)const{return sysu{g};}
+    template<typename G>
+    constexpr _guarded_event(G&& g):Guard(std::forward<G>(g)){}
+    constexpr sysu operator--(int){return sysu{std::forward<Guard>(*this)};}
   };
  public:
-  constexpr event(){}
-  sysu operator--(int)const{return sysu{};}
+  constexpr event()noexcept{}
+  constexpr sysu operator--(int)const noexcept{return sysu{};}
   template<typename Guard>
-  _guarded_event<Guard> operator[](Guard&& g)const{return _guarded_event<Guard>(std::forward<Guard>(g));}
+  constexpr _guarded_event<std::decay_t<Guard>> operator[](Guard&& g)const{return _guarded_event<std::decay_t<Guard>>{std::forward<Guard>(g)};}
   template<typename... Args>
-  event_args_wrapper<Event, Args...> operator()(Args&&... args)const{return event_args_wrapper<Event, Args...>{veiler::tuple<Args...>{std::forward<Args>(args)...}};}
+  constexpr event_args_wrapper<Event, Args...> operator()(Args&&... args)const{return event_args_wrapper<Event, Args...>{{std::forward<Args>(args)...}};}
 };
 template<typename From, typename Event, typename To, typename Guard, typename Action>
-inline transition<From, Event, To, Guard, Action> operator>(transition<From, Event, none, Guard, default_action>&& s, transition<none, none, To, default_guard, Action>&& e){
-  return transition<From, Event, To, Guard, Action>{std::forward<Guard>(s.g), std::forward<Action>(e.a)};
+constexpr transition<From, Event, To, Guard, Action> operator>(transition<From, Event, none, Guard, default_action>&& s, transition<none, none, To, default_guard, Action>&& e){
+  return transition<From, Event, To, Guard, Action>{both_tag{}, std::forward<Guard>(s), std::forward<Action>(e)};
 }
 template<typename From, typename Event, typename To, typename Action>
-inline transition<From, Event, To, default_guard, Action> operator>(transition<From, Event, none, default_guard, default_action>&& s, transition<none, none, To, default_guard, Action>&& e){
-  return transition<From, Event, To, default_guard, Action>{std::forward<Action>(e.a)};
+constexpr transition<From, Event, To, default_guard, Action> operator>(transition<From, Event, none, default_guard, default_action>&& s, transition<none, none, To, default_guard, Action>&& e){
+  return transition<From, Event, To, default_guard, Action>{action_tag{}, std::forward<Action>(e)};
 }
 template<typename From, typename Event, typename To, typename Guard>
-inline transition<From, Event, To, Guard, default_action> operator>(transition<From, Event, none, Guard, default_action>&& s, const state<To>& e){
-  return transition<From, Event, To, Guard, default_action>{std::forward<Guard>(s.g)};
+constexpr transition<From, Event, To, Guard, default_action> operator>(transition<From, Event, none, Guard, default_action>&& s, const state<To>& e){
+  return transition<From, Event, To, Guard, default_action>{guard_tag{}, std::forward<Guard>(s)};
 }
 template<typename From, typename Event, typename To>
-inline transition<From, Event, To, default_guard, default_action> operator>(transition<From, Event, none, default_guard, default_action>&& s, const state<To>& e){
+constexpr transition<From, Event, To, default_guard, default_action> operator>(transition<From, Event, none, default_guard, default_action>&& s, const state<To>& e){
   return transition<From, Event, To, default_guard, default_action>{};
 }
 
@@ -164,7 +172,7 @@ class state_machine : public state<Statemachine>{
   
   template<typename Event, std::size_t N = 0, bool = N != TransitionTable::size>
   struct exec_events_{
-    static void exec(holder& state, const TransitionTable& tt){
+    static void exec(holder& state, TransitionTable& tt){
       using transition = type_at<TransitionTable,N>;
       if(state == status_id<type_at<transition,0>>::value && (std::is_same<Event, type_at<transition,1>>::value || std::is_same<none, type_at<transition,1>>::value)){
         Event ev;
@@ -179,10 +187,10 @@ class state_machine : public state<Statemachine>{
       exec_events_<Event, N+1>::exec(state, tt);
     }
     template<typename EventArgs>
-    static void exec(holder& state, const TransitionTable& tt, const EventArgs& args){
+    static void exec(holder& state, TransitionTable& tt, const EventArgs& args){
       using transition = type_at<TransitionTable,N>;
       if(state == status_id<type_at<transition,0>>::value && (std::is_same<Event, type_at<transition,1>>::value || std::is_same<none, type_at<transition,1>>::value)){
-        Event ev = make<Event>(args);
+        Event ev = (create_instance<Event>)(args);
         if(veiler::get<N>(tt.table).guard(ev)){
           veiler::get<N>(tt.table).action(ev);
           if(state != status_id<type_at<transition,2>>::value)
@@ -224,7 +232,7 @@ class state_machine : public state<Statemachine>{
 
 template<typename StateMachine, typename Event>
 auto forward_event(StateMachine&& sm, Event&& ev){
-  return sm --- ev --> sm = [&sm](auto&& x){sm <<= deus::impl::event<typename std::remove_cv<typename std::remove_reference<decltype(x)>::type>::type>{};};
+  return sm --- ev --> sm / [&sm](auto&& x){sm <<= deus::impl::event<typename std::remove_cv<typename std::remove_reference<decltype(x)>::type>::type>{};};
 }
 
 template<typename TransitionTable, typename InitialState>
