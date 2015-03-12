@@ -30,7 +30,7 @@ struct default_action{
   void operator()(const T&)const{}
 };
 template<typename>class event;
-template<typename>struct state;
+template<typename>class state;
 
 struct guard_tag{};
 struct action_tag{};
