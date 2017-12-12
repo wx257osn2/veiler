@@ -9,7 +9,7 @@ namespace veiler{
 
 namespace ullr{
 
-enum class endian{big=0,little=1};
+enum class endian : unsigned char{big=0,little=1};
 
 namespace detail{
 
