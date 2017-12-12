@@ -6,7 +6,6 @@
 #define VEILER_REFIL_HPP_INCLUDED
 
 #include<utility>
-#include<veiler/ullr/aedra.hpp>
 #include<veiler/troy.hpp>
 #include<veiler/fool/invoke.hpp>
 
@@ -16,7 +15,7 @@ template<typename T>
 class refil:public func_troy<T>{
   T* t;
  public:
-  constexpr refil(T& t)noexcept:t(veiler::ullr::aedra(t)){}
+  constexpr refil(T& t)noexcept:t(std::addressof(t)){}
   refil(T&&) = delete;
   constexpr refil(const refil& x)noexcept:t(x.t){}
   refil& operator=(const refil& x)noexcept{t = x.t;return *this;}
@@ -24,8 +23,8 @@ class refil:public func_troy<T>{
   constexpr operator T&()const noexcept{return *t;}
   template<typename... Args>
   constexpr auto operator()(Args&&... args)const
-    ->decltype(invoke(t,veiler::forward<Args>(args)...)){
-        return invoke(t,veiler::forward<Args>(args)...);
+    ->decltype(invoke(t,std::forward<Args>(args)...)){
+        return invoke(t,std::forward<Args>(args)...);
   }
 };
 

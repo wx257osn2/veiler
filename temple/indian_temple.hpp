@@ -5,6 +5,7 @@
 #ifndef VEILER_TEMPLE_INDIAN_TEMPLE_HPP_INCLUDED
 #define VEILER_TEMPLE_INDIAN_TEMPLE_HPP_INCLUDED
 
+#include<utility>
 #include<veiler/temple/thai_temple.hpp>
 
 namespace veiler{
@@ -14,92 +15,70 @@ namespace detail{
 namespace temple{
 
 
-
-template<long long...>struct index_tuple;
-
-
-template<typename>struct index_at_impl;
+template<typename>struct integer_at_impl;
 template<typename... Types>
-struct index_at_impl<type_tuple<Types...>>{template<typename T>static constexpr T eval(Types..., T t, ...){return t;}};
+struct integer_at_impl<type_tuple<Types...>>{template<typename T>static constexpr T eval(Types..., T t, ...){return t;}};
 
 template<typename T, std::size_t N>
-class index_at{
-  template<template<long long...>class IndexTuple, long long... Indices>
-  static constexpr long long impl(IndexTuple<Indices...>)noexcept{return index_at_impl<make_type_tuple<N, long long>>::eval(Indices...);}
+class integer_at{
+  template<typename I, template<typename, I...>class IntegerSequence, I... Indices>
+  static constexpr I impl(IntegerSequence<I, Indices...>)noexcept{return integer_at_impl<make_type_tuple<N, I>>::eval(Indices...);}
+  template<typename I, template<I...>class IntegerSequence, I... Indices>
+  static constexpr I impl(IntegerSequence<Indices...>)noexcept{return integer_at_impl<make_type_tuple<N, I>>::eval(Indices...);}
  public:
-  static constexpr long long value = impl(T{});
-  constexpr operator long long()const noexcept{return value;}
+  static constexpr typename T::value_type value = impl<typename T::value_type>(T{});
+  constexpr operator typename T::value_type()const noexcept{return value;}
 };
 
-template<typename>struct index_size_impl;
-template<template<long long...>class IndexTuple, long long... Indices>
-struct index_size_impl<IndexTuple<Indices...>>{
-  static constexpr std::size_t value = sizeof...(Indices);
-  constexpr operator std::size_t()const{return value;}
-  constexpr index_size_impl(){}
+template<typename T,std::make_signed_t<typename T::value_type>>struct make_integer_range_next;
+template<typename I, I... Indices, std::make_signed_t<I> Next>
+struct make_integer_range_next<std::integer_sequence<I, Indices...>, Next>{using type = std::integer_sequence<I, Indices..., (Indices+Next)...>;};
+
+template<typename T,std::make_signed_t<typename T::value_type>,typename T::value_type>struct make_integer_range_next_;
+template<typename I, I... Indices, std::make_signed_t<I> Next, I Tail>
+struct make_integer_range_next_<std::integer_sequence<I, Indices...>, Next, Tail>{using type = std::integer_sequence<I, Indices..., (Indices+Next)..., Tail>;};
+
+template<typename I,I,std::make_signed_t<I>,std::make_signed_t<I>,typename = void>struct make_integer_range_impl;
+template<typename I, I Begin, std::make_signed_t<I> Step, std::make_signed_t<I> Next>
+struct make_integer_range_impl<I, Begin, Step, Next, typename std::enable_if<(Next==0 || Next==1)>::type>{
+  using type = typename std::conditional<Next==0, std::integer_sequence<I>, std::integer_sequence<I, Begin>>::type;
 };
-
-template<typename T>
-using index_size = index_size_impl<typename std::remove_cv<typename std::remove_reference<T>::type>::type>;
-
-
-template<typename,long long>struct make_index_range_next;
-template<long long... Indices, long long Next>
-struct make_index_range_next<index_tuple<Indices...>, Next>{using type = index_tuple<Indices..., (Indices+Next)...>;};
-
-template<typename,long long,long long>struct make_index_range_next_;
-template<long long... Indices, long long Next, long long Tail>
-struct make_index_range_next_<index_tuple<Indices...>, Next, Tail>{using type = index_tuple<Indices..., (Indices+Next)..., Tail>;};
-
-template<long long,long long,long long,typename = void>struct make_index_range_impl;
-template<long long Begin, long long Step, long long Next>
-struct make_index_range_impl<Begin, Step, Next, typename std::enable_if<(Next==0 || Next==1)>::type>{
-  using type = typename std::conditional<Next==0, index_tuple<>, index_tuple<Begin>>::type;
-};
-template<long long Begin, long long Step, long long Next>
-struct make_index_range_impl<Begin, Step, Next, typename std::enable_if<(Next>1)>::type>{
-  using type = typename std::conditional<Next % 2,
-                 typename make_index_range_next_<
-                   typename make_index_range_impl<Begin, Step, Next/2>::type,
+template<typename I, I Begin, std::make_signed_t<I> Step, std::make_signed_t<I> Next>
+struct make_integer_range_impl<I, Begin, Step, Next, typename std::enable_if<(Next>1)>::type>{
+  using type = typename std::conditional<Next % 2 == 1,
+                 typename make_integer_range_next_<
+                   typename make_integer_range_impl<I, Begin, Step, Next/2>::type,
                                      Next/2  * Step,
                             Begin + (Next-1) * Step
                           >::type,
-                 typename make_index_range_next<
-                   typename make_index_range_impl<Begin, Step, Next/2>::type,
+                 typename make_integer_range_next<
+                   typename make_integer_range_impl<I, Begin, Step, Next/2>::type,
                                      Next/2  * Step
                           >::type
                         >::type;
 };
 
-template<long long Begin, long long End, long long Step = (Begin<End ? 1 : -1)>
-using make_index_range = typename make_index_range_impl<Begin, Step, (End - Begin + (Step>0 ? Step-1 : Step+1)) / Step>::type;
+template<typename I, I Begin, I End, std::make_signed_t<I> Step = (Begin<End ? 1 : -1)>
+using make_integer_range = typename make_integer_range_impl<I, Begin, Step, (End - Begin + (Step>0 ? Step-1 : Step+1)) / Step>::type;
 
 
-template<typename,typename>struct reverse_index_tuple_impl_impl;
-template<long long... Indices, long long... IndicesIndices>
-struct reverse_index_tuple_impl_impl<index_tuple<Indices...>, index_tuple<IndicesIndices...>>{
-  using type = index_tuple<index_at<index_tuple<Indices...>, sizeof...(IndicesIndices) - 1 - IndicesIndices>::value...>;
+template<typename,typename>struct reverse_integer_sequence_impl_impl;
+template<typename I, I... Indices, std::size_t... IndicesIndices>
+struct reverse_integer_sequence_impl_impl<std::integer_sequence<I, Indices...>, std::index_sequence<IndicesIndices...>>{
+  using type = std::integer_sequence<I, integer_at<std::integer_sequence<I, Indices...>, sizeof...(IndicesIndices) - 1 - IndicesIndices>::value...>;
 };
 
-template<typename>struct reverse_index_tuple_impl;
-template<long long... Indices>
-struct reverse_index_tuple_impl<index_tuple<Indices...>> : 
-       reverse_index_tuple_impl_impl<index_tuple<Indices...>, make_index_range<0,sizeof...(Indices)>>{};
+template<typename>struct reverse_integer_sequence_impl;
+template<typename I, I... Indices>
+struct reverse_integer_sequence_impl<std::integer_sequence<I, Indices...>> : 
+       reverse_integer_sequence_impl_impl<std::integer_sequence<I, Indices...>, make_integer_range<std::size_t, 0, sizeof...(Indices)>>{};
 
 template<typename T>
-using reverse_index_tuple = typename reverse_index_tuple_impl<T>::type;
+using reverse_integer_sequence = typename reverse_integer_sequence_impl<T>::type;
 
 
 template<typename... Types>
-using make_indexes = make_index_range<0, sizeof...(Types)>;
-
-template<typename... Types>
-using make_reverse_indexes = make_index_range<sizeof...(Types)-1, -1>;
-
-template<long long... Indices>
-struct index_tuple{
-  static constexpr std::size_t size()noexcept{return sizeof...(Indices);}
-};
+using make_reverse_indexes_for = make_integer_range<std::make_signed_t<std::size_t>, sizeof...(Types)-1, -1>;
 
 
 
@@ -107,13 +86,10 @@ struct index_tuple{
 
 }//End : namespace detail
 
-using detail::temple::index_at;
-using detail::temple::index_size;
-using detail::temple::reverse_index_tuple;
-using detail::temple::make_index_range;
-using detail::temple::make_reverse_indexes;
-using detail::temple::make_indexes;
-using detail::temple::index_tuple;
+using detail::temple::integer_at;
+using detail::temple::reverse_integer_sequence;
+using detail::temple::make_integer_range;
+using detail::temple::make_reverse_indexes_for;
 
 }//End : namespace veiler
 

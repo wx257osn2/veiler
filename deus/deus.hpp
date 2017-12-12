@@ -5,24 +5,15 @@
 #include<utility>
 #include<tuple>
 #include<memory>
-#include<veiler/temple.hpp>
-#include<veiler/aux_/forward.hpp>
-#include<veiler/aux_/move.hpp>
+#include<type_traits>
+#include<veiler/temple/indian_temple.hpp>
+#include<veiler/temple/thai_temple.hpp>
 
 namespace veiler{
 
 namespace deus{
 
 namespace impl{
-
-template<typename T, typename Tuple, std::size_t... Indices>
-T create_instance_impl(Tuple&& t, index_tuple<Indices...>){return T(veiler::get<Indices>(t)...);}
-
-template<typename T, typename... Args>
-T create_instance(veiler::tuple<Args...>&& t){return create_instance_impl<T>(std::forward<veiler::tuple<Args...>>(t), veiler::make_indexes<Args...>{});}
-
-template<typename T, typename... Args>
-T create_instance(const veiler::tuple<Args...>& t){return create_instance_impl<T>(t, veiler::make_indexes<Args...>{});}
 
 struct none{
   template<typename... Args>
@@ -45,7 +36,7 @@ struct both_tag{};
 
 template<typename From, typename Event, typename To, typename Guard, typename Action>
 struct transition : Guard, Action{
-  explicit constexpr transition()noexcept{static_assert(std::is_same<Guard, default_guard>::value && std::is_same<Action, default_action>::value, "");}
+  explicit constexpr transition()noexcept{}
   template<typename G>
   constexpr transition(guard_tag&&, G&& g):Guard(std::forward<G>(g)){}
   template<typename A>
@@ -83,12 +74,12 @@ class state{
   constexpr state()noexcept{}
   template<typename Action>
   constexpr transition<none, none, State, default_guard, std::decay_t<Action>> operator/(Action&& a)const{
-    return transition<none, none, State, default_guard, std::decay_t<Action>>{action_tag{}, veiler::forward<Action>(a)};
+    return transition<none, none, State, default_guard, std::decay_t<Action>>{action_tag{}, std::forward<Action>(a)};
   }
   constexpr inner operator--(int)const{return inner{};}
 };
 template<typename Event, typename... Args>
-struct event_args_wrapper{veiler::tuple<Args...> args;};
+struct event_args_wrapper{std::tuple<Args...> args;};
 template<typename Event>
 class event{
   struct sysu{
@@ -148,14 +139,14 @@ class state_machine : public state<Statemachine>{
   class status_id{
     template<typename>struct impl_;
     template<typename... As>
-    struct impl_<type_tuple<As...>>{using type = index_tuple<std::is_same<Status, As>::value...>;};
+    struct impl_<type_tuple<As...>>{using type = std::integer_sequence<bool, std::is_same<Status, As>::value...>;};
     template<typename,typename>struct impl;
-    template<long long... As, long long... Bs>
-    struct impl<index_tuple<As...>, index_tuple<Bs...>>{static constexpr long long value = veiler::make_operate_tuple<long long>(((As+1ll)*Bs)...).add_();};
-    using A = make_index_range<0, veiler::tuple_size<Statuses>{}>;
+    template<std::make_signed_t<std::size_t>... As, bool... Bs>
+    struct impl<std::integer_sequence<std::make_signed_t<std::size_t>, As...>, std::integer_sequence<bool, Bs...>>{static constexpr std::make_signed_t<std::size_t> value = ((Bs ? As+1 : 0) + ... + 0);};
+    using A = make_integer_range<std::make_signed_t<std::size_t>, 0, veiler::tuple_size<Statuses>{}>;
     using B = typename impl_<Statuses>::type;
   public:
-    static const long long value = impl<A, B>::value - 1ll;
+    static const std::make_signed_t<std::size_t> value = impl<A, B>::value - 1;
   };
   class holder{
     struct base{};
@@ -166,14 +157,14 @@ class state_machine : public state<Statemachine>{
       T t;
     };
     std::shared_ptr<base> impl;
-    long long state;
+    std::make_signed_t<std::size_t> state;
   public:
     holder(const holder&) = default;
     holder(holder&&) = default;
     template<template<typename>class Wrapper, typename T>
     holder(Wrapper<T>&& t) : impl(new derived<T>()), state(status_id<T>::value){}
     template<typename T, typename... Args>
-    void transit(Args&&... args){impl.reset();impl = std::make_shared<derived<T>>(veiler::forward<Args>(args)...);state = status_id<T>::value;}
+    void transit(Args&&... args){impl.reset();impl = std::make_shared<derived<T>>(std::forward<Args>(args)...);state = status_id<T>::value;}
     friend bool operator==(const holder& lhs, long long rhs){return lhs.state == rhs;}
     friend bool operator!=(const holder& lhs, long long rhs){return !(lhs == rhs);}
   }state;
@@ -186,8 +177,8 @@ class state_machine : public state<Statemachine>{
       return;
     }
     Event ev;
-    if(!veiler::get<N>(tt.table).guard(ev))return;
-    veiler::get<N>(tt.table).action(ev);
+    if(!std::get<N>(tt.table).guard(ev))return;
+    std::get<N>(tt.table).action(ev);
     if(state != status_id<type_at<transition,2>>::value)
       state.template transit<type_at<transition,2>>();
     g(state, tt);
@@ -199,9 +190,9 @@ class state_machine : public state<Statemachine>{
       f(state, tt, args);
       return;
     }
-    Event ev = (create_instance<Event>)(args);
-    if(!veiler::get<N>(tt.table).guard(ev))return;
-    veiler::get<N>(tt.table).action(ev);
+    Event ev = (std::make_from_tuple<Event>)(args);
+    if(!std::get<N>(tt.table).guard(ev))return;
+    std::get<N>(tt.table).action(ev);
     if(state != status_id<type_at<transition,2>>::value)
       state.template transit<type_at<transition,2>>();
     g(state, tt, args);
@@ -252,8 +243,8 @@ class state_machine : public state<Statemachine>{
         return;
       }
       Event ev;
-      if(!veiler::get<N>(tt.table).guard(ev))return;
-      veiler::get<N>(tt.table).action(ev);
+      if(!std::get<N>(tt.table).guard(ev))return;
+      std::get<N>(tt.table).action(ev);
       if(state != status_id<type_at<transition,2>>::value)
         state.template transit<type_at<transition,2>>();
       exec_events_<none, N+1>::exec(state, tt);
@@ -265,9 +256,9 @@ class state_machine : public state<Statemachine>{
         exec_events_<Event, N+1>::exec(state, tt, args);
         return;
       }
-      Event ev = (create_instance<Event>)(args);
-      if(!veiler::get<N>(tt.table).guard(ev))return;
-      veiler::get<N>(tt.table).action(ev);
+      Event ev = (std::make_from_tuple<Event>)(args);
+      if(!std::get<N>(tt.table).guard(ev))return;
+      std::get<N>(tt.table).action(ev);
       if(state != status_id<type_at<transition,2>>::value)
         state.template transit<type_at<transition,2>>(ev);
       exec_events_<none, N+1>::exec(state, tt);
@@ -282,8 +273,8 @@ class state_machine : public state<Statemachine>{
         return;
       }
       none ev;
-      if(!veiler::get<N>(tt.table).guard(ev))return;
-      veiler::get<N>(tt.table).action(ev);
+      if(!std::get<N>(tt.table).guard(ev))return;
+      std::get<N>(tt.table).action(ev);
       if(state != status_id<type_at<transition,2>>::value)
         state.template transit<type_at<transition,2>>();
       exec_events_<Event, N+1>::exec(state, tt);
@@ -296,8 +287,8 @@ class state_machine : public state<Statemachine>{
         return;
       }
       none ev;
-      if(!veiler::get<N>(tt.table).guard(ev))return;
-      veiler::get<N>(tt.table).action(ev);
+      if(!std::get<N>(tt.table).guard(ev))return;
+      std::get<N>(tt.table).action(ev);
       if(state != status_id<type_at<transition,2>>::value)
         state.template transit<type_at<transition,2>>(ev);
       exec_events_<Event, N+1>::exec(state, tt, args);
@@ -319,8 +310,8 @@ class state_machine : public state<Statemachine>{
       using transition = type_at<TransitionTable,N>;
       if(state != status_id<type_at<transition,0>>::value)return;
       Event ev;
-      if(!veiler::get<N>(tt.table).guard(ev))return;
-      veiler::get<N>(tt.table).action(ev);
+      if(!std::get<N>(tt.table).guard(ev))return;
+      std::get<N>(tt.table).action(ev);
       if(state != status_id<type_at<transition,2>>::value)
         state.template transit<type_at<transition,2>>();
     }
@@ -328,9 +319,9 @@ class state_machine : public state<Statemachine>{
     static void exec(holder& state, TransitionTable& tt, const EventArgs& args){
       using transition = type_at<TransitionTable,N>;
       if(state != status_id<type_at<transition,0>>::value)return;
-      Event ev = (create_instance<Event>)(args);
-      if(!veiler::get<N>(tt.table).guard(ev))return;
-      veiler::get<N>(tt.table).action(ev);
+      Event ev = (std::make_from_tuple<Event>)(args);
+      if(!std::get<N>(tt.table).guard(ev))return;
+      std::get<N>(tt.table).action(ev);
       if(state != status_id<type_at<transition,2>>::value)
         state.template transit<type_at<transition,2>>(ev);
     }
@@ -341,8 +332,8 @@ class state_machine : public state<Statemachine>{
       using transition = type_at<TransitionTable,N>;
       if(state != status_id<type_at<transition,0>>::value)return;
       none ev;
-      if(!veiler::get<N>(tt.table).guard(ev))return;
-      veiler::get<N>(tt.table).action(ev);
+      if(!std::get<N>(tt.table).guard(ev))return;
+      std::get<N>(tt.table).action(ev);
       if(state != status_id<type_at<transition,2>>::value)
         state.template transit<type_at<transition,2>>();
     }
@@ -351,8 +342,8 @@ class state_machine : public state<Statemachine>{
       using transition = type_at<TransitionTable,N>;
       if(state != status_id<type_at<transition,0>>::value)return;
       none ev;
-      if(!veiler::get<N>(tt.table).guard(ev))return;
-      veiler::get<N>(tt.table).action(ev);
+      if(!std::get<N>(tt.table).guard(ev))return;
+      std::get<N>(tt.table).action(ev);
       if(state != status_id<type_at<transition,2>>::value)
         state.template transit<type_at<transition,2>>(ev);
     }
@@ -373,9 +364,9 @@ class state_machine : public state<Statemachine>{
     exec_events_<Event>::exec(state, tt, args);
   }
  public:
-  state_machine(const TransitionTable& table) : tt(                table ), state(typename Statemachine::initial_state{}){}
-  state_machine(const state_machine&   sm   ) : tt(             sm.tt    ), state(typename Statemachine::initial_state{}){}
-  state_machine(      state_machine&&  sm   ) : tt(veiler::move(sm.tt   )), state(typename Statemachine::initial_state{}){}
+  state_machine(const TransitionTable& table) : tt(             table ), state(typename Statemachine::initial_state{}){}
+  state_machine(const state_machine&   sm   ) : tt(          sm.tt    ), state(typename Statemachine::initial_state{}){}
+  state_machine(      state_machine&&  sm   ) : tt(std::move(sm.tt   )), state(typename Statemachine::initial_state{}){}
   template<typename Status>
   bool is(const deus::impl::state<Status>&){return state == status_id<Status>::value;}
   template<typename Event>
@@ -406,7 +397,7 @@ auto make_state_machine(const TransitionTable& tt, const InitialState&){
 
 template<typename... Transitions>
 struct transition_table{
-  tuple<Transitions...> table;
+  std::tuple<Transitions...> table;
   using Statuses = unique_types<type_tuple<type_at<Transitions,0>...,type_at<Transitions,2>...>>;
   static const std::size_t size = sizeof...(Transitions);
 };
@@ -414,7 +405,7 @@ struct transition_table{
 template<typename... Transitions>
 auto make_transition_table(Transitions&&... transitions)
        ->transition_table<Transitions...>{
-  return transition_table<Transitions...>{tuple<Transitions...>{veiler::forward<Transitions>(transitions)...}};
+  return transition_table<Transitions...>{std::tuple<Transitions...>{std::forward<Transitions>(transitions)...}};
 }
 
 }

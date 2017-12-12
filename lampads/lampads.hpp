@@ -8,10 +8,11 @@
 #include<cstddef>
 #include<utility>
 #include<stdexcept>
+#include<tuple>
 #include<veiler/pelops/ullr.hpp>
-#include<veiler/temple.hpp>
-#include<veiler/aux_/move.hpp>
-#include<veiler/aux_/forward.hpp>
+#include<veiler/refil.hpp>
+#include<veiler/temple/thai_temple.hpp>
+#include<veiler/temple/indian_temple.hpp>
 
 namespace veiler{
 
@@ -37,7 +38,7 @@ namespace lampads{
 
 
 template<typename T>
-constexpr T unwrap_refil_or_copy(T t){return veiler::move(t);}
+constexpr T unwrap_refil_or_copy(T t){return std::move(t);}
 template<typename T>
 constexpr T& unwrap_refil_or_copy(veiler::refil<T> t){return t.get();}
 template<typename T>
@@ -53,11 +54,11 @@ class Val{
     static constexpr bool depends_on_args = false;
   };
   template<typename... Args>
-  constexpr Val(Args&&... args):t(veiler::forward<Args>(args)...){}
+  constexpr Val(Args&&... args):t(std::forward<Args>(args)...){}
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename... Args>
   constexpr T run(Args&&...)const{return t;}
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename... Args>
-  constexpr veiler::tuple<T> bind_run(Args&&...)const{return veiler::make_tuple(t);}
+  constexpr std::tuple<T> bind_run(Args&&...)const{return std::make_tuple(t);}
 };
 
 
@@ -80,26 +81,26 @@ class Brac{
   using ret_type = typename std::conditional<T::ret_type::value && U::ret_type::value, ret_type_t, ret_type_dummy>::type;
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr auto run(const S& s, Args&&... args)const
-    ->decltype(t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...) 
-              [u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)]){
-        return t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...) 
-              [u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)];
+    ->decltype(t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...) 
+              [u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)]){
+        return t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...) 
+              [u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)];
   }
-  template<typename... LTypes, typename... RTypes, long long... Indices>
-  constexpr auto bind_run_impl(veiler::tuple<LTypes...> lt, veiler::tuple<RTypes...> rt, veiler::index_tuple<Indices...>)const
-    ->decltype(veiler::make_tuple((veiler::get<Indices>(veiler::move(lt))[veiler::get<Indices>(veiler::move(rt))])...)){
-        return veiler::make_tuple((veiler::get<Indices>(veiler::move(lt))[veiler::get<Indices>(veiler::move(rt))])...);
+  template<typename... LTypes, typename... RTypes, std::size_t... Indices>
+  constexpr auto bind_run_impl(std::tuple<LTypes...> lt, std::tuple<RTypes...> rt, std::index_sequence<Indices...>)const
+    ->decltype(std::make_tuple((std::get<Indices>(std::move(lt))[std::get<Indices>(std::move(rt))])...)){
+        return std::make_tuple((std::get<Indices>(std::move(lt))[std::get<Indices>(std::move(rt))])...);
   }
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr auto bind_run(const S& s, Args&&... args)const
-    ->decltype(this->bind_run_impl(veiler::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::forward<decltype(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::make_index_range<0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>{}>{})){
-        return this->bind_run_impl(veiler::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::forward<decltype(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::make_index_range<0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>{}>{});
+    ->decltype(this->bind_run_impl(std::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), std::forward<decltype(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), veiler::make_integer_range<std::size_t, 0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>{}>{})){
+        return this->bind_run_impl(std::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), std::forward<decltype(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), veiler::make_integer_range<std::size_t, 0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>{}>{});
   }
   constexpr Brac() = default;
-  constexpr Brac(const T&  t, const U&  u):t(t),                     u(u)                    {}
-  constexpr Brac(const T&  t,       U&& u):t(t),                     u(veiler::forward<U>(u)){}
-  constexpr Brac(      T&& t, const U&  u):t(veiler::forward<T>(t)), u(u)                    {}
-  constexpr Brac(      T&& t,       U&& u):t(veiler::forward<T>(t)), u(veiler::forward<U>(u)){}
+  constexpr Brac(const T&  t, const U&  u):t(t),                  u(u)                 {}
+  constexpr Brac(const T&  t,       U&& u):t(t),                  u(std::forward<U>(u)){}
+  constexpr Brac(      T&& t, const U&  u):t(std::forward<T>(t)), u(u)                 {}
+  constexpr Brac(      T&& t,       U&& u):t(std::forward<T>(t)), u(std::forward<U>(u)){}
 };
 
 
@@ -116,26 +117,26 @@ class Asgn{
   using ret_type = typename std::conditional<T::ret_type::value && U::ret_type::value, ret_type_t, ret_type_dummy>::type;
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr auto run(const S& s, Args&&... args)const
-    ->decltype(t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...) 
-             = u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)){
-        return t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...) 
-             = u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...);
+    ->decltype(t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...) 
+             = u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)){
+        return t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...) 
+             = u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...);
   }
-  template<typename... LTypes, typename... RTypes, long long... Indices>
-  constexpr auto bind_run_impl(veiler::tuple<LTypes...> lt, veiler::tuple<RTypes...> rt, veiler::index_tuple<Indices...>)const
-    ->decltype(veiler::make_tuple((veiler::get<Indices>(veiler::move(lt)) = veiler::get<Indices>(veiler::move(rt)))...)){
-        return veiler::make_tuple((veiler::get<Indices>(veiler::move(lt)) = veiler::get<Indices>(veiler::move(rt)))...);
+  template<typename... LTypes, typename... RTypes, std::size_t... Indices>
+  constexpr auto bind_run_impl(std::tuple<LTypes...> lt, std::tuple<RTypes...> rt, std::index_sequence<Indices...>)const
+    ->decltype(std::make_tuple((std::get<Indices>(std::move(lt)) = std::get<Indices>(std::move(rt)))...)){
+        return std::make_tuple((std::get<Indices>(std::move(lt)) = std::get<Indices>(std::move(rt)))...);
   }
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr auto bind_run(const S& s, Args&&... args)const
-    ->decltype(this->bind_run_impl(veiler::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::forward<decltype(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::make_index_range<0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>{}>{})){
-        return this->bind_run_impl(veiler::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::forward<decltype(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::make_index_range<0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>{}>{});
+    ->decltype(this->bind_run_impl(std::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), std::forward<decltype(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), veiler::make_integer_range<std::size_t, 0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>{}>{})){
+        return this->bind_run_impl(std::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), std::forward<decltype(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), veiler::make_integer_range<std::size_t, 0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>{}>{});
   }
   constexpr Asgn() = default;
-  constexpr Asgn(const T&  t, const U&  u):t(t),                     u(u)                    {}
-  constexpr Asgn(const T&  t,       U&& u):t(t),                     u(veiler::forward<U>(u)){}
-  constexpr Asgn(      T&& t, const U&  u):t(veiler::forward<T>(t)), u(u)                    {}
-  constexpr Asgn(      T&& t,       U&& u):t(veiler::forward<T>(t)), u(veiler::forward<U>(u)){}
+  constexpr Asgn(const T&  t, const U&  u):t(t),                  u(u)                 {}
+  constexpr Asgn(const T&  t,       U&& u):t(t),                  u(std::forward<U>(u)){}
+  constexpr Asgn(      T&& t, const U&  u):t(std::forward<T>(t)), u(u)                 {}
+  constexpr Asgn(      T&& t,       U&& u):t(std::forward<T>(t)), u(std::forward<U>(u)){}
 };
 
 
@@ -145,7 +146,7 @@ struct is_lampads : std::false_type{};
 
 template<typename T>
 constexpr Val<unwrap_refil_t<T>> unwrap_lampads_or_valize(T&& t){
-   return Val<unwrap_refil_t<T>>(unwrap_refil_or_copy(veiler::forward<T>(t)));
+   return Val<unwrap_refil_t<T>>(unwrap_refil_or_copy(std::forward<T>(t)));
 }
 
 
@@ -182,14 +183,14 @@ class LampadsImpl<T, typename std::enable_if<T::ret_type::depends_on_args == fal
   struct call_impl<pass::by_value, Dummy>{
     template<typename... Args>
     static constexpr result_type call(const T& t, Args&&... args){
-      return veiler::forward<result_type>(t.template run<result_type VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...));
+      return std::forward<result_type>(t.template run<result_type VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, unwrap_refil_or_copy(std::forward<Args>(args))...));
     }
   };
   template<typename Dummy>
   struct call_impl<pass::by_reference, Dummy>{
     template<typename... Args>
     static constexpr result_type call(const T& t, Args&&... args){
-      return veiler::forward<result_type>(t.template run<result_type VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, veiler::forward<unremove_reference_decay<Args>>(args)...));
+      return std::forward<result_type>(t.template run<result_type VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, std::forward<unremove_reference_decay<Args>>(args)...));
     }
   };
 };
@@ -201,16 +202,16 @@ class LampadsImpl<T, typename std::enable_if<T::ret_type::depends_on_args == tru
   struct call_impl<pass::by_value, Dummy>{
     template<typename... Args>
     static constexpr auto call(const T& t, Args&&... args)
-      ->decltype(t.template run<typename T::ret_type::template type<unwrap_refil_t<Args>...> VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...)){
-          return t.template run<typename T::ret_type::template type<unwrap_refil_t<Args>...> VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, unwrap_refil_or_copy(veiler::forward<Args>(args))...);
+      ->decltype(t.template run<typename T::ret_type::template type<unwrap_refil_t<Args>...> VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, unwrap_refil_or_copy(std::forward<Args>(args))...)){
+          return t.template run<typename T::ret_type::template type<unwrap_refil_t<Args>...> VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, unwrap_refil_or_copy(std::forward<Args>(args))...);
     }
   };
   template<typename Dummy>
   struct call_impl<pass::by_reference, Dummy>{
     template<typename... Args>
     static constexpr auto call(const T& t, Args&&... args)
-      ->decltype(t.template run<typename T::ret_type::template type<unremove_reference_decay<Args>...> VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, veiler::forward<unremove_reference_decay<Args>>(args)...)){
-          return t.template run<typename T::ret_type::template type<unremove_reference_decay<Args>...> VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, veiler::forward<unremove_reference_decay<Args>>(args)...);
+      ->decltype(t.template run<typename T::ret_type::template type<unremove_reference_decay<Args>...> VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, std::forward<unremove_reference_decay<Args>>(args)...)){
+          return t.template run<typename T::ret_type::template type<unremove_reference_decay<Args>...> VEILER_LAMPADS_RECURSION_COUNTER_LAMPADS_IMPL(, 0ll, 1ll)>(t, std::forward<unremove_reference_decay<Args>>(args)...);
     }
   };
 };
@@ -226,41 +227,41 @@ class Lampads : public LampadsImpl<T>{
   constexpr Lampads(const Lampads&) = default;
   constexpr Lampads(Lampads&&) = default;
   template<typename X, typename... Args>
-  explicit constexpr Lampads(X&& x, Args&&... args):t(veiler::forward<X>(x), veiler::forward<Args>(args)...){}
-  static constexpr T&& _get(Lampads&& t){return veiler::forward<T>(t.t);}
+  explicit constexpr Lampads(X&& x, Args&&... args):t(std::forward<X>(x), std::forward<Args>(args)...){}
+  static constexpr T&& _get(Lampads&& t){return std::forward<T>(t.t);}
   static constexpr const T& _get(const Lampads& t){return t.t;}
   template<typename U>
   Lampads<Brac<T, unwrap_lampads_or_valize_t<U>>> operator [](U&& u)&&{
-     return Lampads<Brac<T, unwrap_lampads_or_valize_t<U>>>(veiler::forward<T>(t), unwrap_lampads_or_valize(veiler::forward<U>(u)));
+     return Lampads<Brac<T, unwrap_lampads_or_valize_t<U>>>(std::forward<T>(t), unwrap_lampads_or_valize(std::forward<U>(u)));
   }
   template<typename U>
   Lampads<Asgn<T, unwrap_lampads_or_valize_t<U>>> operator =(U&& u)&&{
-     return Lampads<Asgn<T, unwrap_lampads_or_valize_t<U>>>(veiler::forward<T>(t), unwrap_lampads_or_valize(veiler::forward<U>(u)));
+     return Lampads<Asgn<T, unwrap_lampads_or_valize_t<U>>>(std::forward<T>(t), unwrap_lampads_or_valize(std::forward<U>(u)));
   }
   template<typename U>
   constexpr Lampads<Brac<T, unwrap_lampads_or_valize_t<U>>> operator [](U&& u)const &{
-     return Lampads<Brac<T, unwrap_lampads_or_valize_t<U>>>(t, unwrap_lampads_or_valize(veiler::forward<U>(u)));
+     return Lampads<Brac<T, unwrap_lampads_or_valize_t<U>>>(t, unwrap_lampads_or_valize(std::forward<U>(u)));
   }
   template<typename U>
   constexpr Lampads<Asgn<T, unwrap_lampads_or_valize_t<U>>> operator =(U&& u)const &{
-     return Lampads<Asgn<T, unwrap_lampads_or_valize_t<U>>>(t, unwrap_lampads_or_valize(veiler::forward<U>(u)));
+     return Lampads<Asgn<T, unwrap_lampads_or_valize_t<U>>>(t, unwrap_lampads_or_valize(std::forward<U>(u)));
   }
   template<typename... Args>
   constexpr auto operator()(Args&&... args)const
-    ->decltype(impl_t::template call_impl<VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY>::call(t, veiler::forward<Args>(args)...)){
-        return impl_t::template call_impl<VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY>::call(t, veiler::forward<Args>(args)...);
+    ->decltype(impl_t::template call_impl<VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY>::call(t, std::forward<Args>(args)...)){
+        return impl_t::template call_impl<VEILER_LAMPADS_DEFAULT_EVALUATION_STRATEGY>::call(t, std::forward<Args>(args)...);
   }
   template<pass P, typename... Args>
   constexpr auto call(Args&&... args)const
-    ->decltype(impl_t::template call_impl<P>::call(t, veiler::forward<Args>(args)...)){
-        return impl_t::template call_impl<P>::call(t, veiler::forward<Args>(args)...);
+    ->decltype(impl_t::template call_impl<P>::call(t, std::forward<Args>(args)...)){
+        return impl_t::template call_impl<P>::call(t, std::forward<Args>(args)...);
   }
 };
 
 
 template<typename T>
 constexpr T unwrap_lampads_or_valize(Lampads<T>&& t){
-  return Lampads<T>::_get(veiler::move(t));
+  return Lampads<T>::_get(std::move(t));
 }
 template<typename T>
 constexpr T unwrap_lampads_or_valize(const Lampads<T>& t){
@@ -274,41 +275,41 @@ struct is_lampads<Lampads<T>> : std::true_type{};
 
 template<typename T>
 constexpr Lampads<Val<unwrap_refil_t<T>>> val(T&& t){
-   return Lampads<Val<unwrap_refil_t<T>>>(unwrap_refil_or_copy(veiler::forward<T>(t)));
+   return Lampads<Val<unwrap_refil_t<T>>>(unwrap_refil_or_copy(std::forward<T>(t)));
 }
 
 template<typename T, typename... Args, typename std::enable_if<!is_lampads<T>::value>::type* = nullptr>
 constexpr Lampads<Val<T>> val(Args&&... args){
-   return Lampads<Val<T>>(veiler::forward<Args>(args)...);
+   return Lampads<Val<T>>(std::forward<Args>(args)...);
 }
 
 
 template<typename RetType, typename T>
 class Ret{
   T t;
-  template<typename... Types, long long... Indices>
-  constexpr auto bind_run_impl(veiler::tuple<Types...> tu, veiler::index_tuple<Indices...>)const
-    ->decltype(veiler::make_tuple(veiler::forward<RetType>(veiler::get<Indices>(veiler::move(tu)))...)){
-        return veiler::make_tuple(veiler::forward<RetType>(veiler::get<Indices>(veiler::move(tu)))...);
+  template<typename... Types, std::size_t... Indices>
+  constexpr auto bind_run_impl(std::tuple<Types...> tu, std::index_sequence<Indices...>)const
+    ->decltype(std::make_tuple(std::forward<RetType>(std::get<Indices>(std::move(tu)))...)){
+        return std::make_tuple(std::forward<RetType>(std::get<Indices>(std::move(tu)))...);
   }
  public:
   struct ret_type:std::true_type{
     template<typename...>using type = RetType;
     static constexpr bool depends_on_args = false;
   };
-  constexpr Ret(T&& t):t(veiler::forward<T>(t)){}
+  constexpr Ret(T&& t):t(std::forward<T>(t)){}
   constexpr Ret(const T& t):t(t){}
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
-  constexpr RetType run(const S& s, Args&&... args)const{return veiler::forward<RetType>(t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, veiler::forward<Args>(args)...));}
+  constexpr RetType run(const S& s, Args&&... args)const{return std::forward<RetType>(t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, std::forward<Args>(args)...));}
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr auto bind_run(const S& s, Args&&... args)const
-    ->decltype(this->bind_run_impl(veiler::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::make_index_range<0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>{}>{})){
-        return this->bind_run_impl(veiler::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::make_index_range<0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>{}>{});
+    ->decltype(this->bind_run_impl(std::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), veiler::make_integer_range<std::size_t, 0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>{}>{})){
+        return this->bind_run_impl(std::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), veiler::make_integer_range<std::size_t, 0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>{}>{});
   }
 };
 
 template<typename R, typename T>
-constexpr Lampads<Ret<R, T>> ret(Lampads<T>&& t){return Lampads<Ret<R, T>>{Lampads<T>::_get(veiler::move(t))};}
+constexpr Lampads<Ret<R, T>> ret(Lampads<T>&& t){return Lampads<Ret<R, T>>{Lampads<T>::_get(std::move(t))};}
 template<typename R, typename T>
 constexpr Lampads<Ret<R, T>> ret(const Lampads<T>& t){return Lampads<Ret<R, T>>{Lampads<T>::_get(t)};}
 
@@ -316,11 +317,11 @@ constexpr Lampads<Ret<R, T>> ret(const Lampads<T>& t){return Lampads<Ret<R, T>>{
 template<typename T, typename std::enable_if<std::is_lvalue_reference<T&&>::value>::type* = nullptr>
 constexpr veiler::refil<typename std::remove_reference<T>::type> wrap_refil_if_ref(T&& t)noexcept{return veiler::ref(t);}
 template<typename T, typename std::enable_if<std::is_rvalue_reference<T&&>::value>::type* = nullptr>
-constexpr T&& wrap_refil_if_ref(T&& t)noexcept{return veiler::forward<T>(t);}
+constexpr T&& wrap_refil_if_ref(T&& t)noexcept{return std::forward<T>(t);}
 
-template<long long N>
+template<std::size_t N>
 struct Placeholder{
-  static_assert(N > 0, "Veiler.Lampads - Placeholder can't be negative and zero.");
+  static_assert(N > 0, "Veiler.Lampads - Placeholder can't be zero.");
   struct ret_type:std::true_type{
     template<typename... Args>
     using type = veiler::type_at<veiler::type_tuple<Args...>, N-1>;
@@ -330,27 +331,26 @@ struct Placeholder{
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr auto run(const S&, Args&&... args)const
     ->veiler::type_at<veiler::type_tuple<Args...>, N-1>{
-    return veiler::get<N-1>(veiler::forward_as_tuple(args...));
+    return std::get<N-1>(std::forward_as_tuple(args...));
   }
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<N-1 < sizeof...(Args)>::type* = nullptr>
   constexpr auto bind_run(const S&, Args&&... args)const
-    ->veiler::tuple<veiler::type_at<veiler::type_tuple<Args...>, N-1>>{
-    return veiler::forward_as_tuple(wrap_refil_if_ref(veiler::get<N-1>(veiler::forward_as_tuple(args...))));
+    ->std::tuple<veiler::type_at<veiler::type_tuple<Args...>, N-1>>{
+    return std::forward_as_tuple(wrap_refil_if_ref(std::get<N-1>(std::forward_as_tuple(args...))));
   }
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<(N-1 >= sizeof...(Args))>::type* = nullptr>
   constexpr auto bind_run(const S&, Args&&...)const
-    ->veiler::tuple<>{
-    return veiler::make_tuple();
+    ->std::tuple<>{
+    return std::make_tuple();
   }
 };
-template<long long N>
+template<std::size_t N>
 struct VariadicPlaceholder{
-  static_assert(N >= 0, "Veiler.Lampads - VariadicPlaceholder can't be negative.");
  private:
-  template<long long... Indices, typename... Args>
-  constexpr auto run_impl(veiler::index_tuple<Indices...>, Args&&... args)const
-    ->veiler::tuple<veiler::type_at<veiler::type_tuple<Args...>, Indices>...>{
-    return veiler::forward_as_tuple(wrap_refil_if_ref(veiler::get<Indices>(veiler::forward_as_tuple(args...)))...);
+  template<std::size_t... Indices, typename... Args>
+  constexpr auto run_impl(std::index_sequence<Indices...>, Args&&... args)const
+    ->std::tuple<veiler::type_at<veiler::type_tuple<Args...>, Indices>...>{
+    return std::forward_as_tuple(wrap_refil_if_ref(std::get<Indices>(std::forward_as_tuple(args...)))...);
   }
  public:
   using ret_type = ret_type_dummy;
@@ -359,35 +359,35 @@ struct VariadicPlaceholder{
   constexpr R run(const S&, Args&&...)const; //Veiler.Lampads - can't use variadic placeholder except in self and bind.
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<N < sizeof...(Args)>::type* = nullptr>
   constexpr auto bind_run(const S&, Args&&... args)const
-    ->decltype(this->run_impl(veiler::make_index_range<N, sizeof...(Args)>{}, veiler::forward<Args>(args)...)){
-        return this->run_impl(veiler::make_index_range<N, sizeof...(Args)>{}, veiler::forward<Args>(args)...);
+    ->decltype(this->run_impl(veiler::make_integer_range<std::size_t, N, sizeof...(Args)>{}, std::forward<Args>(args)...)){
+        return this->run_impl(veiler::make_integer_range<std::size_t, N, sizeof...(Args)>{}, std::forward<Args>(args)...);
   }
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args, typename std::enable_if<(N >= sizeof...(Args))>::type* = nullptr>
   constexpr auto bind_run(const S&, Args&&...)const
-    ->veiler::tuple<>{
-    return veiler::make_tuple();
+    ->std::tuple<>{
+    return std::make_tuple();
   }
 };
 
 
 namespace udl{
 
-template<long long N, char c, char... Chars>
+template<std::size_t N, char c, char... Chars>
 struct udl_to_placeholder{
   using type = typename std::enable_if<'0'<=c && c<='9', typename udl_to_placeholder<N*10 + c-'0', Chars...>::type>::type;
 };
-template<long long N>
+template<std::size_t N>
 struct udl_to_placeholder<N,'\0'>{using type = Lampads<Placeholder<N>>;};
 template<char... Chars>
 constexpr typename udl_to_placeholder<0, Chars...,'\0'>::type operator""_(){
    return typename udl_to_placeholder<0, Chars...,'\0'>::type{};
 }
 
-template<long long N, char c, char... Chars>
+template<std::size_t N, char c, char... Chars>
 struct udl_to_variadic_placeholder{
   using type = typename std::enable_if<'0'<=c && c<='9', typename udl_to_variadic_placeholder<N*10 + c-'0', Chars...>::type>::type;
 };
-template<long long N>
+template<std::size_t N>
 struct udl_to_variadic_placeholder<N,'\0'>{using type = Lampads<VariadicPlaceholder<N>>;};
 template<char... Chars>
 constexpr typename udl_to_variadic_placeholder<0, Chars...,'\0'>::type operator""_tail(){
@@ -409,8 +409,8 @@ struct NumOfArgs{
     return sizeof...(Args);
   }
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
-  constexpr veiler::tuple<std::size_t> bind_run(const S&, Args&&...)const{
-    return veiler::make_tuple(sizeof...(Args));
+  constexpr std::tuple<std::size_t> bind_run(const S&, Args&&...)const{
+    return std::make_tuple(sizeof...(Args));
   }
 };
 
@@ -428,44 +428,44 @@ constexpr Lampads<NumOfArgs> num_of_args{};
       using type = decltype(std::declval<typename T::ret_type::template type<Args...>>() ope std::declval<typename U::ret_type::template type<Args...>>());\
       static constexpr bool depends_on_args = T::ret_type::depends_on_args || U::ret_type::depends_on_args;\
     };\
-    template<typename LT, typename... LTypes, typename RT, typename... RTypes, long long... Indices>\
-    constexpr auto bind_run_impl(veiler::tuple<LT, LTypes...> lt, veiler::tuple<RT, RTypes...> rt, veiler::index_tuple<Indices...>)const\
-      ->decltype(veiler::make_tuple((veiler::get<Indices>(veiler::move(lt)) ope veiler::get<Indices>(veiler::move(rt)))...)){\
-          return veiler::make_tuple((veiler::get<Indices>(veiler::move(lt)) ope veiler::get<Indices>(veiler::move(rt)))...);\
+    template<typename LT, typename... LTypes, typename RT, typename... RTypes, std::size_t... Indices>\
+    constexpr auto bind_run_impl(std::tuple<LT, LTypes...> lt, std::tuple<RT, RTypes...> rt, std::index_sequence<Indices...>)const\
+      ->decltype(std::make_tuple((std::get<Indices>(std::move(lt)) ope std::get<Indices>(std::move(rt)))...)){\
+          return std::make_tuple((std::get<Indices>(std::move(lt)) ope std::get<Indices>(std::move(rt)))...);\
     }\
-    template<typename RT, typename... RTypes, long long... Indices>\
-    constexpr auto bind_run_impl(veiler::tuple<>, veiler::tuple<RT, RTypes...> rt, veiler::index_tuple<Indices...>)const\
-      ->veiler::tuple<RT, RTypes...>{\
-      return veiler::move(rt);\
+    template<typename RT, typename... RTypes, std::size_t... Indices>\
+    constexpr auto bind_run_impl(std::tuple<>, std::tuple<RT, RTypes...> rt, std::index_sequence<Indices...>)const\
+      ->std::tuple<RT, RTypes...>{\
+      return std::move(rt);\
     }\
-    template<typename... LTypes, long long... Indices>\
-    constexpr auto bind_run_impl(veiler::tuple<LTypes...> lt, veiler::tuple<>, veiler::index_tuple<Indices...>)const\
-      ->veiler::tuple<LTypes...>{\
-      return veiler::move(lt);\
+    template<typename... LTypes, std::size_t... Indices>\
+    constexpr auto bind_run_impl(std::tuple<LTypes...> lt, std::tuple<>, std::index_sequence<Indices...>)const\
+      ->std::tuple<LTypes...>{\
+      return std::move(lt);\
     }\
    public:\
     using ret_type = typename std::conditional<T::ret_type::value && U::ret_type::value, ret_type_t, ret_type_dummy>::type;\
     template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>\
     constexpr auto run(const S& s, Args&&... args)const\
-      ->decltype(t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, veiler::forward<Args>(args)...) \
-             ope u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, veiler::forward<Args>(args)...)){\
-          return t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, veiler::forward<Args>(args)...) \
-             ope u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, veiler::forward<Args>(args)...);\
+      ->decltype(t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, std::forward<Args>(args)...) \
+             ope u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, std::forward<Args>(args)...)){\
+          return t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, std::forward<Args>(args)...) \
+             ope u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, std::forward<Args>(args)...);\
     }\
     template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>\
     constexpr auto bind_run(const S& s, Args&&... args)const\
-      ->decltype(this->bind_run_impl(veiler::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::forward<decltype(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::make_index_range<0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>{}>{})){\
-          return this->bind_run_impl(veiler::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::forward<decltype(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::make_index_range<0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>{}>{});\
+      ->decltype(this->bind_run_impl(std::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), std::forward<decltype(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), veiler::make_integer_range<std::size_t, 0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>{}>{})){\
+          return this->bind_run_impl(std::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), std::forward<decltype(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), veiler::make_integer_range<std::size_t, 0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>{}>{});\
     }\
     constexpr id() = default;\
-    constexpr id(const T&  t, const U&  u):t(t),                     u(u)                    {}\
-    constexpr id(const T&  t,       U&& u):t(t),                     u(veiler::forward<U>(u)){}\
-    constexpr id(      T&& t, const U&  u):t(veiler::forward<T>(t)), u(u)                    {}\
-    constexpr id(      T&& t,       U&& u):t(veiler::forward<T>(t)), u(veiler::forward<U>(u)){}\
+    constexpr id(const T&  t, const U&  u):t(t),                  u(u)                 {}\
+    constexpr id(const T&  t,       U&& u):t(t),                  u(std::forward<U>(u)){}\
+    constexpr id(      T&& t, const U&  u):t(std::forward<T>(t)), u(u)                 {}\
+    constexpr id(      T&& t,       U&& u):t(std::forward<T>(t)), u(std::forward<U>(u)){}\
   };\
   template<typename T, typename U, typename std::enable_if<is_lampads<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::value || is_lampads<typename std::remove_cv<typename std::remove_reference<U>::type>::type>::value>::type* = nullptr>\
   constexpr Lampads<id<unwrap_lampads_or_valize_t<T>, unwrap_lampads_or_valize_t<U>>> operator ope(T&& t, U&& u){\
-     return Lampads<id<unwrap_lampads_or_valize_t<T>, unwrap_lampads_or_valize_t<U>>>(unwrap_lampads_or_valize(veiler::forward<T>(t)), unwrap_lampads_or_valize(veiler::forward<U>(u)));\
+     return Lampads<id<unwrap_lampads_or_valize_t<T>, unwrap_lampads_or_valize_t<U>>>(unwrap_lampads_or_valize(std::forward<T>(t)), unwrap_lampads_or_valize(std::forward<U>(u)));\
   }
 
 #define VEILER_LAMPADS_DECL_UNOPE(ope,id)\
@@ -477,30 +477,30 @@ constexpr Lampads<NumOfArgs> num_of_args{};
       using type = decltype(ope std::declval<typename T::ret_type::template type<Args...>>());\
       static constexpr bool depends_on_args = T::ret_type::depends_on_args;\
     };\
-    template<typename... Types, long long... Indices>\
-    constexpr auto bind_run_impl(veiler::tuple<Types...> tu, veiler::index_tuple<Indices...>)const\
-      ->decltype(veiler::make_tuple((ope veiler::get<Indices>(veiler::move(tu)))...)){\
-          return veiler::make_tuple((ope veiler::get<Indices>(veiler::move(tu)))...);\
+    template<typename... Types, std::size_t... Indices>\
+    constexpr auto bind_run_impl(std::tuple<Types...> tu, std::index_sequence<Indices...>)const\
+      ->decltype(std::make_tuple((ope std::get<Indices>(std::move(tu)))...)){\
+          return std::make_tuple((ope std::get<Indices>(std::move(tu)))...);\
     }\
    public:\
     using ret_type = typename std::conditional<T::ret_type::value, ret_type_t, ret_type_dummy>::type;\
     template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>\
     constexpr auto run(const S& s, Args&&... args)const\
-      ->decltype(ope t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)){\
-          return ope t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...);\
+      ->decltype(ope t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)){\
+          return ope t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...);\
     }\
     template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>\
     constexpr auto bind_run(const S& s, Args&&... args)const\
-    ->decltype(this->bind_run_impl(veiler::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::make_index_range<0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>{}>{})){\
-        return this->bind_run_impl(veiler::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::make_index_range<0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>{}>{});\
+    ->decltype(this->bind_run_impl(std::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), veiler::make_integer_range<std::size_t, 0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>{}>{})){\
+        return this->bind_run_impl(std::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), veiler::make_integer_range<std::size_t, 0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>{}>{});\
     }\
     constexpr id() = default;\
-    constexpr id(T&& t):t(veiler::forward<T>(t)){}\
+    constexpr id(T&& t):t(std::forward<T>(t)){}\
     constexpr id(const T& t):t(t){}\
   };\
   template<typename T, typename std::enable_if<is_lampads<typename std::remove_cv<typename std::remove_reference<T>::type>::type>{}>::type* = nullptr>\
   constexpr Lampads<id<unwrap_lampads_or_valize_t<T>>> operator ope(T&& t){\
-     return Lampads<id<unwrap_lampads_or_valize_t<T>>>(unwrap_lampads_or_valize(veiler::forward<T>(t)));\
+     return Lampads<id<unwrap_lampads_or_valize_t<T>>>(unwrap_lampads_or_valize(std::forward<T>(t)));\
   }
 
 #define VEILER_LAMPADS_DECL_PSOPE(ope,id)\
@@ -512,30 +512,30 @@ constexpr Lampads<NumOfArgs> num_of_args{};
       using type = decltype(std::declval<typename T::ret_type::template type<Args...>>() ope);\
       static constexpr bool depends_on_args = T::ret_type::depends_on_args;\
     };\
-    template<typename... Types, long long... Indices>\
-    constexpr auto bind_run_impl(veiler::tuple<Types...> tu, veiler::index_tuple<Indices...>)const\
-      ->decltype(veiler::make_tuple((veiler::get<Indices>(veiler::move(tu)) ope)...)){\
-          return veiler::make_tuple((veiler::get<Indices>(veiler::move(tu)) ope)...);\
+    template<typename... Types, std::size_t... Indices>\
+    constexpr auto bind_run_impl(std::tuple<Types...> tu, std::index_sequence<Indices...>)const\
+      ->decltype(std::make_tuple((std::get<Indices>(std::move(tu)) ope)...)){\
+          return std::make_tuple((std::get<Indices>(std::move(tu)) ope)...);\
     }\
    public:\
     using ret_type = typename std::conditional<T::ret_type::value, ret_type_t, ret_type_dummy>::type;\
     template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>\
     constexpr auto run(const S& s, Args&&... args)const\
-      ->decltype(t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...) ope){\
-          return t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...) ope;\
+      ->decltype(t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...) ope){\
+          return t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...) ope;\
     }\
     template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>\
     constexpr auto bind_run(const S& s, Args&&... args)const\
-    ->decltype(this->bind_run_impl(veiler::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::make_index_range<0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>{}>{})){\
-        return this->bind_run_impl(veiler::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)), veiler::make_index_range<0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...))>{}>{});\
+    ->decltype(this->bind_run_impl(std::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), veiler::make_integer_range<std::size_t, 0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>{}>{})){\
+        return this->bind_run_impl(std::forward<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)), veiler::make_integer_range<std::size_t, 0, veiler::tuple_size<decltype(t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...))>{}>{});\
     }\
     constexpr id() = default;\
-    constexpr id(T&& t):t(veiler::forward<T>(t)){}\
+    constexpr id(T&& t):t(std::forward<T>(t)){}\
     constexpr id(const T& t):t(t){}\
   };\
   template<typename T, typename std::enable_if<is_lampads<typename std::remove_cv<typename std::remove_reference<T>::type>::type>{}>::type* = nullptr>\
   constexpr Lampads<id<unwrap_lampads_or_valize_t<T>>> operator ope(T&& t, int){\
-     return Lampads<id<unwrap_lampads_or_valize_t<T>>>(unwrap_lampads_or_valize(veiler::forward<T>(t)));\
+     return Lampads<id<unwrap_lampads_or_valize_t<T>>>(unwrap_lampads_or_valize(std::forward<T>(t)));\
   }
 
   VEILER_LAMPADS_DECL_BIOPE(+,Add)
@@ -633,40 +633,40 @@ template<typename C, typename T, typename U>class IfImpl{
   };
  public:
   using ret_type = typename std::conditional<T::ret_type::value || U::ret_type::value, ret_type_t, ret_type_dummy>::type;
-  constexpr IfImpl(C c, T t, U u):c(veiler::forward<C>(c)),t(veiler::forward<T>(t)),u(veiler::forward<U>(u)){}
+  constexpr IfImpl(C c, T t, U u):c(std::forward<C>(c)),t(std::forward<T>(t)),u(std::forward<U>(u)){}
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr auto run(const S& s, Args&&... args)const
     ->typename _IfImpl_ret_type<T, U>::template type<Args...>{
-    return c.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)
-          ?t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)
-          :u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...);}
+    return c.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)
+          ?t.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)
+          :u.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...);}
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr auto bind_run(const S& s, Args&&... args)const
-    ->decltype(c.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)
-              ?t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)
-              :u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)){
-        return c.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)
-              ?t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...)
-              :u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,veiler::forward<Args>(args)...);
+    ->decltype(c.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)
+              ?t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)
+              :u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)){
+        return c.template run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)
+              ?t.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...)
+              :u.template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s,std::forward<Args>(args)...);
   }
 };
 template<typename C, typename T>class Else{
   C&& c; T&& t;
  public:
-  constexpr Else(C&& c, T&& t):c(veiler::forward<C>(c)),t(veiler::forward<T>(t)){}
+  constexpr Else(C&& c, T&& t):c(std::forward<C>(c)),t(std::forward<T>(t)){}
   template<typename U>
   constexpr Lampads<IfImpl<unwrap_lampads_or_valize_t<C>, unwrap_lampads_or_valize_t<T>, unwrap_lampads_or_valize_t<U>>> operator[](U&& u)const{
-     return Lampads<IfImpl<unwrap_lampads_or_valize_t<C>, unwrap_lampads_or_valize_t<T>, unwrap_lampads_or_valize_t<U>>>(unwrap_lampads_or_valize(veiler::forward<C>(c)),unwrap_lampads_or_valize(veiler::forward<T>(t)),unwrap_lampads_or_valize(veiler::forward<U>(u)));
+     return Lampads<IfImpl<unwrap_lampads_or_valize_t<C>, unwrap_lampads_or_valize_t<T>, unwrap_lampads_or_valize_t<U>>>(unwrap_lampads_or_valize(std::forward<C>(c)),unwrap_lampads_or_valize(std::forward<T>(t)),unwrap_lampads_or_valize(std::forward<U>(u)));
   }
 };
-template<typename C, typename T>struct IfElseBridge{constexpr IfElseBridge(Else<C,T>&& e):else_(veiler::move(e)){} Else<C,T> else_;};
+template<typename C, typename T>struct IfElseBridge{constexpr IfElseBridge(Else<C,T>&& e):else_(std::move(e)){} Else<C,T> else_;};
 template<typename C>class If{
   C&& c;
  public:
-  constexpr If(C&& cond):c(veiler::forward<C>(cond)){}
-  template<typename T>constexpr IfElseBridge<C, T> operator[](T&& t)const{return IfElseBridge<C, T>(Else<C, T>(veiler::forward<C>(c), veiler::forward<T>(t)));}
+  constexpr If(C&& cond):c(std::forward<C>(cond)){}
+  template<typename T>constexpr IfElseBridge<C, T> operator[](T&& t)const{return IfElseBridge<C, T>(Else<C, T>(std::forward<C>(c), std::forward<T>(t)));}
 };
-template<typename C>constexpr If<C> if_(C&& c){return If<C>(veiler::forward<C>(c));}
+template<typename C>constexpr If<C> if_(C&& c){return If<C>(std::forward<C>(c));}
 
 
 using has_result_type = VEILER_HASTUR_TAG_CREATE(result_type);
@@ -674,15 +674,15 @@ template<bool, typename, typename...>class Bind;
 template<typename F, typename... Params>
 class Bind<true, F, Params...>{
   F f;
-  veiler::tuple<Params...> params;
-  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(, typename std::enable_if<(VEILER_LAMPADS_RECURSION_LIMIT >= (RecursionCounter + 2ll) * TemplateDepth)>::type* = nullptr), long long... Indices, typename S, typename... Args>
-  constexpr auto run_impl(veiler::index_tuple<Indices...>, const S& s, Args&&... args)const
-    ->decltype(veiler::apply(f, veiler::tuple_cat(veiler::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, veiler::forward<Args>(args)...)...))){
-        return veiler::apply(f, veiler::tuple_cat(veiler::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, veiler::forward<Args>(args)...)...));
+  std::tuple<Params...> params;
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(, typename std::enable_if<(VEILER_LAMPADS_RECURSION_LIMIT >= (RecursionCounter + 2ll) * TemplateDepth)>::type* = nullptr), std::size_t... Indices, typename S, typename... Args>
+  constexpr auto run_impl(std::index_sequence<Indices...>, const S& s, Args&&... args)const
+    ->decltype(std::apply(f, std::tuple_cat(std::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, std::forward<Args>(args)...)...))){
+        return std::apply(f, std::tuple_cat(std::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, std::forward<Args>(args)...)...));
   }
 #ifdef __clang__
-  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(, typename std::enable_if<(VEILER_LAMPADS_RECURSION_LIMIT <  (RecursionCounter + 2ll) * TemplateDepth)>::type* = nullptr), long long... Indices, typename S, typename... Args>
-  constexpr R run_impl(veiler::index_tuple<Indices...>, const S&, Args&&...)const{
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(, typename std::enable_if<(VEILER_LAMPADS_RECURSION_LIMIT <  (RecursionCounter + 2ll) * TemplateDepth)>::type* = nullptr), std::size_t... Indices, typename S, typename... Args>
+  constexpr R run_impl(std::index_sequence<Indices...>, const S&, Args&&...)const{
          return R{};
   }
 #endif
@@ -692,78 +692,78 @@ class Bind<true, F, Params...>{
     using type = typename veiler::func_troy<F>::result_type;
     static constexpr bool depends_on_args = false;
   };
-  constexpr Bind(F&& f, Params&&... params):f(veiler::forward<F>(f)), params(veiler::forward<Params>(params)...){}
+  constexpr Bind(F&& f, Params&&... params):f(std::forward<F>(f)), params(std::forward<Params>(params)...){}
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr auto run(const S& s, Args&&... args)const
-    ->decltype(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...)){
-        return this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...);
+    ->decltype(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(std::index_sequence_for<Params...>{}, s, std::forward<Args>(args)...)){
+        return this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(std::index_sequence_for<Params...>{}, s, std::forward<Args>(args)...);
   }
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr auto bind_run(const S& s, Args&&... args)const
-    ->decltype(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...)){
-        return this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...);
+    ->decltype(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(std::index_sequence_for<Params...>{}, s, std::forward<Args>(args)...)){
+        return this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(std::index_sequence_for<Params...>{}, s, std::forward<Args>(args)...);
   }
 };
 template<typename F, typename... Params>
 class Bind<false, F, Params...>{
   F f;
-  veiler::tuple<Params...> params;
-  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(, typename std::enable_if<(VEILER_LAMPADS_RECURSION_LIMIT >= (RecursionCounter + 2ll) * TemplateDepth)>::type* = nullptr), long long... Indices, typename S, typename... Args>
-  constexpr auto run_impl(veiler::index_tuple<Indices...>, const S& s, Args&&... args)const
-    ->decltype(veiler::apply(f, veiler::tuple_cat(veiler::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, veiler::forward<Args>(args)...)...))){
-        return veiler::apply(f, veiler::tuple_cat(veiler::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, veiler::forward<Args>(args)...)...));
+  std::tuple<Params...> params;
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(, typename std::enable_if<(VEILER_LAMPADS_RECURSION_LIMIT >= (RecursionCounter + 2ll) * TemplateDepth)>::type* = nullptr), std::size_t... Indices, typename S, typename... Args>
+  constexpr auto run_impl(std::index_sequence<Indices...>, const S& s, Args&&... args)const
+    ->decltype(std::apply(f, std::tuple_cat(std::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, std::forward<Args>(args)...)...))){
+        return std::apply(f, std::tuple_cat(std::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(s, std::forward<Args>(args)...)...));
   }
 #ifdef __clang__
-  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(, typename std::enable_if<(VEILER_LAMPADS_RECURSION_LIMIT <  (RecursionCounter + 2ll) * TemplateDepth)>::type* = nullptr), long long... Indices, typename S, typename... Args>
-  constexpr R run_impl(veiler::index_tuple<Indices...>, const S&, Args&&...)const{
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(, typename std::enable_if<(VEILER_LAMPADS_RECURSION_LIMIT <  (RecursionCounter + 2ll) * TemplateDepth)>::type* = nullptr), std::size_t... Indices, typename S, typename... Args>
+  constexpr R run_impl(std::index_sequence<Indices...>, const S&, Args&&...)const{
          return R{};
   }
 #endif
  public:
   using ret_type = ret_type_dummy;
-  constexpr Bind(F&& f, Params&&... params):f(veiler::forward<F>(f)), params(veiler::forward<Params>(params)...){}
+  constexpr Bind(F&& f, Params&&... params):f(std::forward<F>(f)), params(std::forward<Params>(params)...){}
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr auto run(const S& s, Args&&... args)const
-    ->decltype(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...)){
-        return this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...);
+    ->decltype(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(std::index_sequence_for<Params...>{}, s, std::forward<Args>(args)...)){
+        return this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(std::index_sequence_for<Params...>{}, s, std::forward<Args>(args)...);
   }
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
   constexpr auto bind_run(const S& s, Args&&... args)const
-    ->decltype(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...)){
-        return this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...);
+    ->decltype(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(std::index_sequence_for<Params...>{}, s, std::forward<Args>(args)...)){
+        return this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(std::index_sequence_for<Params...>{}, s, std::forward<Args>(args)...);
   }
 };
 
 template<typename F, typename... Params>
 constexpr Lampads<Bind<veiler::hastur<has_result_type>::type<veiler::func_troy<F>>::value, unremove_reference_decay<F>, unwrap_lampads_or_valize_t<Params>...>> bind(F&& f, Params&&... ps){
-   return Lampads<Bind<veiler::hastur<has_result_type>::type<veiler::func_troy<F>>::value, unremove_reference_decay<F>, unwrap_lampads_or_valize_t<Params>...>>(veiler::forward<F>(f), unwrap_lampads_or_valize(veiler::forward<Params>(ps))...);
+   return Lampads<Bind<veiler::hastur<has_result_type>::type<veiler::func_troy<F>>::value, unremove_reference_decay<F>, unwrap_lampads_or_valize_t<Params>...>>(std::forward<F>(f), unwrap_lampads_or_valize(std::forward<Params>(ps))...);
 }
 
 
 template<typename... Params>
 class Self{
-  veiler::tuple<Params...> params;
-  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(, typename std::enable_if<(VEILER_LAMPADS_RECURSION_LIMIT >= (RecursionCounter + 2ll) * TemplateDepth)>::type* = nullptr), long long... Indices, typename S, typename Tuple>
-  constexpr R run_impl_impl(veiler::index_tuple<Indices...>, const S& s, Tuple&& tpl)const{return veiler::forward<R>(s.template run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH( * 0ll)>(s, veiler::get<Indices>(veiler::forward<Tuple>(tpl))...));}
+  std::tuple<Params...> params;
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(, typename std::enable_if<(VEILER_LAMPADS_RECURSION_LIMIT >= (RecursionCounter + 2ll) * TemplateDepth)>::type* = nullptr), std::size_t... Indices, typename S, typename Tuple>
+  constexpr R run_impl_impl(std::index_sequence<Indices...>, const S& s, Tuple&& tpl)const{return std::forward<R>(s.template run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH( * 0ll)>(s, std::get<Indices>(std::forward<Tuple>(tpl))...));}
 #ifdef __clang__
-  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(, typename std::enable_if<(VEILER_LAMPADS_RECURSION_LIMIT < (RecursionCounter + 2ll) * TemplateDepth)>::type* = nullptr), long long... Indices, typename S, typename Tuple>
-  constexpr R run_impl_impl(veiler::index_tuple<Indices...>, const S&, Tuple&&)const{return R{};}
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(, typename std::enable_if<(VEILER_LAMPADS_RECURSION_LIMIT < (RecursionCounter + 2ll) * TemplateDepth)>::type* = nullptr), std::size_t... Indices, typename S, typename Tuple>
+  constexpr R run_impl_impl(std::index_sequence<Indices...>, const S&, Tuple&&)const{return R{};}
 #endif
-  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), long long... Indices, typename S, typename... Args>
-  constexpr R run_impl(veiler::index_tuple<Indices...>, const S& s, Args&&... args)const{
-    return run_impl_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(veiler::make_index_range<0, tuple_size<decltype(veiler::tuple_cat(veiler::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(*0ll)>(s, veiler::forward<Args>(args)...)...))>{}>{}, s, veiler::forward<decltype(veiler::tuple_cat(veiler::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(*0ll)>(s, veiler::forward<Args>(args)...)...))>(veiler::tuple_cat(veiler::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(*0ll)>(s, veiler::forward<Args>(args)...)...)));}
+  template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), std::size_t... Indices, typename S, typename... Args>
+  constexpr R run_impl(std::index_sequence<Indices...>, const S& s, Args&&... args)const{
+    return run_impl_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH()>(veiler::make_integer_range<std::size_t, 0, tuple_size<decltype(std::tuple_cat(std::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(*0ll)>(s, std::forward<Args>(args)...)...))>{}>{}, s, std::forward<decltype(std::tuple_cat(std::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(*0ll)>(s, std::forward<Args>(args)...)...))>(std::tuple_cat(std::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(*0ll)>(s, std::forward<Args>(args)...)...)));}
  public:
   using ret_type = ret_type_dummy;
-  constexpr Self(Params&&... ps):params(veiler::forward<Params>(ps)...){}
+  constexpr Self(Params&&... ps):params(std::forward<Params>(ps)...){}
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
-  constexpr R run(const S& s, Args&&... args)const{return run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...);}
+  constexpr R run(const S& s, Args&&... args)const{return run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(std::index_sequence_for<Params...>{}, s, std::forward<Args>(args)...);}
   template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>
-  constexpr veiler::tuple<R> bind_run(const S& s, Args&&... args)const{return veiler::make_tuple(veiler::forward<R>(run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...)));}
+  constexpr std::tuple<R> bind_run(const S& s, Args&&... args)const{return std::make_tuple(std::forward<R>(run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(std::index_sequence_for<Params...>{}, s, std::forward<Args>(args)...)));}
 };
 
 template<typename... Params>
 constexpr Lampads<Self<unwrap_lampads_or_valize_t<Params>...>> self(Params&&... ps){
-   return Lampads<Self<unwrap_lampads_or_valize_t<Params>...>>(unwrap_lampads_or_valize(veiler::forward<Params>(ps))...);
+   return Lampads<Self<unwrap_lampads_or_valize_t<Params>...>>(unwrap_lampads_or_valize(std::forward<Params>(ps))...);
 }
 
 
@@ -771,50 +771,50 @@ constexpr Lampads<Self<unwrap_lampads_or_valize_t<Params>...>> self(Params&&... 
   class VEILER_PELOPS_ULLR_CAT(memberAccessor, __LINE__){\
     template<typename... Args>\
     class FunctionAccessor{\
-      veiler::tuple<Args...> args;\
-      template<typename T, long long... Indices, typename std::enable_if<std::is_rvalue_reference<T&&>::value>::type* = nullptr>\
-      static constexpr auto impl(T&& lhs, const FunctionAccessor& rhs, veiler::index_tuple<Indices...>)->decltype(veiler::forward<T>(lhs).__VA_ARGS__(veiler::get<Indices>(rhs.args)...)){return veiler::forward<T>(lhs).__VA_ARGS__(veiler::get<Indices>(rhs.args)...);}\
-      template<typename T, long long... Indices, typename std::enable_if<std::is_lvalue_reference<typename std::remove_const<T&&>::type>::value>::type* = nullptr>\
-      static constexpr auto impl(T&& lhs, const FunctionAccessor& rhs, veiler::index_tuple<Indices...>)->decltype(lhs.__VA_ARGS__(veiler::get<Indices>(rhs.args)...)){return lhs.__VA_ARGS__(veiler::get<Indices>(rhs.args)...);}\
+      std::tuple<Args...> args;\
+      template<typename T, std::size_t... Indices, typename std::enable_if<std::is_rvalue_reference<T&&>::value>::type* = nullptr>\
+      static constexpr auto impl(T&& lhs, const FunctionAccessor& rhs, std::index_sequence<Indices...>)->decltype(std::forward<T>(lhs).__VA_ARGS__(std::get<Indices>(rhs.args)...)){return std::forward<T>(lhs).__VA_ARGS__(std::get<Indices>(rhs.args)...);}\
+      template<typename T, std::size_t... Indices, typename std::enable_if<std::is_lvalue_reference<typename std::remove_const<T&&>::type>::value>::type* = nullptr>\
+      static constexpr auto impl(T&& lhs, const FunctionAccessor& rhs, std::index_sequence<Indices...>)->decltype(lhs.__VA_ARGS__(std::get<Indices>(rhs.args)...)){return lhs.__VA_ARGS__(std::get<Indices>(rhs.args)...);}\
      public:\
       template<typename Tuple>\
-      constexpr FunctionAccessor(Tuple&& tpl):args(veiler::forward<Tuple>(tpl)){}\
+      constexpr FunctionAccessor(Tuple&& tpl):args(std::forward<Tuple>(tpl)){}\
       template<typename T>\
-      friend constexpr auto operator->*(T&& lhs, const FunctionAccessor& rhs)->decltype(FunctionAccessor::impl(veiler::forward<T>(lhs), rhs, veiler::make_index_range<0, sizeof...(Args)>{})){return FunctionAccessor::impl(veiler::forward<T>(lhs), rhs, veiler::make_index_range<0, sizeof...(Args)>{});}\
+      friend constexpr auto operator->*(T&& lhs, const FunctionAccessor& rhs)->decltype(FunctionAccessor::impl(std::forward<T>(lhs), rhs, veiler::make_integer_range<std::size_t, 0, sizeof...(Args)>{})){return FunctionAccessor::impl(std::forward<T>(lhs), rhs, veiler::make_integer_range<std::size_t, 0, sizeof...(Args)>{});}\
     };\
     template<typename... Args>\
-    static FunctionAccessor<Args...> make_func_accessor(veiler::tuple<Args...> args){return FunctionAccessor<Args...>(veiler::move(args));}\
+    static FunctionAccessor<Args...> make_func_accessor(std::tuple<Args...> args){return FunctionAccessor<Args...>(std::move(args));}\
     template<typename... Params>\
     class FunctionBinder{\
-      veiler::tuple<Params...> params;\
-      template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), long long... Indices, typename S, typename... Args>\
-      constexpr auto run_impl(veiler::index_tuple<Indices...>, const S& s, Args&&... args)const\
-        ->decltype(make_func_accessor(veiler::forward<decltype(veiler::tuple_cat(veiler::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(*0ll)>(s, veiler::forward<Args>(args)...)...))>\
-                                                              (veiler::tuple_cat(veiler::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(*0ll)>(s, veiler::forward<Args>(args)...)...)))){\
-            return make_func_accessor(veiler::forward<decltype(veiler::tuple_cat(veiler::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(*0ll)>(s, veiler::forward<Args>(args)...)...))>\
-                                                              (veiler::tuple_cat(veiler::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(*0ll)>(s, veiler::forward<Args>(args)...)...)));}\
+      std::tuple<Params...> params;\
+      template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), std::size_t... Indices, typename S, typename... Args>\
+      constexpr auto run_impl(std::index_sequence<Indices...>, const S& s, Args&&... args)const\
+        ->decltype(make_func_accessor(std::forward<decltype(std::tuple_cat(std::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(*0ll)>(s, std::forward<Args>(args)...)...))>\
+                                                           (std::tuple_cat(std::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(*0ll)>(s, std::forward<Args>(args)...)...)))){\
+            return make_func_accessor(std::forward<decltype(std::tuple_cat(std::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(*0ll)>(s, std::forward<Args>(args)...)...))>\
+                                                           (std::tuple_cat(std::get<Indices>(params).template bind_run<R VEILER_LAMPADS_RECURSION_COUNTER(+1ll) VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(*0ll)>(s, std::forward<Args>(args)...)...)));}\
      public:\
       using ret_type = veiler::_detail::lampads::ret_type_dummy;\
-      constexpr FunctionBinder(Params&&... ps):params(veiler::forward<Params>(ps)...){}\
+      constexpr FunctionBinder(Params&&... ps):params(std::forward<Params>(ps)...){}\
       template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>\
       constexpr auto run(const S& s, Args&&... args)const\
-        ->decltype(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...)){\
-            return this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...);\
+        ->decltype(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(std::index_sequence_for<Params...>{}, s, std::forward<Args>(args)...)){\
+            return this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(std::index_sequence_for<Params...>{}, s, std::forward<Args>(args)...);\
       }\
       template<typename R VEILER_LAMPADS_RECURSION_COUNTER_DECL(), typename S, typename... Args>\
       constexpr auto bind_run(const S& s, Args&&... args)const\
-                  ->veiler::tuple<decltype(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...))>{\
-        return veiler::make_tuple<decltype(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...))>(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(veiler::make_indexes<Params...>{}, s, veiler::forward<Args>(args)...));}\
+                  ->std::tuple<decltype(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(std::index_sequence_for<Params...>{}, s, std::forward<Args>(args)...))>{\
+        return std::make_tuple<decltype(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(std::index_sequence_for<Params...>{}, s, std::forward<Args>(args)...))>(this->run_impl<R VEILER_LAMPADS_RECURSION_COUNTER() VEILER_LAMPADS_RECURSION_TEMPLATE_DEPTH(+1ll)>(std::index_sequence_for<Params...>{}, s, std::forward<Args>(args)...));}\
     };\
    public:\
     constexpr VEILER_PELOPS_ULLR_CAT(memberAccessor, __LINE__)() = default;\
     template<typename T, typename std::enable_if<std::is_rvalue_reference<T&&>::value>::type* = nullptr>\
-    friend constexpr auto operator->*(T&& lhs, const VEILER_PELOPS_ULLR_CAT(memberAccessor, __LINE__)&)->decltype(veiler::forward<T>(lhs).__VA_ARGS__){return veiler::forward<T>(lhs).__VA_ARGS__;}\
+    friend constexpr auto operator->*(T&& lhs, const VEILER_PELOPS_ULLR_CAT(memberAccessor, __LINE__)&)->decltype(std::forward<T>(lhs).__VA_ARGS__){return std::forward<T>(lhs).__VA_ARGS__;}\
     template<typename T, typename std::enable_if<std::is_lvalue_reference<typename std::remove_const<T&&>::type>::value>::type* = nullptr>\
     friend constexpr auto operator->*(T&& lhs, const VEILER_PELOPS_ULLR_CAT(memberAccessor, __LINE__)&)->decltype((lhs.__VA_ARGS__)){return lhs.__VA_ARGS__;}\
     template<typename... Params>\
     constexpr veiler::_detail::lampads::Lampads<FunctionBinder<veiler::_detail::lampads::unwrap_lampads_or_valize_t<Params>...>> operator()(Params&&... ps)const{\
-       return veiler::_detail::lampads::Lampads<FunctionBinder<veiler::_detail::lampads::unwrap_lampads_or_valize_t<Params>...>>(veiler::_detail::lampads::unwrap_lampads_or_valize(veiler::forward<Params>(ps))...);\
+       return veiler::_detail::lampads::Lampads<FunctionBinder<veiler::_detail::lampads::unwrap_lampads_or_valize_t<Params>...>>(veiler::_detail::lampads::unwrap_lampads_or_valize(std::forward<Params>(ps))...);\
     }\
   }
 
@@ -822,7 +822,7 @@ constexpr Lampads<Self<unwrap_lampads_or_valize_t<Params>...>> self(Params&&... 
   struct VEILER_PELOPS_ULLR_CAT(funcAccessor, __LINE__){\
     constexpr VEILER_PELOPS_ULLR_CAT(funcAccessor, __LINE__)() = default;\
     template<typename... Args>\
-    constexpr auto operator()(Args&&... args)const->decltype(__VA_ARGS__(std::declval<Args>()...)){return __VA_ARGS__(veiler::forward<Args>(args)...);}\
+    constexpr auto operator()(Args&&... args)const->decltype(__VA_ARGS__(std::declval<Args>()...)){return __VA_ARGS__(std::forward<Args>(args)...);}\
   }
 
 
@@ -845,9 +845,9 @@ using _detail::lampads::bind;
 using _detail::lampads::ret;
 using _detail::lampads::val;
 using _detail::lampads::num_of_args;
-template<long long N>
+template<std::size_t N>
 using arg_t = _detail::lampads::Lampads<_detail::lampads::Placeholder<N>>;
-template<long long N>
+template<std::size_t N>
 using arg_tail_t = _detail::lampads::Lampads<_detail::lampads::VariadicPlaceholder<N>>;
 
 }//End : namespace lampads

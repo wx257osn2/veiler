@@ -48,12 +48,15 @@ constexpr openmode olympus_impl(const char* p,openmode o){
 
 }//End : namespace detail
 
-#define VEILER_PELOPS_LUPEGEM_USING_HEADER detail:
-#include "../pelops/lupegem/using.hpp"
-
-VEILER_PELOPS_LUPEGEM_USING((:openmode)(:r)(:w)(:a)(:b)(:_)(:rb)(:wb)(:ab))
-
-#include "../pelops/lupegem/undef_using.hpp"
+using detail::openmode;
+using detail::r;
+using detail::w;
+using detail::a;
+using detail::b;
+using detail::_;
+using detail::rb;
+using detail::wb;
+using detail::ab;
 
 constexpr openmode olympus(const char* mode){return detail::olympus_impl(mode,_);}
 
