@@ -22,7 +22,7 @@ struct openmode{
   friend constexpr openmode operator|(const openmode lhs,const openmode rhs){
     return openmode{lhs.value | rhs.value};
   }
-  constexpr operator std::ios::openmode(){return value;}
+  constexpr operator std::ios::openmode()const{return value;}
   std::ios::openmode value;
 };
 constexpr openmode 
