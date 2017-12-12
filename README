@@ -1,37 +1,7 @@
-﻿Veiler C++ Library
+﻿#Veiler C++ Library
 
+is header-only C++17 experimental(forever) library.
 
-(このReadmeはわりと適当なので読まなくてもいいんじゃない)
-
-
-当ライブラリ群はC++11用の様々な機能を提供します。
-言い換えれば、雑多で、これといって一貫性もないです。
-
-
-使い方
-ヘッダオンリなので、
-ディレクトリ・veiler下にあるファイルを必要なものだけinclude
-すれば使えます。
-#include<veiler/hoge.hpp>とincludeできるように
-パスを通しておくと便利だと思います。
-
-ライブラリごとに対応してるコンパイラは違うので、
-使う物それぞれについて適宜調べてください。
-とりあえず、基本的には
-MSVC2012
-GCC 4.8.0
-Clang 3.1
-あたりで使えるものが多いと思います。
-また、当方の開発環境はWindowsなのでWindows環境下でしか
-動作しない可能性があります。ご留意ください。
-また、外部ライブラリは極力使わないように心がけているので
-基本的にVeilerを一式手に入れれば使えます。
-物によっては単品でも動きます。
-
-
-ライセンス
-Veiler C++ LibraryはBoost Software License 1.0のもとで公開されます。
-
-
-連絡とか
-Twitterにお願いします。 http://bit.ly/I_Twitter
+Copyright (C) 2012-2017 I
+  Distributed under the Boost Software License, Version 1.0.
+  (See accompanying file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
