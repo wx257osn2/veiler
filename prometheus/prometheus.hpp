@@ -10,19 +10,19 @@
 
 namespace veiler{
 
-namespace _detail{
+namespace detail{
 
 namespace prometheus{
 
 template<std::size_t N>struct prometheus : prometheus<N-1>{};
 template<>             struct prometheus<0>{};
 
-}
+}//End : namespace prometheus
 
-}
+}//End : namespace detail
 
 template<std::size_t N>
-using prometheus = const _detail::prometheus::prometheus<N>*const;
+using prometheus = const detail::prometheus::prometheus<N>*const;
 
 template<std::size_t N>
 constexpr typename std::decay<prometheus<N>>::type prometheus_fire(){return static_cast<prometheus<N>>(nullptr);}
