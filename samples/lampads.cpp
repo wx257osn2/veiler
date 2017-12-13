@@ -19,6 +19,11 @@ struct hoge{
 
 constexpr VEILER_LAMPADS_POLYMORPHIC_MEMBER_ACCESSOR(a) _a{};
 
+#include<string>
+#include<cassert>
+
+bool test(std::string)noexcept{return false;}
+
 int main(){
   constexpr auto a = if_(1_ == 3)[3].else_[2_](1,2,3,4);
   constexpr auto b = (3_ * 4)(1,2,3,4);
@@ -44,4 +49,7 @@ int main(){
   static_assert(k(i) == 1, "");
   constexpr auto l = 1_ - val(1_);
   static_assert(l(2)(1) == 1, "");
+  std::string str(50, 'a');
+  assert(if_(bind(test, 1_))[std::string{}].else_[if_(1_ != std::string(50, 'a'))[std::string{"bad"}].else_[1_]](str) == str);
+  assert(if_(bind(test, 1_))[std::string{}].else_[if_(1_ != std::string(50, 'a'))[std::string{"bad"}].else_[1_]](std::string(50, 'a')) == str);
 }
