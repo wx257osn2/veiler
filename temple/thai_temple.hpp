@@ -64,13 +64,17 @@ struct type_at_impl_impl{
   using type = decltype(type_at_impl_impl_impl<make_type_tuple<N>>::eval(static_cast<Types*>(nullptr)...));
 };
 
+template<typename, std::size_t>struct type_at_impl_;
+template<template<typename...>class Type, typename... Args, std::size_t N>
+struct type_at_impl_<type_wrapper<Type<Args...>>, N>{
+  using type = typename type_at_impl_impl<N, type_wrapper<Args>...>::type;
+};
+
 template<typename T, std::size_t N>
 class type_at_impl{
   static_assert(tuple_size<T>::value > N, "Veiler.Temple - type_at can't access there, out of range.");
-  template<template<typename...>class Type, class... Args>
-  static auto impl(type_wrapper<Type<Args...>>)->typename type_at_impl_impl<N, type_wrapper<Args>...>::type;
  public:
-  using type = typename decltype(impl(type_wrapper<T>{}))::type;
+  using type = typename type_at_impl_<type_wrapper<T>, N>::type::type;
 };
 
 template<typename T, std::size_t N>
