@@ -10,7 +10,7 @@ namespace state{
     const veiler::deus::state<detail::main> main;
     const veiler::deus::state<detail::setting> setting;
   }
-};
+}
 namespace event{
   namespace detail{
     struct toggle{};
@@ -18,7 +18,7 @@ namespace event{
   namespace{
     const veiler::deus::event<detail::toggle> toggle;
   }
-};
+}
 
 int main(){
   auto sm = veiler::deus::make_state_machine(veiler::deus::make_transition_table(
