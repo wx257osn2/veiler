@@ -137,16 +137,10 @@ class state_machine : public state<Statemachine>{
   using Statuses = typename TransitionTable::Statuses;
   template<typename Status>
   class status_id{
-    template<typename>struct impl_;
-    template<typename... As>
-    struct impl_<type_tuple<As...>>{using type = std::integer_sequence<bool, std::is_same<Status, As>::value...>;};
-    template<typename,typename>struct impl;
-    template<std::make_signed_t<std::size_t>... As, bool... Bs>
-    struct impl<std::integer_sequence<std::make_signed_t<std::size_t>, As...>, std::integer_sequence<bool, Bs...>>{static constexpr std::make_signed_t<std::size_t> value = ((Bs ? As+1 : 0) + ... + 0);};
-    using A = make_integer_range<std::make_signed_t<std::size_t>, 0, veiler::tuple_size<Statuses>{}>;
-    using B = typename impl_<Statuses>::type;
+    template<typename T>
+    using cond = std::is_same<Status, T>;
   public:
-    static const std::make_signed_t<std::size_t> value = impl<A, B>::value - 1;
+    static constexpr std::make_signed_t<std::size_t> value = find_unique_type_index<Statuses, cond>::value;
   };
   class holder{
     struct base{};

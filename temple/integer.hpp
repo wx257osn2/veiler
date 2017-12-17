@@ -6,7 +6,7 @@
 #define VEILER_TEMPLE_INTEGER_HPP_INCLUDED
 
 #include<utility>
-#include<veiler/temple/type.hpp>
+#include<veiler/temple/type/type1.hpp>
 
 namespace veiler{
 
