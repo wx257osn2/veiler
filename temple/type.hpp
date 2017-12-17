@@ -82,7 +82,6 @@ using type_at = typename type_at_impl<typename std::remove_cv<typename std::remo
 
 
 struct duplicate_type;
-template<long long A, long long B>struct add{static const long long value = A+B;static const long long default_value = 0;};
 template<typename...>struct unique_types_impl;
 template<typename SourceType, typename Type>struct filter{using type = typename std::conditional<std::is_same<SourceType, Type>::value, duplicate_type, Type>::type;};
 template<typename T, typename... Remaining, typename... Uniques>
