@@ -428,14 +428,14 @@ constexpr Lampads<NumOfArgs> num_of_args{};
       using type = decltype(std::declval<typename T::ret_type::template type<Args...>>() ope std::declval<typename U::ret_type::template type<Args...>>());\
       static constexpr bool depends_on_args = T::ret_type::depends_on_args || U::ret_type::depends_on_args;\
     };\
-    template<typename... LTypes, typename... RTypes, long long... Indices>\
-    constexpr auto bind_run_impl(veiler::tuple<LTypes...> lt, veiler::tuple<RTypes...> rt, veiler::index_tuple<Indices...>)const\
+    template<typename LT, typename... LTypes, typename RT, typename... RTypes, long long... Indices>\
+    constexpr auto bind_run_impl(veiler::tuple<LT, LTypes...> lt, veiler::tuple<RT, RTypes...> rt, veiler::index_tuple<Indices...>)const\
       ->decltype(veiler::make_tuple((veiler::get<Indices>(veiler::move(lt)) ope veiler::get<Indices>(veiler::move(rt)))...)){\
           return veiler::make_tuple((veiler::get<Indices>(veiler::move(lt)) ope veiler::get<Indices>(veiler::move(rt)))...);\
     }\
-    template<typename... RTypes, long long... Indices>\
-    constexpr auto bind_run_impl(veiler::tuple<>, veiler::tuple<RTypes...> rt, veiler::index_tuple<Indices...>)const\
-      ->veiler::tuple<RTypes...>{\
+    template<typename RT, typename... RTypes, long long... Indices>\
+    constexpr auto bind_run_impl(veiler::tuple<>, veiler::tuple<RT, RTypes...> rt, veiler::index_tuple<Indices...>)const\
+      ->veiler::tuple<RT, RTypes...>{\
       return veiler::move(rt);\
     }\
     template<typename... LTypes, long long... Indices>\
