@@ -98,6 +98,13 @@ template<typename T>
 using unique_types = typename unique_types_impl<T>::type;
 
 
+template<typename, template<typename...>class>struct rebind_impl;
+template<template<typename...>class From, template<typename...>class To, typename... Types>
+struct rebind_impl<From<Types...>, To>{using type = To<Types...>;};
+
+template<typename T, template<typename...>class U>
+using rebind = typename rebind_impl<T, U>::type;
+
 template<typename... Types>
 struct type_tuple{
   static constexpr std::size_t size(){return sizeof...(Types);}
@@ -113,6 +120,7 @@ using detail::temple::type_at;
 using detail::temple::tuple_size;
 using detail::temple::unique_types;
 using detail::temple::type_tuple;
+using detail::temple::rebind;
 
 }//End : namespace veiler
 
