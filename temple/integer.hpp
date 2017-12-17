@@ -2,11 +2,11 @@
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef VEILER_TEMPLE_INDIAN_TEMPLE_HPP_INCLUDED
-#define VEILER_TEMPLE_INDIAN_TEMPLE_HPP_INCLUDED
+#ifndef VEILER_TEMPLE_INTEGER_HPP_INCLUDED
+#define VEILER_TEMPLE_INTEGER_HPP_INCLUDED
 
 #include<utility>
-#include<veiler/temple/thai_temple.hpp>
+#include<veiler/temple/type.hpp>
 
 namespace veiler{
 
@@ -93,4 +93,4 @@ using detail::temple::make_reverse_indexes_for;
 
 }//End : namespace veiler
 
-#endif//VEILER_TEMPLE_INDIAN_TEMPLE_HPP_INCLUDED
+#endif//VEILER_TEMPLE_INTEGER_HPP_INCLUDED

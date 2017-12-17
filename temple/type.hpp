@@ -2,8 +2,8 @@
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef VEILER_TEMPLE_THAI_TEMPLE_HPP_INCLUDED
-#define VEILER_TEMPLE_THAI_TEMPLE_HPP_INCLUDED
+#ifndef VEILER_TEMPLE_TYPE_HPP_INCLUDED
+#define VEILER_TEMPLE_TYPE_HPP_INCLUDED
 
 #include<type_traits>
 
@@ -100,8 +100,6 @@ using unique_types = typename unique_types_impl<T>::type;
 
 template<typename... Types>
 struct type_tuple{
-  //template<std::size_t N>
-  //using at = type_at<type_tuple<Types...>, N>;
   static constexpr std::size_t size(){return sizeof...(Types);}
 };
 
@@ -118,4 +116,4 @@ using detail::temple::type_tuple;
 
 }//End : namespace veiler
 
-#endif//VEILER_TEMPLE_THAI_TEMPLE_HPP_INCLUDED
+#endif//VEILER_TEMPLE_TYPE_HPP_INCLUDED

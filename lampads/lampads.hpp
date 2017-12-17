@@ -11,8 +11,8 @@
 #include<tuple>
 #include<veiler/pelops/ullr.hpp>
 #include<veiler/refil.hpp>
-#include<veiler/temple/thai_temple.hpp>
-#include<veiler/temple/indian_temple.hpp>
+#include<veiler/temple/type.hpp>
+#include<veiler/temple/integer.hpp>
 
 namespace veiler{
 

@@ -6,8 +6,8 @@
 #include<tuple>
 #include<memory>
 #include<type_traits>
-#include<veiler/temple/indian_temple.hpp>
-#include<veiler/temple/thai_temple.hpp>
+#include<veiler/temple/integer.hpp>
+#include<veiler/temple/type.hpp>
 
 namespace veiler{
 
