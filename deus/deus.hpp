@@ -1,10 +1,10 @@
-//Copyright (C) 2012-2017 I
+//Copyright (C) 2012-2018 I
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include<utility>
 #include<tuple>
-#include<memory>
+#include<variant>
 #include<type_traits>
 #include<veiler/temple/integer.hpp>
 #include<veiler/temple/type.hpp>
@@ -143,22 +143,15 @@ class state_machine : public state<Statemachine>{
     static constexpr std::make_signed_t<std::size_t> value = find_unique_type_index<Statuses, cond>::value;
   };
   class holder{
-    struct base{};
-    template<typename T>
-    struct derived : base{
-      template<typename... Args>
-      explicit derived(Args&&... args) : t(std::forward<Args>(args)...){}
-      T t;
-    };
-    std::shared_ptr<base> impl;
+    veiler::rebind<Statuses, std::variant> impl;
     std::make_signed_t<std::size_t> state;
   public:
     holder(const holder&) = default;
     holder(holder&&) = default;
     template<template<typename>class Wrapper, typename T>
-    holder(Wrapper<T>&& t) : impl(new derived<T>()), state(status_id<T>::value){}
+    holder(Wrapper<T>&& t) : impl(T{}), state(status_id<T>::value){}
     template<typename T, typename... Args>
-    void transit(Args&&... args){impl.reset();impl = std::make_shared<derived<T>>(std::forward<Args>(args)...);state = status_id<T>::value;}
+    void transit(Args&&... args){impl = T(std::forward<Args>(args)...);state = status_id<T>::value;}
     friend bool operator==(const holder& lhs, long long rhs){return lhs.state == rhs;}
     friend bool operator!=(const holder& lhs, long long rhs){return !(lhs == rhs);}
   }state;
@@ -393,13 +386,13 @@ template<typename... Transitions>
 struct transition_table{
   std::tuple<Transitions...> table;
   using Statuses = unique_types<type_tuple<type_at<Transitions,0>...,type_at<Transitions,2>...>>;
-  static const std::size_t size = sizeof...(Transitions);
+  static constexpr std::size_t size = sizeof...(Transitions);
 };
 
 template<typename... Transitions>
-auto make_transition_table(Transitions&&... transitions)
-       ->transition_table<Transitions...>{
-  return transition_table<Transitions...>{std::tuple<Transitions...>{std::forward<Transitions>(transitions)...}};
+constexpr auto make_transition_table(Transitions&&... transitions)
+       ->transition_table<std::decay_t<Transitions>...>{
+  return transition_table<std::decay_t<Transitions>...>{{std::forward<Transitions>(transitions)...}};
 }
 
 }
