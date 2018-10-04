@@ -110,6 +110,12 @@ struct are_unique_types_impl<Cond, type_tuple<>, Uniques...>{using type = std::t
 template<typename T, template<typename, typename>class Cond = std::is_same>
 using are_unique_types = typename are_unique_types_impl<Cond, T>::type;
 
+template<typename, typename>struct add_type_impl;
+template<template<typename...>class Tuple, typename... Ts, typename T>
+struct add_type_impl<Tuple<Ts...>, T>{using type = Tuple<Ts..., T>;};
+
+template<typename Ts, typename T>
+using add_type = typename add_type_impl<Ts, T>::type;
 
 template<typename, template<typename...>class>struct rebind_impl;
 template<template<typename...>class From, template<typename...>class To, typename... Types>
@@ -133,6 +139,7 @@ using detail::temple::type_at;
 using detail::temple::tuple_size;
 using detail::temple::unique_types;
 using detail::temple::type_tuple;
+using detail::temple::add_type;
 using detail::temple::rebind;
 using detail::temple::are_unique_types;
 
