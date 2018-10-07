@@ -52,7 +52,7 @@ struct hash_impl;
 template<typename T>
 using iterator_condition = std::conjunction<std::negation<std::is_pointer<T>>, is_iterator<T>>;
 template<typename T>
-struct hash_impl<T, std::enable_if_t<iterator_condition<T>::value, std::nullptr_t>> : hash_impl<typename T::pointer>{
+struct hash_impl<T, std::enable_if_t<iterator_condition<T>::value, std::nullptr_t>> : hash_impl<typename std::iterator_traits<T>::pointer>{
   constexpr hash_impl() = default;
   constexpr hash_impl(const hash_impl&) = default;
   constexpr hash_impl(hash_impl&&) = default;
@@ -62,7 +62,7 @@ struct hash_impl<T, std::enable_if_t<iterator_condition<T>::value, std::nullptr_
   using result_type = std::size_t;
   using argument_type = T;
   std::size_t operator()(const T& key)const noexcept{
-    return hash_impl<typename T::pointer>::operator()(&*key);
+    return hash_impl<typename std::iterator_traits<T>::pointer>::operator()(&*key);
   }
 };
 
