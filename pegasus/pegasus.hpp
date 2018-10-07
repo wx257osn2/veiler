@@ -1478,7 +1478,7 @@ struct read_{
   struct cache_id{using type = void;};
   constexpr read_() = default;
   template<typename S, typename Backup, bool IsOmittable, bool HasSkipper, typename Packrats, typename C, typename U, typename V, typename... Args>
-  constexpr veiler::expected<std::conditional_t<IsOmittable, unit, std::decay_t<U>>, parse_error<std::decay_t<U>>> operator()(S&& s, detail::adhoc_optimize_flag<Backup, std::integral_constant<bool, IsOmittable>, std::integral_constant<bool, HasSkipper>, Packrats> f, C&& c, U&& u, V&& v, Args&&... args)const{
+  constexpr veiler::expected<std::conditional_t<IsOmittable, unit, std::decay_t<U>>, parse_error<std::decay_t<U>>> operator()(S&& s, [[maybe_unused]] detail::adhoc_optimize_flag<Backup, std::integral_constant<bool, IsOmittable>, std::integral_constant<bool, HasSkipper>, Packrats> f, C&& c, U&& u, V&& v, Args&&... args)const{
     if(u == v)
       return veiler::make_unexpected(error_type::reach_end{});
     if constexpr(IsOmittable){
@@ -1631,7 +1631,7 @@ class parsers{
   struct impl##name{\
     using _implname = impl##name;\
     constexpr impl##name() = default;\
-    static auto&& def(const self_type& rules = instance()){\
+    static auto&& def([[maybe_unused]] const self_type& rules = instance()){\
       static auto p = f_(__VA_ARGS__);\
       return p;\
     }\
