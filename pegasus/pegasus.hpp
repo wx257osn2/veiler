@@ -1064,7 +1064,7 @@ class action{
   template<typename T_, typename F_>
   constexpr action(T_&& t, F_&& f):t{std::forward<T_>(t)}, f{std::forward<F_>(f)}{}
   template<typename S, bool HasBackup, typename Omittable, typename Skip, typename Packrats, typename C, typename V, typename VE, typename... Args>
-  constexpr auto operator()(S&& s, detail::adhoc_optimize_flag<std::integral_constant<bool, HasBackup>, Omittable, Skip, Packrats>, C&& c, V&& v, VE&& e, Args&&... args)const->decltype(detail::action_impl<std::decay_t<V>>(veiler::prometheus_fire<1>(), f, *t(s, detail::adhoc_optimize_flag<std::true_type, std::false_type, Skip, Packrats>{}, c, v, e, args...), iterator_range<std::decay_t<V>>{v, v}, args...)){
+  constexpr auto operator()(S&& s, detail::adhoc_optimize_flag<std::integral_constant<bool, HasBackup>, Omittable, Skip, Packrats>, C&& c, V&& v, VE&& e, Args&&... args)const->std::conditional_t<Omittable::value, veiler::expected<unit, parse_error<std::decay_t<V>>>, decltype(detail::action_impl<std::decay_t<V>>(veiler::prometheus_fire<1>(), f, *t(s, detail::adhoc_optimize_flag<std::true_type, std::false_type, Skip, Packrats>{}, c, v, e, args...), iterator_range<std::decay_t<V>>{v, v}, args...))>{
     using optim = detail::adhoc_optimize_flag<std::integral_constant<bool, HasBackup>, Omittable, Skip, Packrats>;
     if constexpr(not HasBackup){
       auto backup = v;
@@ -1073,8 +1073,13 @@ class action{
     else{
       const auto& backup = c.backup();
       auto ret = t(std::forward<S>(s), typename optim::template omittable<false>{}, std::forward<C>(c), std::forward<V>(v), std::forward<VE>(e), std::forward<Args>(args)...);
-      if(ret)
-        return detail::action_impl<std::decay_t<V>>(veiler::prometheus_fire<1>(), f, std::move(*ret), iterator_range<std::decay_t<V>>{backup, v}, std::forward<Args>(args)...);
+      if(ret){
+        [[maybe_unused]] auto ret2 = detail::action_impl<std::decay_t<V>>(veiler::prometheus_fire<1>(), f, std::move(*ret), iterator_range<std::decay_t<V>>{backup, v}, std::forward<Args>(args)...);
+        if constexpr(Omittable::value)
+          return unit{};
+        else
+          return ret2;
+      }
       return veiler::make_unexpected(std::move(ret.error()));
     }
   }
