@@ -1157,6 +1157,42 @@ struct omit_t{
   }
 }static constexpr omit = {};
 
+struct location_t{
+  constexpr location_t() = default;
+  template<typename I, typename L, typename... Args>
+  constexpr L&& operator()(I&&, L&& l, Args&&...)const{return std::forward<L>(l);}
+  template<typename T>
+  class location{
+    T t;
+   public:
+    template<typename... Ts>
+    struct cache{using type = typename T::template cache<Ts...>::type;};
+    template<typename P, typename Q>
+    struct cache_id{using type = detail::cache_id<T, P, Q>;};
+    template<typename T_>
+    constexpr location(T_&& t):t{std::forward<T_>(t)}{}
+    template<typename S, typename F, typename C, typename V, typename... Args>
+    constexpr auto operator()(S&& s, F&&, C&& c, V&& v, Args&&... args)const->veiler::expected<std::conditional_t<std::decay_t<F>::is_omittable::value, unit, iterator_range<std::decay_t<V>>>, parse_error<std::decay_t<V>>>{
+      if constexpr(std::decay_t<F>::has_backup::value){
+        const auto& backup = std::forward<C>(c).backup();
+        auto ret = t(std::forward<S>(s), typename std::decay_t<F>::template omittable<true>{}, std::forward<C>(c), std::forward<V>(v), std::forward<Args>(args)...);
+        if constexpr(std::decay_t<F>::is_omittable::value){
+          if constexpr(std::is_same<std::decay_t<decltype(*ret)>, unit>::value)
+            return ret;
+          else
+            return ret.map([]([[maybe_unused]] auto&&... unused)->unit{return {};});
+        }
+        else
+          return ret.map([&]([[maybe_unused]] auto&&... unused)->iterator_range<std::decay_t<V>>{return {backup, v};});
+      }
+      else{
+        const auto copied = v;
+        return (*this)(std::forward<S>(s), typename std::decay_t<F>::template backup<true>{}, std::forward<C>(c).backup(copied), std::forward<V>(v), std::forward<Args>(args)...);
+      }
+    }
+  };
+}static constexpr location = {};
+
 }
 
 namespace detail{
@@ -1227,6 +1263,9 @@ class matcha{
   constexpr matcha<semantic_actions::omit_t::omit<T>> operator[](const semantic_actions::omit_t&)const{
     return matcha<semantic_actions::omit_t::omit<T>>{semantic_actions::omit_t::omit<T>{t}};
   }
+  constexpr matcha<semantic_actions::location_t::location<T>> operator[](const semantic_actions::location_t&)const{
+    return matcha<semantic_actions::location_t::location<T>>{semantic_actions::location_t::location<T>{t}};
+  }
   template<typename U>
   constexpr matcha<on_error_<T, std::decay_t<U>>> on_error(U&& u)const{
     return matcha<on_error_<T, std::decay_t<U>>>{on_error_<T, std::decay_t<U>>{t, std::forward<U>(u)}};
@@ -1259,6 +1298,9 @@ class matcha<transient_<T_>>{
   constexpr matcha<transient_<semantic_actions::omit_t::omit<T_>>> operator[](const semantic_actions::omit_t&)const{
     return matcha<transient_<semantic_actions::omit_t::omit<T_>>>{transient_<semantic_actions::omit_t::omit<T_>>{semantic_actions::omit_t::omit<T_>{t.get()}}};
   }
+  constexpr matcha<transient_<semantic_actions::location_t::location<T_>>> operator[](const semantic_actions::location_t&)const{
+    return matcha<transient_<semantic_actions::location_t::location<T_>>>{transient_<semantic_actions::location_t::location<T_>>{semantic_actions::location_t::location<T_>{t.get()}}};
+  }
   template<typename U>
   constexpr matcha<transient_<on_error_<T_, std::decay_t<U>>>> on_error(U&& u)const{
     return matcha<transient_<on_error_<T_, std::decay_t<U>>>>{transient_<on_error_<T_, std::decay_t<U>>>{on_error_<T_, std::decay_t<U>>{t.get(), std::forward<U>(u)}}};
@@ -1290,6 +1332,9 @@ class matcha<detail::skipper_<T, S>>{
   }
   constexpr matcha<detail::skipper_<semantic_actions::omit_t::omit<T>, S>> operator[](const semantic_actions::omit_t&)const{
     return matcha<detail::skipper_<semantic_actions::omit_t::omit<T>, S>>{semantic_actions::omit_t::omit<T>{t}, s};
+  }
+  constexpr matcha<detail::skipper_<semantic_actions::location_t::location<T>, S>> operator[](const semantic_actions::location_t&)const{
+    return matcha<detail::skipper_<semantic_actions::location_t::location<T>, S>>{semantic_actions::location_t::location<T>{t}, s};
   }
   template<typename U>
   constexpr matcha<detail::skipper_<on_error_<T, std::decay_t<U>>, S>> on_error(U&& u)const{
@@ -1584,13 +1629,6 @@ struct lexeme_t{
 }static constexpr lexeme = {};
 
 inline namespace semantic_actions{
-
-struct location_t{
-  constexpr location_t() = default;
-  template<typename I, typename L, typename... Args>
-  auto operator()(I&&, L&& l, Args&&...)const{return std::forward<L>(l);}
-};
-static constexpr location_t location = {};
 
 struct value_t{
   constexpr value_t() = default;
