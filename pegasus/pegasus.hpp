@@ -1043,6 +1043,10 @@ constexpr auto packrat_with_tag(T&& t){
 
 
 namespace detail{
+template<typename V, typename F, typename R, typename... Args, typename Result = std::decay_t<decltype(std::declval<F>()(std::declval<R>(), std::declval<iterator_range<std::decay_t<V>>>(), std::declval<Args>()...))>, std::enable_if_t<veiler::is_expected<Result>::value, std::nullptr_t> = nullptr>
+constexpr auto action_impl(veiler::prometheus<1>, F&& f, R&& r, const iterator_range<std::decay_t<V>>& rng, Args&&... args)->Result{
+  return {f(std::forward<R>(r), rng, std::forward<Args>(args)...)};
+}
 template<typename V, typename F, typename R, typename... Args, typename Result = std::decay_t<decltype(std::declval<F>()(std::declval<R>(), std::declval<iterator_range<std::decay_t<V>>>(), std::declval<Args>()...))>, std::enable_if_t<!veiler::is_expected<Result>::value && veiler::is_unexpected<Result>::value, std::nullptr_t> = nullptr>
 constexpr auto action_impl(veiler::prometheus<1>, F&& f, R&& r, const iterator_range<std::decay_t<V>>& rng, Args&&... args)->veiler::expected<unit, parse_error<std::decay_t<V>>>{
   return {f(std::forward<R>(r), rng, std::forward<Args>(args)...)};
