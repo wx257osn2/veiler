@@ -435,7 +435,7 @@ constexpr auto operator|(T&& t, U&& u){
 }
 
 namespace detail{
-template<typename T, typename U>
+template<typename T, typename U, typename = void>
 struct seq_result{
   using type = std::tuple<T, U>;
   template<typename T_, typename U_>
@@ -483,7 +483,7 @@ struct seq_result<unit, unit>{
   static constexpr type make(unit, unit){return {};}
 };
 template<typename... Ts, typename U>
-struct seq_result<std::tuple<Ts...>, U>{
+struct seq_result<std::tuple<Ts...>, U, std::enable_if_t<!std::is_same<std::vector<std::tuple<Ts...>>, U>::value && !std::is_same<U, unit>::value>>{
   using type = std::tuple<Ts..., U>;
   template<typename U_>
   static constexpr type make(const std::tuple<Ts...>& ts, U_&& u){return std::tuple_cat(ts, std::make_tuple(std::forward<U_>(u)));}
@@ -491,24 +491,12 @@ struct seq_result<std::tuple<Ts...>, U>{
   static constexpr type make(std::tuple<Ts...>&& ts, U_&& u){return std::tuple_cat(std::move(ts), std::make_tuple(std::forward<U_>(u)));}
 };
 template<typename T, typename... Us>
-struct seq_result<T, std::tuple<Us...>>{
+struct seq_result<T, std::tuple<Us...>, std::enable_if_t<!std::is_same<T, std::vector<std::tuple<Us...>>>::value && !std::is_same<T, unit>::value>>{
   using type = std::tuple<T, Us...>;
   template<typename T_>
   static constexpr type make(T_&& t, const std::tuple<Us...>& us){return std::tuple_cat(std::make_tuple(std::forward<T_>(t)), us);}
   template<typename T_>
   static constexpr type make(T_&& t, std::tuple<Us...>&& us){return std::tuple_cat(std::make_tuple(std::forward<T_>(t)), std::move(us));}
-};
-template<typename... Ts>
-struct seq_result<std::tuple<Ts...>, unit>{
-  using type = std::tuple<Ts...>;
-  static constexpr type make(const std::tuple<Ts...>& ts, unit){return ts;}
-  static constexpr type make(std::tuple<Ts...>&& ts, unit){return std::move(ts);}
-};
-template<typename... Us>
-struct seq_result<unit, std::tuple<Us...>>{
-  using type = std::tuple<Us...>;
-  static constexpr type make(unit, const std::tuple<Us...>& us){return us;}
-  static constexpr type make(unit, std::tuple<Us...>&& us){return std::move(us);}
 };
 template<typename... Ts, typename... Us>
 struct seq_result<std::tuple<Ts...>, std::tuple<Us...>>{
