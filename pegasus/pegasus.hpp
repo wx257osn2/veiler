@@ -1547,7 +1547,7 @@ struct eps_{
   struct cache_id{using type = void;};
   constexpr eps_() = default;
   template<typename S, typename Backup, typename Omittable, bool HasSkipper, typename Packrats, typename C, typename U, typename... Args>
-  constexpr veiler::expected<unit, parse_error<std::decay_t<U>>> operator()(S&& s, detail::adhoc_optimize_flag<Backup, Omittable, std::integral_constant<bool, HasSkipper>, Packrats> f, C&& c, U&& u, Args&&... args)const noexcept{
+  constexpr veiler::expected<unit, parse_error<std::decay_t<U>>> operator()(S&& s, [[maybe_unused]] detail::adhoc_optimize_flag<Backup, Omittable, std::integral_constant<bool, HasSkipper>, Packrats> f, C&& c, U&& u, Args&&... args)const noexcept{
     if constexpr(HasSkipper)
       detail::skip(c.skipper(), std::forward<S>(s), f, std::forward<C>(c), std::forward<U>(u), std::forward<Args>(args)...);
     return unit{};
@@ -1603,7 +1603,7 @@ struct lexeme_t{
     template<typename T_>
     constexpr lexeme(T_&& t):t{std::forward<T_>(t)}{}
     template<typename S, typename F, typename C, typename V, typename... Args>
-    constexpr auto operator()(S&& s, F&& f, C&& c, V&& v, Args&&... args)const->decltype(t(std::forward<S>(s), typename std::decay_t<F>::template skipper<false>{}, std::forward<C>(c), std::forward<V>(v), std::forward<Args>(args)...)){
+    constexpr auto operator()(S&& s, [[maybe_unused]] F&& f, C&& c, V&& v, Args&&... args)const->decltype(t(std::forward<S>(s), typename std::decay_t<F>::template skipper<false>{}, std::forward<C>(c), std::forward<V>(v), std::forward<Args>(args)...)){
       if constexpr(std::decay_t<F>::has_skipper::value){
         auto ret = t(std::forward<S>(s), typename std::decay_t<F>::template skipper<false>{}, std::forward<C>(c), std::forward<V>(v), std::forward<Args>(args)...);
         if(ret)
