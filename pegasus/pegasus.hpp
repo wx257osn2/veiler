@@ -343,6 +343,79 @@ struct alter_result<std::variant<Ts...>, std::optional<U>>{
     return std::nullopt;
   }
 };
+template<typename... Ts, typename U>
+struct alter_result<std::optional<std::variant<Ts...>>, U>{
+  using type = std::optional<typename alter_result<std::variant<Ts...>, U>::type>;
+  static type make(const std::optional<std::variant<Ts...>>& ts){
+    if(ts)
+      return std::visit([](const auto& v){return type{v};}, *ts);
+    return std::nullopt;
+  }
+  static type make(std::optional<std::variant<Ts...>>&& ts){
+    if(ts)
+      return std::visit([](auto&& v){return type{std::move(v)};}, *ts);
+    return std::nullopt;
+  }
+  template<typename T_>
+  static constexpr type make(T_&& t){return std::forward<T_>(t);}
+};
+template<typename T, typename... Us>
+struct alter_result<T, std::optional<std::variant<Us...>>>{
+  using type = std::optional<typename alter_result<T, std::variant<Us...>>::type>;
+  template<typename T_>
+  static constexpr type make(T_&& t){return std::forward<T_>(t);}
+  static type make(const std::optional<std::variant<Us...>>& us){
+    if(us)
+      return std::visit([](const auto& v){return type{v};}, *us);
+    return std::nullopt;
+  }
+  static type make(std::optional<std::variant<Us...>>&& us){
+    if(us)
+      return std::visit([](auto&& v){return type{std::move(v)};}, *us);
+    return std::nullopt;
+  }
+};
+template<typename... Ts>
+struct alter_result<std::optional<std::variant<Ts...>>, unit>{
+  using type = std::optional<std::variant<Ts...>>;
+  static type make(const std::optional<std::variant<Ts...>>& ts){return ts;}
+  static type make(std::optional<std::variant<Ts...>>&& ts){return std::move(ts);}
+  static constexpr type make(unit){return std::nullopt;}
+};
+template<typename... Us>
+struct alter_result<unit, std::optional<std::variant<Us...>>> : alter_result<std::optional<std::variant<Us...>>, unit>{};
+template<typename... Ts, typename... Us>
+struct alter_result<std::optional<std::variant<Ts...>>, std::variant<Us...>>{
+  using type = std::optional<typename alter_result<std::variant<Ts...>, std::variant<Us...>>::type>;
+  static type make(const std::optional<std::variant<Ts...>>& ts){
+    if(ts)
+      return std::visit([](const auto& v){return type{v};}, *ts);
+    return std::nullopt;
+  }
+  static type make(std::optional<std::variant<Ts...>>&& ts){
+    if(ts)
+      return std::visit([](auto&& v){return type{std::move(v)};}, *ts);
+    return std::nullopt;
+  }
+  static type make(const std::variant<Us...>& us){return std::visit([](const auto& v){return type{v};}, us);}
+  static type make(std::variant<Us...>&& us){return std::visit([](auto&& v){return type{std::move(v)};}, us);}
+};
+template<typename... Ts, typename... Us>
+struct alter_result<std::variant<Ts...>, std::optional<std::variant<Us...>>>{
+  using type = std::optional<typename alter_result<std::variant<Ts...>, std::variant<Us...>>::type>;
+  static type make(const std::variant<Ts...>& ts){return std::visit([](const auto& v){return type{v};}, ts);}
+  static type make(std::variant<Ts...>&& ts){return std::visit([](auto&& v){return type{std::move(v)};}, ts);}
+  static type make(const std::optional<std::variant<Us...>>& us){
+    if(us)
+      return std::visit([](const auto& v){return type{v};}, *us);
+    return std::nullopt;
+  }
+  static type make(std::optional<std::variant<Us...>>&& us){
+    if(us)
+      return std::visit([](auto&& v){return type{std::move(v)};}, *us);
+    return std::nullopt;
+  }
+};
 
 template<typename Packrats, typename T>
 struct packrat_hash_impl{
