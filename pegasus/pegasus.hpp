@@ -660,7 +660,7 @@ class list{
   template<typename S, bool HasBackup, bool IsOmittable, typename Skip, typename Packrats, typename C, typename V, typename... Args>
   constexpr auto operator()(S&& s, detail::adhoc_optimize_flag<std::integral_constant<bool, HasBackup>, std::integral_constant<bool, IsOmittable>, Skip, Packrats> f, C&& c, V&& v, Args&&... args)const->veiler::expected<typename std::conditional_t<IsOmittable, veiler::detail::temple::type_wrapper<unit>, detail::list_result<std::decay_t<decltype(*t(s, f, c, v, args...))>>>::type, parse_error<std::decay_t<V>>>{
     using optim = detail::adhoc_optimize_flag<std::integral_constant<bool, HasBackup>, std::integral_constant<bool, IsOmittable>, Skip, Packrats>;
-    using lr = std::conditional_t<IsOmittable, unit, detail::list_result<std::decay_t<decltype(*t(s, f, c, v, args...))>>>;
+    using lr = std::conditional_t<IsOmittable, veiler::detail::temple::type_wrapper<unit>, detail::list_result<std::decay_t<decltype(*t(s, f, c, v, args...))>>>;
     typename lr::type vec [[maybe_unused]];
     {
       auto ret = t(std::forward<S>(s), f, std::forward<C>(c), std::forward<V>(v), std::forward<Args>(args)...);
