@@ -822,6 +822,105 @@ constexpr auto operator+(T&& t){
 }
 
 template<typename T>
+class loop1{
+  std::size_t n;
+  T t;
+ public:
+  template<typename... Ts>
+  struct cache{using type = typename T::template cache<Ts...>::type;};
+  template<typename P, typename Q>
+  struct cache_id{using type = detail::cache_id<T, P, Q>;};
+  template<typename T_>
+  constexpr loop1(std::size_t n, T_&& t):n{n}, t{std::forward<T_>(t)}{}
+  template<typename S, bool HasBackup, bool IsOmittable, typename Skip, typename Packrats, typename C, typename V, typename... Args>
+  constexpr auto operator()(S&& s, detail::adhoc_optimize_flag<std::integral_constant<bool, HasBackup>, std::integral_constant<bool, IsOmittable>, Skip, Packrats> f, C&& c, V&& v, Args&&... args)const->veiler::expected<typename std::conditional_t<IsOmittable, veiler::detail::temple::type_wrapper<unit>, detail::list_result<std::decay_t<decltype(*t(s, f, c, v, args...))>>>::type, parse_error<std::decay_t<V>>>{
+    using optim = detail::adhoc_optimize_flag<std::integral_constant<bool, HasBackup>, std::integral_constant<bool, IsOmittable>, Skip, Packrats>;
+    if constexpr(!HasBackup){
+      const auto backup = v;
+      return (*this)(std::forward<S>(s), typename optim::template backup<true>{}, std::forward<C>(c).backup(backup), std::forward<V>(v), std::forward<Args>(args)...);
+    }
+    else{
+      using lr = std::conditional_t<IsOmittable, veiler::detail::temple::type_wrapper<unit>, detail::list_result<std::decay_t<decltype(*t(s, f, c, v, args...))>>>;
+      typename lr::type vec [[maybe_unused]];
+      const auto& backup = c.backup();
+      for(auto m = n; m --> 0;){
+        auto ret = t(std::forward<S>(s), typename optim::template backup<false>{}, std::forward<C>(c), std::forward<V>(v), std::forward<Args>(args)...);
+        if(ret){
+          if constexpr(not IsOmittable)
+            vec = lr::make(std::move(vec), std::move(*ret));
+          continue;
+        }
+        v = backup;
+        if constexpr(IsOmittable && std::is_same<std::decay_t<decltype(*ret)>, unit>::value)
+          return ret;
+        else
+          return veiler::make_unexpected(std::move(ret.error()));
+      }
+      if constexpr(IsOmittable)
+        return {};
+      else
+        return vec;
+    }
+  }
+};
+template<typename T, std::enable_if_t<is_matcha<T>::value>* = nullptr>
+constexpr auto loop(std::size_t n, T&& t){
+  return matcha<loop1<decltype(veiler::pegasus::getea(std::forward<T>(t)))>>{loop1<decltype(veiler::pegasus::getea(std::forward<T>(t)))>{n, veiler::pegasus::getea(std::forward<T>(t))}};
+}
+
+template<typename T, typename U>
+class loop2{
+  T t;
+  U u;
+ public:
+  template<typename... Ts>
+  struct cache{using type = typename T::template cache<Ts...>::type;};
+  template<typename P, typename Q>
+  struct cache_id{using type = detail::cache_id<T, P, Q>;};
+  template<typename T_, typename U_>
+  constexpr loop2(T_&& t, U_&& u):t{std::forward<T_>(t)}, u{std::forward<U_>(u)}{}
+  template<typename S, bool HasBackup, bool IsOmittable, typename Skip, typename Packrats, typename C, typename V, typename... Args>
+  constexpr auto operator()(S&& s, detail::adhoc_optimize_flag<std::integral_constant<bool, HasBackup>, std::integral_constant<bool, IsOmittable>, Skip, Packrats> f, C&& c, V&& v, Args&&... args)const->veiler::expected<typename std::conditional_t<IsOmittable, veiler::detail::temple::type_wrapper<unit>, detail::list_result<std::decay_t<decltype(*t(s, f, c, v, args...))>>>::type, parse_error<std::decay_t<V>>>{
+    using optim = detail::adhoc_optimize_flag<std::integral_constant<bool, HasBackup>, std::integral_constant<bool, IsOmittable>, Skip, Packrats>;
+    if constexpr(!HasBackup){
+      const auto backup = v;
+      return (*this)(std::forward<S>(s), typename optim::template backup<true>{}, std::forward<C>(c).backup(backup), std::forward<V>(v), std::forward<Args>(args)...);
+    }
+    else{
+      using lr = std::conditional_t<IsOmittable, veiler::detail::temple::type_wrapper<unit>, detail::list_result<std::decay_t<decltype(*t(s, f, c, v, args...))>>>;
+      typename lr::type vec [[maybe_unused]];
+      const auto& backup = c.backup();
+      auto ret = u(std::forward<S>(s), typename optim::template omittable<false>{}, std::forward<C>(c), std::forward<V>(v), std::forward<Args>(args)...);
+      if(!ret){
+        v = backup;
+        return veiler::make_unexpected(std::move(ret.error()));
+      }
+      for(auto n = *ret; n --> 0;){
+        auto ret = t(std::forward<S>(s), typename optim::template backup<false>{}, std::forward<C>(c), std::forward<V>(v), std::forward<Args>(args)...);
+        if(ret){
+          if constexpr(not IsOmittable)
+            vec = lr::make(std::move(vec), std::move(*ret));
+          continue;
+        }
+        v = backup;
+        if constexpr(IsOmittable && std::is_same<std::decay_t<decltype(*ret)>, unit>::value)
+          return ret;
+        else
+          return veiler::make_unexpected(std::move(ret.error()));
+      }
+      if constexpr(IsOmittable)
+        return {};
+      else
+        return vec;
+    }
+  }
+};
+template<typename U, typename T, std::enable_if_t<is_matcha<U>::value && is_matcha<T>::value>* = nullptr>
+constexpr auto loop(U&& u, T&& t){
+  return matcha<loop2<decltype(veiler::pegasus::getea(std::forward<T>(t))), decltype(veiler::pegasus::getea(std::forward<U>(u)))>>{loop2<decltype(veiler::pegasus::getea(std::forward<T>(t))), decltype(veiler::pegasus::getea(std::forward<U>(u)))>{veiler::pegasus::getea(std::forward<T>(t)), veiler::pegasus::getea(std::forward<U>(u))}};
+}
+
+template<typename T>
 class may{
   T t;
  public:
