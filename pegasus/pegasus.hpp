@@ -1660,25 +1660,26 @@ class filter_{
   struct cache_id{using type = void;};
   template<typename F_>
   constexpr filter_(F_&& f):f{std::forward<F_>(f)}{}
-  template<typename S, typename Backup, bool IsOmittable, bool HasSkipper, typename Packrats, typename C, typename U, typename V, typename... Args>
-  constexpr auto operator()(S&& s, [[maybe_unused]] detail::adhoc_optimize_flag<Backup, std::integral_constant<bool, IsOmittable>, std::integral_constant<bool, HasSkipper>, Packrats> of, C&& c, U&& u, V&& v, Args&&... args)const->veiler::expected<std::conditional_t<IsOmittable, unit, std::decay_t<U>>, parse_error<std::decay_t<U>>>{
-    if(u == v)
-      return veiler::make_unexpected(error_type::reach_end{});
-    auto copied = u;
-    if(!f(copied, std::forward<V>(v), std::forward<Args>(args)...))
-      return veiler::make_unexpected(error_type::not_match<std::decay_t<U>>{std::forward<U>(u)});
-    if constexpr(IsOmittable){
-      ++u;
-      if constexpr(HasSkipper)
-        detail::skip(c.skipper(), std::forward<S>(s), of, std::forward<C>(c), std::forward<U>(u), std::forward<V>(v), std::forward<Args>(args)...);
-      return {};
+  template<typename S, bool HasBackup, bool IsOmittable, bool HasSkipper, typename Packrats, typename C, typename U, typename V, typename... Args>
+  constexpr auto operator()(S&& s, [[maybe_unused]] detail::adhoc_optimize_flag<std::integral_constant<bool, HasBackup>, std::integral_constant<bool, IsOmittable>, std::integral_constant<bool, HasSkipper>, Packrats> of, C&& c, U&& u, V&& v, Args&&... args)const->veiler::expected<std::conditional_t<IsOmittable, unit, std::decay_t<U>>, parse_error<std::decay_t<U>>>{
+    if constexpr(!HasBackup){
+      const auto backup = u;
+      return (*this)(std::forward<S>(s), typename decltype(of)::template backup<true>{}, std::forward<C>(c).backup(backup), std::forward<U>(u), std::forward<V>(v), std::forward<Args>(args)...);
     }
     else{
-      copied = u;
-      ++u;
+      if(u == v)
+        return veiler::make_unexpected(error_type::reach_end{});
+      const auto& copied = c.backup();
+      if(!f(std::forward<U>(u), std::forward<V>(v), std::forward<Args>(args)...)){
+        u = copied;
+        return veiler::make_unexpected(error_type::not_match<std::decay_t<U>>{std::forward<U>(u)});
+      }
       if constexpr(HasSkipper)
         detail::skip(c.skipper(), std::forward<S>(s), of, std::forward<C>(c), std::forward<U>(u), std::forward<V>(v), std::forward<Args>(args)...);
-      return copied;
+      if constexpr(IsOmittable)
+        return {};
+      else
+        return copied;
     }
   }
 };
