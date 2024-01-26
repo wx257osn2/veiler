@@ -31,11 +31,11 @@ class integer_at{
 };
 
 template<typename T,std::make_signed_t<typename T::value_type>>struct make_integer_range_next;
-template<typename I, I... Indices, std::make_signed_t<I> Next>
+template<typename I, I... Indices, std::make_signed_t<typename std::integer_sequence<I, Indices...>::value_type> Next>
 struct make_integer_range_next<std::integer_sequence<I, Indices...>, Next>{using type = std::integer_sequence<I, Indices..., (Indices+Next)...>;};
 
 template<typename T,std::make_signed_t<typename T::value_type>,typename T::value_type>struct make_integer_range_next_;
-template<typename I, I... Indices, std::make_signed_t<I> Next, I Tail>
+template<typename I, I... Indices, std::make_signed_t<typename std::integer_sequence<I, Indices...>::value_type> Next, typename std::integer_sequence<I, Indices...>::value_type Tail>
 struct make_integer_range_next_<std::integer_sequence<I, Indices...>, Next, Tail>{using type = std::integer_sequence<I, Indices..., (Indices+Next)..., Tail>;};
 
 template<typename I,I,std::make_signed_t<I>,std::make_signed_t<I>,typename = void>struct make_integer_range_impl;
