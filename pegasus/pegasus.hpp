@@ -715,7 +715,7 @@ class minus{
   template<typename S, typename F, typename C, typename V, typename... Args>
   constexpr auto operator()(S&& s, F&& f, C&& c, V&& v, Args&&... args)const->decltype(t(s, f, c, v, args...)){
     auto copied_v = v;
-    bool u_ret = u(std::forward<S>(s), typename std::decay_t<F>::template omittable<true>{}, std::forward<C>(c), copied_v, std::forward<Args>(args)...);
+    bool u_ret = static_cast<bool>(u(std::forward<S>(s), typename std::decay_t<F>::template omittable<true>{}, std::forward<C>(c), copied_v, std::forward<Args>(args)...));
     if(u_ret)
       return veiler::make_unexpected(error_type::not_match<std::decay_t<V>>{v});
     return t(std::forward<S>(s), typename std::decay_t<F>::template backup<false>{}, std::forward<C>(c), std::forward<V>(v), std::forward<Args>(args)...);
