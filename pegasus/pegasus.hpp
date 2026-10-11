@@ -1844,8 +1844,8 @@ class parsers{
       return p;\
     }\
     template<typename TopType, typename Q, typename... Ts>\
-    struct cache{using _deftype = decltype(veiler::pegasus::getea(_implname::def()));using type = VEILER_PELOPS_ULLR_EXP cache_type_;};\
-    template<typename P, typename Q, typename _deftype = decltype(veiler::pegasus::getea(_implname::def()))>\
+    struct cache{using _deftype = decltype(veiler::pegasus::getea(std::conditional_t<true, _implname, Q>::def()));using type = VEILER_PELOPS_ULLR_EXP cache_type_;};\
+    template<typename P, typename Q, typename _deftype = decltype(veiler::pegasus::getea(std::conditional_t<true, _implname, Q>::def()))>\
     struct cache_id{using type = VEILER_PELOPS_ULLR_EXP cache_id_;};\
     template<typename S, typename F, typename C, typename V, typename... Args>\
     constexpr VEILER_PELOPS_ULLR_EXP type_ operator()(S&& s, F&& f, C&& c, V&& v, Args&&... args)const{\
