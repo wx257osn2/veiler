@@ -1834,7 +1834,7 @@ class parsers{
     return self;
   }
 };
-#define VEILER_DETAIL_MATCHA_RULE_IMPL(name, type_, cache_type_, cache_id_, f_, ...) \
+#define VEILER_DETAIL_MATCHA_RULE_IMPL(name, constexpr_, type_, cache_type_, cache_id_, f_, ...) \
   private:\
   struct impl##name{\
     using _implname = impl##name;\
@@ -1848,13 +1848,18 @@ class parsers{
     template<typename P, typename Q, typename _deftype = decltype(veiler::pegasus::getea(std::conditional_t<true, _implname, Q>::def()))>\
     struct cache_id{using type = VEILER_PELOPS_ULLR_EXP cache_id_;};\
     template<typename S, typename F, typename C, typename V, typename... Args>\
-    constexpr VEILER_PELOPS_ULLR_EXP type_ operator()(S&& s, F&& f, C&& c, V&& v, Args&&... args)const{\
+    constexpr_ VEILER_PELOPS_ULLR_EXP type_ operator()(S&& s, F&& f, C&& c, V&& v, Args&&... args)const{\
       return veiler::pegasus::getea(def())(std::forward<S>(s), std::forward<F>(f), std::forward<C>(c), std::forward<V>(v), std::forward<Args>(args)...);\
     }\
   };\
   veiler::pegasus::matcha<impl##name> name = veiler::pegasus::matcha<impl##name>{impl##name{}};
-#define VEILER_PEGASUS_RULE(name, result_type, ...) VEILER_DETAIL_MATCHA_RULE_IMPL(name, (veiler::expected<std::conditional_t<std::decay_t<F>::is_omittable::value, veiler::pegasus::unit, result_type>, veiler::pegasus::parse_error<std::decay_t<V>>>), (typename std::conditional<veiler::pegasus::detail::packrat_cache_type_sentinel<Q, _implname>::value, veiler::detail::temple::type_wrapper<void>, typename _deftype::template cache<TopType, veiler::add_type<Q, _implname>, Ts...>>::type::type), (veiler::pegasus::detail::cache_id<_deftype, P, veiler::add_type<Q, _implname>>), veiler::pegasus::packrat_with_tag<_implname>, __VA_ARGS__)
-#define VEILER_PEGASUS_AUTO_RULE(name, ...) VEILER_DETAIL_MATCHA_RULE_IMPL(name, (auto), (std::conditional_t<veiler::pegasus::detail::packrat_cache_type_sentinel<Q, _implname>::value, void, typename _deftype::template cache<TopType, veiler::add_type<Q, _implname>, Ts...>::type>), (veiler::pegasus::detail::cache_id<_deftype, P, veiler::add_type<Q, _implname>>), veiler::pegasus::packrat_with_tag<_implname>, __VA_ARGS__)
+#ifdef __clang__
+#define VEILER_PEGASUS_RULE(name, result_type, ...) VEILER_DETAIL_MATCHA_RULE_IMPL(name,, (veiler::expected<std::conditional_t<std::decay_t<F>::is_omittable::value, veiler::pegasus::unit, result_type>, veiler::pegasus::parse_error<std::decay_t<V>>>), (typename std::conditional<veiler::pegasus::detail::packrat_cache_type_sentinel<Q, _implname>::value, veiler::detail::temple::type_wrapper<void>, typename _deftype::template cache<TopType, veiler::add_type<Q, _implname>, Ts...>>::type::type), (veiler::pegasus::detail::cache_id<_deftype, P, veiler::add_type<Q, _implname>>), veiler::pegasus::packrat_with_tag<_implname>, __VA_ARGS__)
+#define VEILER_PEGASUS_AUTO_RULE(name, ...) VEILER_DETAIL_MATCHA_RULE_IMPL(name,, (auto), (std::conditional_t<veiler::pegasus::detail::packrat_cache_type_sentinel<Q, _implname>::value, void, typename _deftype::template cache<TopType, veiler::add_type<Q, _implname>, Ts...>::type>), (veiler::pegasus::detail::cache_id<_deftype, P, veiler::add_type<Q, _implname>>), veiler::pegasus::packrat_with_tag<_implname>, __VA_ARGS__)
+#else
+#define VEILER_PEGASUS_RULE(name, result_type, ...) VEILER_DETAIL_MATCHA_RULE_IMPL(name, constexpr, (veiler::expected<std::conditional_t<std::decay_t<F>::is_omittable::value, veiler::pegasus::unit, result_type>, veiler::pegasus::parse_error<std::decay_t<V>>>), (typename std::conditional<veiler::pegasus::detail::packrat_cache_type_sentinel<Q, _implname>::value, veiler::detail::temple::type_wrapper<void>, typename _deftype::template cache<TopType, veiler::add_type<Q, _implname>, Ts...>>::type::type), (veiler::pegasus::detail::cache_id<_deftype, P, veiler::add_type<Q, _implname>>), veiler::pegasus::packrat_with_tag<_implname>, __VA_ARGS__)
+#define VEILER_PEGASUS_AUTO_RULE(name, ...) VEILER_DETAIL_MATCHA_RULE_IMPL(name, constexpr, (auto), (std::conditional_t<veiler::pegasus::detail::packrat_cache_type_sentinel<Q, _implname>::value, void, typename _deftype::template cache<TopType, veiler::add_type<Q, _implname>, Ts...>::type>), (veiler::pegasus::detail::cache_id<_deftype, P, veiler::add_type<Q, _implname>>), veiler::pegasus::packrat_with_tag<_implname>, __VA_ARGS__)
+#endif
 #define VEILER_PEGASUS_INLINE_RULE(name, ...)\
  private:\
   static constexpr auto impl##name = [](){\
