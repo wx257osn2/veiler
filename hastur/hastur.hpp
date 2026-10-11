@@ -6,12 +6,13 @@
 #define VEILER_HASTUR_HPP_INCLUDED
 
 #include<utility>
+#include<veiler/pelops/ullr.hpp>
 #include<veiler/prometheus.hpp>
 
 namespace veiler{
 
 #define VEILER_HASTUR_TAG_CREATE(name)\
-  struct{\
+  struct VEILER_PELOPS_ULLR_CAT(veiler_hastur_tag, name){\
     template<typename T, typename = typename T::name>\
      static auto type(T x,veiler::prometheus<1>) -> std::true_type;\
     template<typename T>\
